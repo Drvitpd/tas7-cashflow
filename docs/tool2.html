@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<title>จัดกิจกรรมกระแสเงินสด</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: brand band, header, policy bar; item list (left) + totals and decision flow (right); stacks on phone */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8;
+  --on-accent:#ffffff;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; --on-accent:#0f141b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; --on-accent:#0f141b; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;overflow-wrap:anywhere;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px;min-width:0}
+.wrap>*{min-width:0}
+.brand{color-scheme:light}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+.lead{color:var(--muted);max-width:72ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted)}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet);max-width:100%}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.seg button:disabled{cursor:default}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn:focus-visible,.seg button:focus-visible,select:focus-visible,.ch:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.side{display:grid;gap:20px;min-width:0}
+@media (min-width:901px){.side{position:sticky;top:12px}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+@media (max-width:480px){.panel{padding:14px}}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.hint{font-size:.84rem;color:var(--muted)}
+.howto ol{margin:8px 0 0;padding-left:1.3em}
+.howto li{margin:2px 0}
+.howto summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+/* policy bar */
+.pol{display:grid;gap:12px}
+.pol-sel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px}
+@media (max-width:640px){.pol-sel{grid-template-columns:1fr}}
+.pol-sel label{display:grid;gap:3px;font-size:.84rem;color:var(--muted);min-width:0}
+.pol-sel select{font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+.pol-sel select:disabled{opacity:.7}
+.pol-note{font-size:.84rem;color:var(--muted);border-left:3px solid var(--warn);background:var(--warn-soft);padding:8px 12px;border-radius:0 8px 8px 0}
+.pol-note b{color:var(--ink)}
+/* item list */
+.list{display:grid;gap:0}
+.item{padding:12px 6px;border-top:1px solid var(--rule-soft);border-radius:6px;display:grid;gap:8px}
+.item:first-child{border-top:0}
+.item[aria-current="true"]{background:var(--accent-soft)}
+.item-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;cursor:pointer}
+.num{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);min-width:1.8em}
+.nm{font-weight:500;min-width:0}
+.amt{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.pchip{font-size:.72rem;border-radius:5px;padding:0 6px;background:var(--warn-soft);color:var(--warn);margin-left:6px;white-space:nowrap}
+.choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media (max-width:560px){.choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ch{font:inherit;font-size:.84rem;line-height:1.3;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:7px;padding:7px 6px;cursor:pointer;min-width:0}
+.ch[aria-checked="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+.ch[aria-checked="true"].good{background:var(--pass);border-color:var(--pass)}
+.ch[aria-checked="true"].bad{background:var(--fail);border-color:var(--fail)}
+.fb{font-size:.86rem;border-radius:0 8px 8px 0;padding:8px 12px;border-left:3px solid}
+.fb.ok{background:var(--pass-soft);border-color:var(--pass)}
+.fb.no{background:var(--fail-soft);border-color:var(--fail)}
+.fb .v{font-weight:600}
+.fb.ok .v{color:var(--pass)} .fb.no .v{color:var(--fail)}
+.ref{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.status{font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;margin-left:4px;white-space:nowrap}
+.s-ok{background:var(--pass-soft);color:var(--pass)} .s-chk{background:var(--warn-soft);color:var(--warn)}
+/* totals */
+table.t{width:100%;border-collapse:collapse;font-size:.9rem;table-layout:fixed}
+table.t th,table.t td{padding:7px 6px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table.t th{font-weight:500;color:var(--muted);font-size:.8rem}
+table.t .n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr.tot td{font-weight:600;border-top:1.5px solid var(--ink);border-bottom:0}
+table.t tr.cur td{background:var(--accent-soft)}
+.match{margin-top:10px;font-size:.86rem;border-radius:8px;padding:8px 12px}
+.match.ok{background:var(--pass-soft);color:var(--pass)}
+.match.wait{background:var(--paper);color:var(--muted);border:1px solid var(--rule)}
+.match.no{background:var(--warn-soft);color:var(--warn)}
+.score{font-family:var(--f-display);font-weight:600}
+.bar{height:6px;border-radius:3px;background:var(--rule-soft);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--pass);width:0}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .2s}.ch{transition:background .12s,border-color .12s}}
+/* flow */
+.flow{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.fs{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start;font-size:.88rem;color:var(--muted)}
+.fs .d{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700;font-family:var(--f-mono);background:var(--paper);border:1px solid var(--rule)}
+.fs.on{color:var(--ink)}
+.fs.on .d{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.fs.end .d{background:var(--pass);border-color:var(--pass);color:var(--on-accent)}
+.fs .a{font-weight:600}
+.foot{font-size:.8rem;color:var(--muted);max-width:90ch;display:grid;gap:4px}
+.foot p{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+
+<div class="wrap">
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <a href="index.html" title="หน้าแรกของแอป"><img src="logo.png" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block"></a>
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร<br>อาจารย์พงษ์ธร ดวงปัญญา<br><a href="index.html" style="color:#1D3E9E">กลับหน้าแรกของแอป</a></span>
+</div>
+
+  <header>
+    <div class="eyebrow">เครื่องมือที่ 2 · บทที่ 3 · TAS 7 ย่อหน้า 6, 12, 14–17, 31–36, 43</div>
+    <h1>จัดกิจกรรมกระแสเงินสด</h1>
+    <p class="lead">จัดรายการเงินสดรับจ่ายปี 2569 ของบริษัท สยามตัวอย่าง จำกัด (มหาชน) เข้ากิจกรรมดำเนินงาน ลงทุน หรือจัดหาเงิน หรือระบุว่าไม่ใช่เงินสดและไม่แสดงในงบ ชุดรายการเดียวกับตัวอย่าง "รายการปี 2569" ในบทที่ 3 หน่วยเป็นพันบาท</p>
+    <div class="los" aria-label="ผลลัพธ์การเรียนรู้ที่เครื่องมือนี้รองรับ">
+      <span class="lo"><b>LO3.1</b> ใช้ลำดับการคิด ลงทุนและจัดหาเงินก่อน ดำเนินงานเป็นประเภทที่เหลือ · เข้าใจ</span>
+      <span class="lo"><b>LO3.2</b> จำแนกรายการเงินสดรับจ่ายเข้าสามกิจกรรม · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO3.3</b> ใช้หลักสินทรัพย์ที่รับรู้ตามย่อหน้า 16 · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO3.6</b> ประเมินผลของนโยบายดอกเบี้ยและเงินปันผลต่อกระแสเงินสดจากการดำเนินงาน · ประเมินค่า</span>
+    </div>
+  </header>
+
+  <details class="panel howto" open>
+    <summary>วิธีใช้</summary>
+    <ol>
+      <li>กดเลือกกิจกรรมใต้แต่ละรายการ เครื่องมือตรวจกับเฉลยในเล่มทันที และแสดงเลขย่อหน้า TAS 7 ที่ใช้</li>
+      <li>ดูยอดรวมสามกิจกรรมที่สะสมตามคำตอบในแผงด้านขวา (บนโทรศัพท์อยู่ใต้รายการ) เมื่อตอบถูกครบ ยอดต้องเท่ากับตัวเลขในเล่ม</li>
+      <li>เปลี่ยน "นโยบาย" ดอกเบี้ยและเงินปันผล แล้วดูว่ารายการใดต้องเปลี่ยนกิจกรรม และยอดรวมเปลี่ยนเท่าใด เงินสดลดลงสุทธิยังเท่าเดิม</li>
+      <li>โหมดฝึกสุ่มลำดับรายการและล้างคำตอบ ใช้ทบทวนก่อนทำแบบฝึกหัด 3.2 และ 3.7 ซึ่งอยู่ท้ายหน้า</li>
+    </ol>
+  </details>
+
+  <section class="panel pol" aria-labelledby="h-pol">
+    <div class="panel-h" style="margin-bottom:0"><h2 id="h-pol">นโยบาย</h2><span class="hint">ทางเลือกตาม TAS 7 ย่อหน้า 33–34 · บทที่ 3 หัวข้อ 3.6 และบทที่ 10 หัวข้อ 10.2</span></div>
+    <div class="seg" role="group" aria-label="ชุดนโยบาย" id="presets"></div>
+    <div class="pol-sel">
+      <label>ดอกเบี้ยจ่าย (รายการ 5)<select id="p-ip"><option value="op">ดำเนินงาน</option><option value="fin">จัดหาเงิน</option></select></label>
+      <label>ดอกเบี้ยรับ (รายการ 9)<select id="p-ir"><option value="inv">ลงทุน</option><option value="op">ดำเนินงาน</option></select></label>
+      <label>เงินปันผลจ่าย (รายการ 14)<select id="p-dp"><option value="fin">จัดหาเงิน</option><option value="op">ดำเนินงาน</option></select></label>
+    </div>
+    <div class="pol-note" id="pol-note"></div>
+  </section>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="โหมด">
+      <button type="button" id="m-book" aria-pressed="true">ลำดับตามเล่ม</button>
+      <button type="button" id="m-prac" aria-pressed="false">โหมดฝึก: สุ่มลำดับ</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn" id="b-shuffle" hidden>สุ่มใหม่</button>
+      <button type="button" class="btn" id="b-key">แสดงเฉลยทั้งหมด</button>
+      <button type="button" class="btn" id="b-clear">ล้างคำตอบ</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-list">
+      <div class="panel-h"><h2 id="h-list">รายการปี 2569</h2><span class="hint">หน่วย: พันบาท · ตัวเลขในวงเล็บคือเงินจ่าย</span></div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <div class="side">
+      <section class="panel" aria-labelledby="h-tot" aria-live="polite">
+        <div class="panel-h"><h2 id="h-tot">ยอดรวมสามกิจกรรม</h2><span class="score" id="score"></span></div>
+        <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+        <table class="t" id="tot" style="margin-top:10px"></table>
+        <div id="match" class="match wait"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-flow">
+        <div class="panel-h" style="margin-bottom:4px"><h2 id="h-flow">ผังการตัดสินใจ</h2><span class="hint">บทที่ 3 ผังการตัดสินใจ</span></div>
+        <p class="hint" id="flow-for" style="margin:0"></p>
+        <ol class="flow" id="flow"></ol>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel" aria-labelledby="h-cmp">
+    <div class="panel-h"><h2 id="h-cmp">ผลของนโยบายต่อยอดสามกิจกรรม</h2><span class="hint">บทที่ 10 หัวข้อ 10.2 · พันบาท</span></div>
+    <table class="t" id="cmp"></table>
+    <p class="hint" id="range" style="margin:10px 0 0"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-ex">
+    <div class="panel-h"><h2 id="h-ex">ฝึกเพิ่ม: แบบฝึกหัด 3.2 และ 3.7</h2><span class="hint">ไม่รวมในยอดของบริษัท สยามตัวอย่าง</span></div>
+    <div class="list" id="ex"></div>
+  </section>
+
+  <footer class="foot">
+    <p>เครื่องมือนี้ประกอบบทที่ 3 การจัดประเภทกระแสเงินสดเป็นสามกิจกรรม ของคู่มือการจัดทำงบกระแสเงินสด TAS 7 สำหรับบริษัทจดทะเบียนและบริษัทจำกัด</p>
+    <p>เลขย่อหน้าอ้างอิง TAS 7 (ปรับปรุง 2567) ตามประกาศสภาวิชาชีพบัญชี ที่ 20/2567 ใช้เลขย่อหน้าย่อยแบบฉบับภาษาไทย เช่น 14.1 และ 16.3 นโยบาย D อ้างเลขย่อหน้าของ IAS 7 ฉบับแก้ไขตาม IFRS 18 ซึ่งยังไม่มีฉบับภาษาไทย ควรตรวจสอบกับตัวบทฉบับที่มีผลบังคับ ณ วันใช้งาน ถ้อยคำเป็นการสรุปของผู้เขียน ไม่ใช่ตัวบทมาตรฐาน บริษัทเป็นกิจการสมมติ เครื่องมือนี้ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ</p>
+    <p>© ดร.วิทยา อรุณศิริเพ็ชร และ อาจารย์พงษ์ธร ดวงปัญญา · เนื้อหาเป็นการถอดความของคณะผู้เขียน ไม่ใช่ถ้อยคำของมาตรฐาน</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const ACT={op:'ดำเนินงาน',inv:'ลงทุน',fin:'จัดหาเงิน',nc:'ไม่ใช่เงินสด / ไม่แสดงในงบ'};
+const ACT_SHORT={op:'ดำเนินงาน',inv:'ลงทุน',fin:'จัดหาเงิน',nc:'ไม่ใช่เงินสด'};
+const ORDER=['op','inv','fin','nc'];
+
+/* ชุดรายการตามตัวอย่าง "รายการปี 2569" บทที่ 3 (พันบาท) · book = คอลัมน์ "เหตุผล" ในเล่ม */
+const ITEMS=[
+ {id:1,name:'รับเงินจากลูกค้า',amt:11700,ans:'op',flow:'op4',book:'ย่อหน้า 14.1',para:'ย่อหน้า 14.1',
+  why:'เงินสดรับจากการขายสินค้าและการให้บริการ เป็นกิจกรรมหลักที่ก่อให้เกิดรายได้'},
+ {id:2,name:'จ่ายผู้ขายสินค้า',amt:-7950,ans:'op',flow:'op4',book:'ย่อหน้า 14.3',para:'ย่อหน้า 14.3',
+  why:'เงินสดจ่ายผู้ขายสินค้าและบริการเป็นกิจกรรมดำเนินงาน'},
+ {id:3,name:'จ่ายเงินเดือนและค่าใช้จ่ายดำเนินงาน',amt:-2100,ans:'op',flow:'op4',book:'ย่อหน้า 14.3–14.4',para:'ย่อหน้า 14.3–14.4',
+  why:'จ่ายผู้ขายบริการและจ่ายพนักงาน ไม่ทำให้เกิดสินทรัพย์ที่รับรู้ และไม่เกี่ยวกับผู้ให้ทุน'},
+ {id:4,name:'จ่ายผลประโยชน์หลังออกจากงาน',amt:-20,ans:'op',flow:'op4',book:'จ่ายพนักงาน',para:'ย่อหน้า 14.4',
+  why:'เงินจ่ายให้พนักงานและแทนพนักงาน ค่าใช้จ่ายที่รับรู้ 60 เป็นรายการปรับปรุงที่ไม่ใช่เงินสด เงินที่จ่ายจริงคือ 20 (บทที่ 4)'},
+ {id:5,name:'จ่ายดอกเบี้ยเงินกู้และดอกเบี้ยตามสัญญาเช่า',amt:-150,pol:'ip',flow:'pol',book:'นโยบายที่เลือก (ย่อหน้า 31–33)',para:'ย่อหน้า 31–33',
+  why:'กิจการทั่วไปเลือกจัดดอกเบี้ยจ่ายเป็นกิจกรรมดำเนินงานหรือจัดหาเงิน และต้องใช้อย่างสม่ำเสมอทุกงวด ดอกเบี้ยตามสัญญาเช่าใช้นโยบายเดียวกับดอกเบี้ยจ่าย ส่วนเงินต้นอยู่ในรายการ 13'},
+ {id:6,name:'จ่ายภาษีเงินได้',amt:-220,ans:'op',flow:'op4',book:'ย่อหน้า 35–36',para:'ย่อหน้า 35–36',
+  why:'ภาษีเงินได้เป็นกิจกรรมดำเนินงาน เว้นแต่ระบุได้เฉพาะเจาะจงว่าเกี่ยวกับกิจกรรมลงทุนหรือจัดหาเงิน ยอด 220 คือ ภ.ง.ด.50 ปี 2568 จำนวน 80 รวม ภ.ง.ด.51 ปี 2569 จำนวน 140 (บทที่ 10 หัวข้อ 10.3)'},
+ {id:7,name:'ซื้ออุปกรณ์',amt:-1500,ans:'inv',flow:'inv4',book:'สินทรัพย์ที่รับรู้',para:'ย่อหน้า 16.1',
+  why:'รายจ่ายทำให้เกิดที่ดิน อาคารและอุปกรณ์ที่รับรู้ในงบฐานะการเงิน จึงเป็นกิจกรรมลงทุน (ย่อหน้า 16)'},
+ {id:8,name:'ขายอุปกรณ์',amt:120,ans:'inv',flow:'inv4',book:'จำหน่ายสินทรัพย์ระยะยาว',para:'ย่อหน้า 16.2',
+  why:'เงินรับเต็มจำนวน 120 อยู่ในกิจกรรมลงทุน กำไรจากการขาย 40 ในงบกำไรขาดทุนไม่ใช่เหตุให้จัดเป็นกิจกรรมดำเนินงาน'},
+ {id:9,name:'รับดอกเบี้ยเงินฝาก',amt:30,pol:'ir',flow:'pol',book:'นโยบายที่เลือก',para:'ย่อหน้า 31, 33',
+  why:'กิจการทั่วไปเลือกจัดดอกเบี้ยรับเป็นกิจกรรมดำเนินงานหรือลงทุน ตัวอย่างนี้ถือว่าภาษีเงินได้หัก ณ ที่จ่ายจากดอกเบี้ยรับไม่มีสาระสำคัญ'},
+ {id:10,name:'วางเงินฝากค้ำประกัน',amt:-200,ans:'inv',flow:'inv4',book:'บทที่ 2',para:'ย่อหน้า 6–7, 16',
+  why:'เงินฝากที่มีภาระค้ำประกันถอนไม่ได้จนกว่าภาระสิ้นสุด จึงไม่ใช่เงินสดหรือรายการเทียบเท่าเงินสด (บทที่ 2) เงินที่นำไปวางเกิดสินทรัพย์ทางการเงินที่รับรู้ จึงแสดงในกิจกรรมลงทุน และต้องใช้อย่างสม่ำเสมอ'},
+ {id:11,name:'รับเงินกู้ยืมระยะยาว',amt:800,ans:'fin',flow:'fin3',book:'ย่อหน้า 17.3',para:'ย่อหน้า 17.3',
+  why:'เงินรับจากการกู้ยืมเกี่ยวกับผู้ให้ทุนของกิจการ แสดงยอดรวม ไม่หักกลบกับเงินชำระคืน (ย่อหน้า 21)'},
+ {id:12,name:'ชำระคืนเงินกู้ยืมระยะยาว',amt:-300,ans:'fin',flow:'fin3',book:'ย่อหน้า 17.4',para:'ย่อหน้า 17.4',
+  why:'เงินสดจ่ายชำระคืนเงินกู้ยืมเป็นกิจกรรมจัดหาเงิน'},
+ {id:13,name:'ชำระเงินต้นหนี้สินตามสัญญาเช่า',amt:-120,ans:'fin',flow:'fin3',book:'ย่อหน้า 17.5',para:'ย่อหน้า 17.5',
+  why:'เงินที่ผู้เช่าจ่ายเพื่อลดหนี้สินตามสัญญาเช่าเป็นกิจกรรมจัดหาเงิน ส่วนดอกเบี้ยใช้นโยบายของรายการ 5'},
+ {id:14,name:'จ่ายเงินปันผล',amt:-200,pol:'dp',flow:'pol',book:'นโยบายที่เลือก (ย่อหน้า 34)',para:'ย่อหน้า 34',
+  why:'เงินปันผลจ่ายจัดเป็นกิจกรรมจัดหาเงินหรือดำเนินงานก็ได้ ใช้อย่างสม่ำเสมอ'},
+ {id:15,name:'ได้มาซึ่งสินทรัพย์สิทธิการใช้',amt:400,ans:'nc',flow:'nc1',book:'รายการที่ไม่ใช่เงินสด (ย่อหน้า 43)',para:'ย่อหน้า 43',
+  why:'สินทรัพย์สิทธิการใช้และหนี้สินตามสัญญาเช่า 400 รับรู้พร้อมกันโดยไม่มีเงินสดเคลื่อนไหว ไม่แสดงในงบกระแสเงินสด และเปิดเผยภายใต้หัวข้อ "ข้อมูลกระแสเงินสดเปิดเผยเพิ่มเติม · รายการที่ไม่ใช่เงินสด"'}
+];
+/* แบบฝึกหัด 3.2 และ 3.7 (ไม่รวมในยอด) */
+const EX=[
+ {id:'e1',tag:'3.2 (ก)',name:'จ่ายเบี้ยประกันอัคคีภัยโรงงาน',ans:'op',flow:'op4',para:'ย่อหน้า 6, 14',
+  why:'ไม่เข้านิยามกิจกรรมลงทุนหรือจัดหาเงิน จึงเป็นกิจกรรมดำเนินงานซึ่งเป็นประเภทที่เหลือ (ย่อหน้า 14.5 ของ TAS 7 ฉบับภาษาไทยเป็น "ย่อหน้านี้ไม่ใช้")'},
+ {id:'e2',tag:'3.2 (ข)',name:'ให้บริษัทร่วมกู้ยืม 2 ล้านบาท',ans:'inv',flow:'inv4',para:'ย่อหน้า 16.5',
+  why:'เงินให้กู้ยืมแก่ผู้อื่นของกิจการที่ไม่ใช่สถาบันการเงินเป็นกิจกรรมลงทุน'},
+ {id:'e3',tag:'3.2 (ค)',name:'ซื้อหุ้นคืน 1 ล้านบาท',ans:'fin',flow:'fin3',para:'ย่อหน้า 17.2',
+  why:'เงินสดจ่ายให้เจ้าของเพื่อซื้อคืนหรือไถ่ถอนหุ้นของกิจการเป็นกิจกรรมจัดหาเงิน'},
+ {id:'e4',tag:'3.2 (ง)',name:'รับเงินคืนภาษีเงินได้ปีก่อน',ans:'op',flow:'op4',para:'ย่อหน้า 14.6, 35',
+  why:'เงินรับคืนภาษีเงินได้เป็นกิจกรรมดำเนินงาน เว้นแต่ระบุได้ว่าเกี่ยวกับกิจกรรมลงทุนหรือจัดหาเงิน'},
+ {id:'e5',tag:'3.7',name:'ซื้อรถยนต์เพื่อให้เช่าแก่ลูกค้าองค์กร 30 ล้านบาท (ให้เช่า 3 ปีแล้วขายเป็นปกติธุรกิจ)',ans:'op',flow:'op2',para:'ย่อหน้า 14',
+  why:'สินทรัพย์ที่ผลิตหรือซื้อเพื่อให้เช่าแล้วขายในการดำเนินงานปกติ เงินจ่ายเพื่อได้มาเป็นกิจกรรมดำเนินงาน'},
+ {id:'e6',tag:'3.7',name:'ขายรถยนต์เก่าที่ครบสัญญาเช่า 8 ล้านบาท',ans:'op',flow:'op2',para:'ย่อหน้า 14',
+  why:'เงินรับค่าเช่าและเงินรับจากการขายสินทรัพย์ที่ให้เช่าแล้วขายตามปกติธุรกิจเป็นกิจกรรมดำเนินงาน'}
+];
+
+const POLICIES={
+  A:{label:'ก ที่บริษัทใช้',ip:'op',ir:'inv',dp:'fin'},
+  B:{label:'ข ทุกรายการในดำเนินงาน',ip:'op',ir:'op',dp:'op'},
+  C:{label:'ค แยกตามผู้ให้ทุน',ip:'fin',ir:'inv',dp:'fin'},
+  D:{label:'ง TAS 7 ฉบับแก้ไขตาม TFRS 18',ip:'fin',ir:'inv',dp:'fin',locked:true}
+};
+const D_REF={ip:'IAS 7 ย่อหน้า 34A(a)',ir:'IAS 7 ย่อหน้า 34A(b)',dp:'IAS 7 ย่อหน้า 33A'};
+
+let pol={preset:'A',ip:'op',ir:'inv',dp:'fin'};
+let mode='book';
+let order=ITEMS.map(x=>x.id);
+let answers={}; let exAnswers={};
+let current=1; let currentSet='main';
+
+function loadMode(){try{const v=localStorage.getItem('tas7-tool2-mode');return v==='prac'?'prac':'book'}catch(e){return 'book'}}
+function saveMode(){try{localStorage.setItem('tas7-tool2-mode',mode)}catch(e){}}
+
+const $=id=>document.getElementById(id);
+const fmt=n=>{const s=Math.abs(Math.round(n)).toLocaleString('en-US');return n<0?'('+s+')':s};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const keyOf=(it,p)=>it.pol?(p||pol)[it.pol]:it.ans;
+const paraOf=it=>(it.pol&&pol.preset==='D')?D_REF[it.pol]:it.para;
+
+function totalsFor(p,source){
+  const t={op:0,inv:0,fin:0,nc:0,none:0};
+  ITEMS.forEach(it=>{
+    const k=source==='key'?keyOf(it,p):answers[it.id];
+    if(!k){t.none+=it.amt;return}
+    t[k]+=it.amt;
+  });
+  return t;
+}
+
+function shuffle(){
+  const a=ITEMS.map(x=>x.id);
+  do{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+  while(a.every((v,i)=>v===i+1));
+  order=a;
+}
+
+function choiceRow(set,it,picked){
+  const key=keyOf(it);
+  return `<div class="choices" role="radiogroup" aria-label="เลือกกิจกรรมสำหรับ ${esc(it.name)}">`+ORDER.map(k=>{
+    const on=picked===k;
+    const cls=on?(k===key?' good':' bad'):'';
+    return `<button type="button" class="ch${cls}" role="radio" aria-checked="${on}" data-set="${set}" data-id="${it.id}" data-k="${k}">${ACT_SHORT[k]}</button>`}).join('')+`</div>`;
+}
+function feedback(it,picked,showBook){
+  if(!picked) return '';
+  const key=keyOf(it), ok=picked===key;
+  const tfrs=it.pol&&pol.preset==='D';
+  const ref=tfrs?`<span class="ref">${esc(paraOf(it))}</span><span class="status s-chk">ฉบับแก้ไขตาม IFRS 18</span>`:`<span class="ref">TAS 7 ${esc(it.para)}</span>`;
+  const book=showBook?`<div class="ref">ในเล่ม: ${esc(it.book)}</div>`:'';
+  const polTxt=it.pol?`<div class="hint" style="margin-top:2px">นโยบายที่เลือกอยู่: ${esc(POLICIES[pol.preset]?POLICIES[pol.preset].label:'กำหนดเอง')}</div>`:'';
+  return `<div class="fb ${ok?'ok':'no'}"><span class="v">${ok?'ถูก':'ยังไม่ถูก'}</span> · ${ok?'':'เฉลย '}${ACT[key]} · ${ref}
+    <div>${esc(it.why)}</div>${book}${polTxt}</div>`;
+}
+
+function renderList(){
+  const L=$('list'); let h='';
+  const ids=mode==='prac'?order:ITEMS.map(x=>x.id);
+  ids.forEach((id,idx)=>{
+    const it=ITEMS.find(x=>x.id===id);
+    const picked=answers[id];
+    const shown=mode==='prac'?(idx+1):it.id;
+    h+=`<div class="item" data-row="${id}" aria-current="${currentSet==='main'&&current===id}">
+      <div class="item-top" data-focus="${id}"><span class="num">${shown}</span><span class="nm">${esc(it.name)}${it.pol?'<span class="pchip">ตามนโยบาย</span>':''}</span><span class="amt">${fmt(it.amt)}</span></div>
+      ${choiceRow('main',it,picked)}${feedback(it,picked,mode==='book')}</div>`;
+  });
+  L.innerHTML=h;
+}
+function renderEx(){
+  let h='';
+  EX.forEach(it=>{
+    const picked=exAnswers[it.id];
+    h+=`<div class="item" aria-current="${currentSet==='ex'&&current===it.id}">
+      <div class="item-top" data-focus-ex="${it.id}"><span class="num">${esc(it.tag)}</span><span class="nm">${esc(it.name)}</span><span class="amt"></span></div>
+      ${choiceRow('ex',it,picked)}${feedback(it,picked,false)}</div>`;
+  });
+  $('ex').innerHTML=h;
+}
+
+function renderTotals(){
+  const mine=totalsFor(pol,'ans'), key=totalsFor(pol,'key');
+  const n=ITEMS.length, done=ITEMS.filter(it=>answers[it.id]).length, right=ITEMS.filter(it=>answers[it.id]===keyOf(it)).length;
+  $('score').textContent=`ถูก ${right} จาก ${n}`;
+  $('bar').style.width=(right/n*100)+'%';
+  const row=(k,l)=>`<tr><td>${l}</td><td class="n" data-mine="${k}">${fmt(mine[k])}</td><td class="n" data-key="${k}">${fmt(key[k])}</td></tr>`;
+  const netM=mine.op+mine.inv+mine.fin, netK=key.op+key.inv+key.fin;
+  $('tot').innerHTML=`<colgroup><col><col style="width:30%"><col style="width:30%"></colgroup>
+    <thead><tr><th>กิจกรรม</th><th class="n">ตามคำตอบ</th><th class="n">เฉลย</th></tr></thead><tbody>
+    ${row('op','ดำเนินงาน')}${row('inv','ลงทุน')}${row('fin','จัดหาเงิน')}
+    <tr class="tot"><td>เงินสดฯ เพิ่มขึ้น (ลดลง) สุทธิ</td><td class="n" data-mine="net">${fmt(netM)}</td><td class="n" data-key="net">${fmt(netK)}</td></tr>
+    <tr><td class="hint">ไม่ใช่เงินสด เปิดเผยตามย่อหน้า 43</td><td class="n hint">${fmt(mine.nc)}</td><td class="n hint">${fmt(key.nc)}</td></tr>
+    <tr><td class="hint">ยังไม่จัด (${n-done} รายการ)</td><td class="n hint">${fmt(mine.none)}</td><td class="n hint">–</td></tr></tbody>`;
+  const M=$('match');
+  if(right===n){
+    M.className='match ok';
+    M.textContent=pol.preset==='A'
+      ?'ตอบถูกครบ ยอดตรงกับตัวอย่างในบทที่ 3 และงบในบทที่ 4: ดำเนินงาน 1,260 ลงทุน (1,550) จัดหาเงิน 180 เงินสดฯ ลดลงสุทธิ (110)'
+      :`ตอบถูกครบตามนโยบายที่เลือก ยอดดำเนินงาน ${fmt(key.op)} ต่างจากนโยบายของบริษัท ${fmt(key.op-1260)} แต่เงินสดฯ ลดลงสุทธิยังเป็น (110)`;
+  } else if(done===n){M.className='match no';M.textContent=`จัดครบแล้ว แต่ยังผิด ${n-right} รายการ ยอดจึงไม่ตรงกับเฉลย`}
+  else {M.className='match wait';M.textContent=`จัดแล้ว ${done} จาก ${n} รายการ ยอดตามคำตอบจะเท่ากับเฉลยเมื่อตอบถูกครบ`}
+}
+
+const FLOW=[
+  {q:'มีเงินสดหรือรายการเทียบเท่าเงินสดเคลื่อนไหวหรือไม่',no:'ไม่แสดงในงบ เปิดเผยตามย่อหน้า 43'},
+  {q:'เป็นรายการที่ถือไว้เพื่อค้า หรือสินทรัพย์ที่ให้เช่าแล้วขายตามปกติธุรกิจหรือไม่',yes:'ดำเนินงาน (ย่อหน้า 14–15)'},
+  {q:'เกี่ยวกับผู้ให้ทุน คือ เจ้าของ หรือเจ้าหนี้เงินกู้และหนี้สินตามสัญญาเช่า หรือไม่',yes:'จัดหาเงิน (ย่อหน้า 17) ยกเว้นดอกเบี้ยและเงินปันผลที่ใช้นโยบาย'},
+  {q:'รายจ่ายทำให้เกิดสินทรัพย์ที่รับรู้ หรือเงินรับมาจากการจำหน่ายสินทรัพย์ระยะยาวหรือเงินลงทุน หรือไม่',yes:'ลงทุน (ย่อหน้า 16)',no:'ดำเนินงาน ซึ่งเป็นประเภทที่เหลือ'}
+];
+function renderFlow(){
+  const it=currentSet==='ex'?EX.find(x=>x.id===current):ITEMS.find(x=>x.id===current);
+  const picked=currentSet==='ex'?exAnswers[current]:answers[current];
+  const reveal=!!picked;
+  $('flow-for').innerHTML=it?`รายการ: <b>${esc(it.name)}</b>${reveal?'':' · เลือกคำตอบก่อนเพื่อดูเส้นทาง'}`:'';
+  const f=it?it.flow:'';
+  // path: steps passed and end step
+  const plan={nc1:[1,'no'],op2:[2,'yes'],fin3:[3,'yes'],pol:[3,'pol'],inv4:[4,'yes'],op4:[4,'no']}[f]||[0];
+  $('flow').innerHTML=FLOW.map((s,i)=>{
+    const n=i+1, on=reveal&&n<=plan[0], end=reveal&&n===plan[0];
+    let a='';
+    if(on&&!end) a=n===1?'ใช่ ไปขั้นถัดไป':'ไม่ใช่ ไปขั้นถัดไป';
+    if(end){
+      if(plan[1]==='pol') a='ใช่ แต่เป็นดอกเบี้ยหรือเงินปันผล ใช้นโยบาย (ย่อหน้า 33–34) → '+ACT[keyOf(it)];
+      else a=(plan[1]==='yes'?'ใช่ → ':'ไม่ใช่ → ')+(plan[1]==='yes'?s.yes:s.no);
+    }
+    return `<li class="fs${on?' on':''}${end?' end':''}"><span class="d" aria-hidden="true">${n}</span><div>${esc(s.q)}${a?`<div class="a">${esc(a)}</div>`:''}</div></li>`}).join('');
+}
+
+function renderCmp(){
+  const rows=Object.entries(POLICIES).map(([k,p])=>{const t=totalsFor(p,'key');return {k,p,t}});
+  const cur=pol.preset;
+  let h=`<colgroup><col><col style="width:22%"><col style="width:22%"><col style="width:20%"></colgroup>
+  <thead><tr><th>นโยบาย</th><th class="n">ดำเนินงาน</th><th class="n">ลงทุน</th><th class="n">จัดหาเงิน</th></tr></thead><tbody>`;
+  rows.forEach(({k,p,t})=>{
+    h+=`<tr class="${k===cur?'cur':''}" data-pol="${k}"><td>${esc(p.label)}<div class="hint">ดอกเบี้ยจ่าย ${ACT[p.ip]} · ดอกเบี้ยรับ ${ACT[p.ir]} · ปันผลจ่าย ${ACT[p.dp]}</div></td><td class="n">${fmt(t.op)}</td><td class="n">${fmt(t.inv)}</td><td class="n">${fmt(t.fin)}</td></tr>`;
+  });
+  if(cur==='X'){const t=totalsFor(pol,'key');
+    h+=`<tr class="cur"><td>กำหนดเอง<div class="hint">ดอกเบี้ยจ่าย ${ACT[pol.ip]} · ดอกเบี้ยรับ ${ACT[pol.ir]} · ปันผลจ่าย ${ACT[pol.dp]}</div></td><td class="n">${fmt(t.op)}</td><td class="n">${fmt(t.inv)}</td><td class="n">${fmt(t.fin)}</td></tr>`}
+  $('cmp').innerHTML=h+'</tbody>';
+  // range over every combination allowed by paragraphs 33–34
+  let lo=Infinity,hi=-Infinity;
+  ['op','fin'].forEach(ip=>['op','inv'].forEach(ir=>['fin','op'].forEach(dp=>{const o=totalsFor({ip,ir,dp},'key').op;lo=Math.min(lo,o);hi=Math.max(hi,o)})));
+  $('range').innerHTML=`ทุกนโยบายให้เงินสดฯ ลดลงสุทธิ (110) เท่ากัน ถ้ารวมทุกการผสมที่ย่อหน้า 33–34 ยอมให้ กระแสเงินสดจากกิจกรรมดำเนินงานอยู่ระหว่าง <b id="r-lo">${fmt(lo)}</b> ถึง <b id="r-hi">${fmt(hi)}</b> พันบาท ต่างกัน ${fmt(hi-lo)} พันบาท หรือประมาณร้อยละ ${Math.round((hi-lo)/lo*100)} ของยอดต่ำสุด ตัวอย่างนี้ไม่มีเงินปันผลรับ ซึ่งจัดได้ทั้งดำเนินงานหรือลงทุน (ย่อหน้า 33)`;
+}
+
+function renderPolicy(){
+  $('presets').innerHTML=Object.entries(POLICIES).map(([k,p])=>`<button type="button" data-preset="${k}" aria-pressed="${pol.preset===k}">${esc(p.label)}</button>`).join('')
+    +`<button type="button" data-preset="X" aria-pressed="${pol.preset==='X'}" ${pol.preset==='X'?'':'disabled'} title="เลือกเองจากช่องด้านล่าง">กำหนดเอง</button>`;
+  ['ip','ir','dp'].forEach(k=>{const s=$('p-'+k);s.value=pol[k];s.disabled=pol.preset==='D'});
+  const N=$('pol-note');
+  if(pol.preset==='A') N.innerHTML='<b>นโยบายของบริษัทตามเล่ม:</b> ดอกเบี้ยจ่ายในกิจกรรมดำเนินงาน ดอกเบี้ยรับและเงินปันผลรับในกิจกรรมลงทุน เงินปันผลจ่ายในกิจกรรมจัดหาเงิน (ตัวอย่างรายการปี 2569 ในบทที่ 3 และบทที่ 4 หัวข้อ 4.2) ภาษีเงินได้อยู่ในกิจกรรมดำเนินงานทุกนโยบาย (ย่อหน้า 35)';
+  else if(pol.preset==='D') N.innerHTML='<b>กติกาใหม่ของกิจการทั่วไป:</b> ดอกเบี้ยจ่ายเป็นจัดหาเงิน (34A(a)) ดอกเบี้ยรับและเงินปันผลรับเป็นลงทุน (34A(b)) เงินปันผลจ่ายเป็นจัดหาเงิน (33A) มีผลกับรอบบัญชีที่เริ่มในหรือหลังวันที่ 1 มกราคม 2571 เลขย่อหน้าเป็นของ IAS 7 ฉบับแก้ไข ยังไม่มีฉบับภาษาไทย ควรตรวจสอบกับตัวบทฉบับที่มีผลบังคับ ณ วันใช้งาน ผลเท่ากับนโยบาย ค';
+  else N.innerHTML='<b>นโยบายนี้ต่างจากที่บริษัทใช้:</b> รายการ 5, 9 และ 14 อาจต้องเปลี่ยนกิจกรรม ตรวจคำตอบเดิมใหม่ การเปลี่ยนนโยบายจริงต้องทำตาม TAS 8 คือ ปรับตัวเลขเปรียบเทียบและเปิดเผยลักษณะ เหตุผล และจำนวน (บทที่ 10)';
+}
+
+function render(){
+  $('m-book').setAttribute('aria-pressed',mode==='book');
+  $('m-prac').setAttribute('aria-pressed',mode==='prac');
+  $('b-shuffle').hidden=mode!=='prac';
+  renderPolicy(); renderList(); renderEx(); renderTotals(); renderFlow(); renderCmp();
+}
+
+function setPreset(k){
+  if(k==='X') return;
+  const p=POLICIES[k]; pol={preset:k,ip:p.ip,ir:p.ir,dp:p.dp}; render();
+}
+function onSelect(){
+  pol.ip=$('p-ip').value; pol.ir=$('p-ir').value; pol.dp=$('p-dp').value;
+  const hit=Object.entries(POLICIES).find(([k,p])=>!p.locked&&p.ip===pol.ip&&p.ir===pol.ir&&p.dp===pol.dp);
+  pol.preset=hit?hit[0]:'X'; render();
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.ch');
+  if(b){
+    const set=b.dataset.set, k=b.dataset.k;
+    if(set==='main'){const id=+b.dataset.id;answers[id]=k;current=id;currentSet='main'}
+    else{const id=b.dataset.id;exAnswers[id]=k;current=id;currentSet='ex'}
+    render();
+    const again=document.querySelector(`.ch[data-set="${set}"][data-id="${b.dataset.id}"][data-k="${k}"]`); if(again) again.focus({preventScroll:true});
+    return;
+  }
+  const f=e.target.closest('[data-focus]');
+  if(f){current=+f.dataset.focus;currentSet='main';render();return}
+  const fx=e.target.closest('[data-focus-ex]');
+  if(fx){current=fx.dataset.focusEx;currentSet='ex';render();return}
+  const p=e.target.closest('[data-preset]');
+  if(p){setPreset(p.dataset.preset)}
+});
+['p-ip','p-ir','p-dp'].forEach(id=>$(id).addEventListener('change',onSelect));
+$('m-book').addEventListener('click',()=>{if(mode!=='book'){mode='book';saveMode();render()}});
+$('m-prac').addEventListener('click',()=>{mode='prac';answers={};shuffle();current=order[0];currentSet='main';saveMode();render()});
+$('b-shuffle').addEventListener('click',()=>{answers={};shuffle();current=order[0];currentSet='main';render()});
+$('b-key').addEventListener('click',()=>{ITEMS.forEach(it=>answers[it.id]=keyOf(it));EX.forEach(it=>exAnswers[it.id]=it.ans);render()});
+$('b-clear').addEventListener('click',()=>{answers={};exAnswers={};render()});
+
+mode=loadMode();
+if(mode==='prac'){shuffle();current=order[0]}
+render();
+})();
+</script>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h" style="position:fixed;inset:0;z-index:99999;background:#f5f7fa;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#18212e">
+ <form id="gate-f" style="background:#fff;border:1px solid #d9dfe7;border-top:6px solid #E8731B;border-radius:12px;padding:22px 20px;max-width:420px;width:100%;display:grid;gap:12px">
+  <img src="logo.png" alt="Dr.VIT &amp; PD" style="height:44px;width:auto;justify-self:start">
+  <h2 id="gate-h" style="margin:0;font-size:1.1rem;line-height:1.4;color:#1D3E9E">แอปประกอบคู่มือการจัดทำงบกระแสเงินสด TAS 7</h2>
+  <p style="margin:0;font-size:.92rem;color:#5a6676">สำหรับผู้ซื้อคู่มือ ใส่รหัสเข้าแอปที่พิมพ์ไว้ใต้ QR code ในเล่ม</p>
+  <label style="display:grid;gap:4px;font-size:.88rem">รหัสเข้าแอป
+   <span style="display:flex;gap:6px"><input id="gate-in" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:0;font:inherit;font-size:1rem;padding:8px 10px;border:1px solid #d9dfe7;border-radius:8px">
+   <button type="button" id="gate-show" style="font:inherit;font-size:.85rem;border:1px solid #d9dfe7;background:#fff;border-radius:8px;padding:0 10px;cursor:pointer">แสดง</button></span></label>
+  <label style="display:flex;gap:8px;align-items:center;font-size:.88rem"><input type="checkbox" id="gate-rem" checked> จำรหัสในเครื่องนี้</label>
+  <p id="gate-err" role="alert" style="margin:0;color:#b3362b;font-size:.88rem" hidden>รหัสไม่ถูกต้อง โปรดดูรหัสที่พิมพ์ไว้ในคู่มือ</p>
+  <button type="submit" style="font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px;background:#1D3E9E;color:#fff;cursor:pointer">เปิดแอป</button>
+  <p style="margin:0;font-size:.78rem;color:#5a6676">ดร.วิทยา อรุณศิริเพ็ชร · อาจารย์พงษ์ธร ดวงปัญญา</p>
+ </form>
+</div>
+<script>
+(function(){
+ var H='30bbac4ed235952c14f284ee9df8f6ae0fcabe8beca6b4fb70cf67bf128dd116',K='tas7cf-ok',g=document.getElementById('gate');
+ function ok(){try{if(localStorage.getItem(K)===H||sessionStorage.getItem(K)===H)return true}catch(e){}return false}
+ function open(){g.remove();document.documentElement.style.overflow=''}
+ if(ok()){open();return}
+ document.documentElement.style.overflow='hidden';
+ var inp=document.getElementById('gate-in');
+ document.getElementById('gate-show').onclick=function(){var p=inp.type==='password';inp.type=p?'text':'password';this.textContent=p?'ซ่อน':'แสดง'};
+ document.getElementById('gate-f').onsubmit=function(e){e.preventDefault();
+  var v=inp.value.toUpperCase().replace(/[\s-]/g,'');
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)).then(function(b){
+   var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+   if(h!==H){document.getElementById('gate-err').hidden=false;return}
+   try{(document.getElementById('gate-rem').checked?localStorage:sessionStorage).setItem(K,H)}catch(e){}
+   open()})};
+ inp.focus();
+})();
+</script>

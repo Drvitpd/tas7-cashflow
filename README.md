@@ -7,7 +7,7 @@ Dr. Wittaya Arunsiripetch and Phongtorn Doungphanya
 
 เว็บ · https://drvitpd.github.io/tas7-cashflow/
 
-ไฟล์เว็บอยู่ในโฟลเดอร์ `docs/` (เครื่องมือ tool1–tool6)
+ไฟล์เว็บอยู่ในโฟลเดอร์ `docs/` (index และเครื่องมือ tool1–tool6) สร้างด้วย `python3 tools/build_site.py docs` จากต้นฉบับใน `tools/src/`
 เนื้อหาสกัดจากตัวเล่ม เมื่อเล่มเปลี่ยนต้องสร้างเว็บใหม่จากต้นฉบับ
 
 เนื้อหาเป็นการถอดความของคณะผู้เขียน ไม่ใช่ถ้อยคำของมาตรฐาน

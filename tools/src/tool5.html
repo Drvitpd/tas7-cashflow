@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เลือกกรอบมาตรฐานและแบบรายการย่อ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: questions (left) + result (right); stacks on phone. Tokens and components from Tool 1 */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;overflow-wrap:break-word}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px;min-width:0}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.45rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+.lead{color:var(--muted);max-width:72ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted);max-width:100%}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet);max-width:100%}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .seg button[aria-selected="true"]{color:#0f141b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button[aria-selected="true"],:root:not([data-theme="light"]) .btn.primary{color:#0f141b}}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+@media (max-width:520px){.panel{padding:14px}}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.hint{font-size:.84rem;color:var(--muted)}
+.presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.presets .lbl{font-size:.84rem;color:var(--muted);margin-right:2px}
+/* steps */
+fieldset.q{border:0;border-top:1px solid var(--rule-soft);margin:0;padding:14px 0 4px;min-width:0}
+fieldset.q:first-of-type{border-top:0;padding-top:0}
+fieldset.q legend{padding:0;display:flex;gap:10px;align-items:flex-start;font-family:var(--f-display);font-weight:600;font-size:.98rem;width:100%}
+.num{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.76rem;font-weight:700;font-family:var(--f-mono);background:var(--accent-soft);color:var(--accent);margin-top:1px}
+.q .sub{font-size:.82rem;color:var(--muted);margin:2px 0 8px 34px}
+.opts{display:grid;gap:6px;margin:8px 0 6px 34px}
+@media (max-width:520px){.opts{margin-left:0}.q .sub{margin-left:0}}
+.opt{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start;border:1px solid var(--rule);border-radius:8px;padding:8px 10px;cursor:pointer;background:var(--sheet)}
+.opt:hover{background:var(--paper)}
+.opt input{margin:4px 0 0;accent-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt .t{font-weight:500}
+.opt .d{display:block;font-size:.8rem;color:var(--muted)}
+.opt.auto{cursor:default;opacity:.9}
+.row2{display:flex;flex-wrap:wrap;gap:10px 14px;margin:8px 0 6px 34px;align-items:center}
+@media (max-width:520px){.row2{margin-left:0}}
+.row2 label{font-size:.86rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.row2 input[type=number]{font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:4px 8px;width:7.5em}
+.skip{margin:6px 0 6px 34px;font-size:.84rem;color:var(--muted);border-left:3px solid var(--rule);padding:2px 10px}
+@media (max-width:520px){.skip{margin-left:0}}
+/* result */
+.verdict{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-soft);border-radius:0 8px 8px 0}
+.verdict.req{border-color:var(--pass);background:var(--pass-soft)}
+.verdict.opt{border-color:var(--warn);background:var(--warn-soft)}
+.verdict .v{font-family:var(--f-display);font-weight:600;font-size:1.08rem}
+.kv{display:grid;grid-template-columns:minmax(7.5em,auto) minmax(0,1fr);gap:6px 14px;font-size:.9rem;margin-top:14px}
+@media (max-width:420px){.kv{grid-template-columns:minmax(0,1fr)}.kv dd{margin-bottom:6px}}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.chip{font-size:.78rem;border-radius:5px;padding:1px 8px;font-weight:500;border:1px solid transparent;white-space:nowrap}
+.c-req{background:var(--pass-soft);color:var(--pass)}
+.c-opt{background:var(--warn-soft);color:var(--warn)}
+.c-no{background:var(--paper);color:var(--muted);border-color:var(--rule)}
+.c-acc{background:var(--accent-soft);color:var(--accent)}
+.trace{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
+.step{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;font-family:var(--f-mono)}
+.dot.p{background:var(--pass-soft);color:var(--pass)}
+.dot.f{background:var(--fail-soft);color:var(--fail)}
+.dot.n{background:var(--paper);color:var(--muted);border:1px solid var(--rule)}
+.step .ref,.ref{font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.status{font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;margin-left:4px;white-space:nowrap}
+.s-ok{background:var(--pass-soft);color:var(--pass)} .s-chk{background:var(--warn-soft);color:var(--warn)}
+.sec{margin-top:18px}
+.cautions{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.cautions li{border:1px solid var(--rule);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;padding:8px 12px;font-size:.88rem;background:var(--sheet)}
+.cautions li .ref{display:block;margin-top:2px}
+.srcs{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:.86rem}
+.srcs li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;border-bottom:1px solid var(--rule-soft);padding:5px 0}
+.srcs .w{color:var(--muted);font-size:.8rem;text-align:right}
+@media (max-width:420px){.srcs li{grid-template-columns:minmax(0,1fr)}.srcs .w{text-align:left}}
+.quote{border:1px solid var(--rule);border-radius:8px;padding:12px 14px;background:var(--paper);font-size:.9rem;margin-top:8px}
+.quote .qh{font-family:var(--f-display);font-weight:600;font-size:.9rem;margin-bottom:4px}
+.quote mark{background:var(--accent-soft);color:var(--ink);padding:0 2px;border-radius:3px}
+.quote del{color:var(--fail);text-decoration-thickness:1.5px}
+.match{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-top:16px;background:var(--sheet)}
+.match.ok{border-color:var(--pass)}
+.match.bad{border-color:var(--fail)}
+.match ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:.88rem}
+.match li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start}
+.book-ans{font-size:.86rem;color:var(--muted);margin-top:6px}
+.mark{font-weight:600;font-size:.86rem}
+.mark.ok{color:var(--pass)} .mark.no{color:var(--fail)}
+.empty{color:var(--muted);font-size:.9rem;border:1px dashed var(--rule);border-radius:8px;padding:14px}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{width:100%;border-collapse:collapse;font-size:.9rem}
+table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table.t th{font-weight:500;color:var(--muted);font-size:.82rem}
+table.t td.c{white-space:nowrap;font-family:var(--f-mono)}
+table.t.w520{min-width:520px}
+.flow{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.flow li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px}
+.flow .y,.flow .nn{font-size:.86rem}
+.flow .y b{color:var(--pass)} .flow .nn b{color:var(--muted)}
+.howto ol{margin:6px 0 0;padding-left:1.3em;display:grid;gap:6px}
+.howto ul{margin:6px 0 0;padding-left:1.2em;display:grid;gap:4px}
+.foot{font-size:.8rem;color:var(--muted);max-width:90ch;border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){.opt{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <img src="data:image/jpeg;base64,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" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block">
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร</span>
+</div>
+
+  <header>
+    <div class="eyebrow">เครื่องมือที่ 5 · บทที่ 1 และบทที่ 6 · NPAEs 2.1–2.4, 4.2 · คำชี้แจงข้อ 2.2–2.3</div>
+    <h1>เลือกกรอบมาตรฐานและแบบรายการย่อ</h1>
+    <p class="lead">ตอบคำถามทีละขั้นตามผังการตัดสินใจในหัวข้อ 1.3 เพื่อดูว่ากิจการใช้กรอบการรายงานใด ต้องจัดทำงบกระแสเงินสดหรือไม่ ใช้แบบรายการย่อแบบใด และอ้างอิงย่อหน้าหรือข้อใด เกณฑ์ทั้งหมดมาจากหนังสือ ไม่ได้เพิ่มเกณฑ์อื่น</p>
+    <div class="los">
+      <span class="lo"><b>LO1.3</b> จำแนก PAEs หรือ NPAEs และระบุแบบรายการย่อ · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO1.5</b> เปรียบเทียบทาง ก กับทาง ข ของบริษัทจำกัด · วิเคราะห์</span>
+      <span class="lo"><b>LO6.1</b> อธิบายความสัมพันธ์ของ NPAEs, TAS 7 และแบบ 2 · เข้าใจ</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg" role="tablist" aria-label="ส่วนของเครื่องมือ">
+      <button type="button" role="tab" id="tab-flow" aria-controls="p-flow" data-tab="flow">ผังการตัดสินใจ</button>
+      <button type="button" role="tab" id="tab-ref" aria-controls="p-ref" data-tab="ref">ตารางสรุปจากหนังสือ</button>
+      <button type="button" role="tab" id="tab-help" aria-controls="p-help" data-tab="help">วิธีใช้</button>
+    </div>
+  </div>
+
+  <!-- TAB 1 -->
+  <section id="p-flow" role="tabpanel" aria-labelledby="tab-flow" class="wrap" style="gap:16px">
+    <div class="panel">
+      <div class="presets" role="group" aria-label="โจทย์จากแบบฝึกหัด">
+        <span class="lbl">โหลดโจทย์จากแบบฝึกหัด:</span>
+        <button type="button" class="btn" data-preset="e13a" aria-pressed="false">ข้อ 1.3 (ก)</button>
+        <button type="button" class="btn" data-preset="e13b" aria-pressed="false">ข้อ 1.3 (ข)</button>
+        <button type="button" class="btn" data-preset="e13c" aria-pressed="false">ข้อ 1.3 (ค)</button>
+        <button type="button" class="btn" data-preset="e14" aria-pressed="false">ข้อ 1.4</button>
+        <button type="button" class="btn" id="b-clear">เริ่มใหม่</button>
+      </div>
+      <p class="hint" id="preset-q" style="margin-top:8px" hidden></p>
+    </div>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-q">
+        <div class="panel-h"><h2 id="h-q">ข้อมูลของกิจการ</h2><span class="hint">ตอบตามลำดับ ขั้นที่ไม่เกี่ยวข้องจะข้ามให้</span></div>
+        <form id="f" onsubmit="return false">
+          <fieldset class="q" id="q1">
+            <legend><span class="num">1</span><span>ผู้มีหน้าที่จัดทำบัญชีเป็นกิจการประเภทใด</span></legend>
+            <p class="sub">ประเภทตามตารางในหัวข้อ 1.3 ใช้กำหนดแบบรายการย่อ</p>
+            <div class="opts" id="o-entity"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q2">
+            <legend><span class="num">2</span><span>กิจการอยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงินหรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 1 · คำชี้แจง ส่วนที่ 1 ข้อ 1 · หน่วยงานกำกับตามหัวข้อ 9.1</p>
+            <div class="opts" id="o-reg"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q3">
+            <legend><span class="num">3</span><span>กิจการเข้าลักษณะกิจการที่มีส่วนได้เสียสาธารณะ (PAEs) หรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 2 · กลุ่มที่ไม่ใช่ NPAEs ตาม NPAEs 2.1–2.2 ตามที่หนังสือระบุ เลือกได้มากกว่าหนึ่งข้อ</p>
+            <div id="q3-body"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q4">
+            <legend><span class="num">4</span><span>กิจการเลือกใช้ TFRS for PAEs ทั้งชุดหรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 3 · ทาง ข ในหัวข้อ 1.5 (NPAEs 2.4)</p>
+            <div id="q4-body"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q5">
+            <legend><span class="num">5</span><span>กิจการเลือกจัดทำงบกระแสเงินสดหรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 4 · ทาง ก ในหัวข้อ 1.5 (NPAEs 4.2)</p>
+            <div id="q5-body"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q6">
+            <legend><span class="num">6</span><span>ข้อมูลปีก่อน (ถ้ามี)</span></legend>
+            <p class="sub">ใช้กับปีแรกที่เปลี่ยนแบบรายการย่อ (กรอบ "ปีแรกที่เปลี่ยนแบบรายการย่อ" หัวข้อ 1.3)</p>
+            <div class="row2">
+              <label>ปีบัญชี พ.ศ. <input type="number" id="i-year" min="2500" max="2700" step="1" inputmode="numeric" placeholder="เช่น 2570"></label>
+            </div>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" id="i-change"><span><span class="t">ปีนี้เป็นปีแรกที่เปลี่ยนแบบรายการย่อ</span><span class="d">เช่น บริษัทจำกัดแปรสภาพเป็นบริษัทมหาชนจำกัด</span></span></label>
+              <label class="opt"><input type="checkbox" id="i-prevnpaes"><span><span class="t">ปีก่อนใช้ TFRS for NPAEs</span></span></label>
+              <label class="opt"><input type="checkbox" id="i-prevnocfs"><span><span class="t">ปีก่อนไม่ได้จัดทำงบกระแสเงินสด</span></span></label>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="h-r" id="result" aria-live="polite"></section>
+    </div>
+  </section>
+
+  <!-- TAB 2 -->
+  <section id="p-ref" role="tabpanel" aria-labelledby="tab-ref" class="wrap" style="gap:16px" hidden>
+    <section class="panel" aria-labelledby="h-t1">
+      <div class="panel-h"><h2 id="h-t1">ผู้มีหน้าที่จัดทำบัญชี แบบ และข้อกำหนดงบกระแสเงินสด</h2><span class="hint">หัวข้อ 1.3</span></div>
+      <div class="tbl-wrap"><table class="t w520">
+        <thead><tr><th>ผู้มีหน้าที่จัดทำบัญชี</th><th>แบบ</th><th>มาตรฐานอ้างอิงของแบบ</th><th>งบกระแสเงินสด</th></tr></thead>
+        <tbody>
+          <tr><td>ห้างหุ้นส่วนจดทะเบียน</td><td class="c">แบบ 1</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span></td></tr>
+          <tr><td>บริษัทจำกัด</td><td class="c">แบบ 2</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span> ถ้าจัดทำต้องตาม TAS 7 (NPAEs 4.2)</td></tr>
+          <tr><td>บริษัทมหาชนจำกัด</td><td class="c">แบบ 3</td><td>TFRS for PAEs</td><td><span class="chip c-req">บังคับ</span></td></tr>
+          <tr><td>นิติบุคคลต่างประเทศที่ประกอบธุรกิจในไทย</td><td class="c">แบบ 4</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span></td></tr>
+          <tr><td>กิจการร่วมค้าตามประมวลรัษฎากร</td><td class="c">แบบ 5</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span></td></tr>
+          <tr><td>กิจการตามแบบ 1, 2, 4, 5 ที่เป็น PAEs หรือเลือกใช้ TFRS for PAEs</td><td>แบบ 3 ปรับรายการส่วนของเจ้าของ</td><td>TFRS for PAEs</td><td><span class="chip c-req">บังคับ</span> (คำชี้แจงข้อ 2.2(2))</td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">กิจการที่ไม่ใช่ NPAEs ตามที่หนังสือระบุ: กิจการที่มีตราสารทุนหรือตราสารหนี้ซื้อขายต่อประชาชน หรืออยู่ระหว่างออกตราสารเพื่อเสนอขาย สถาบันการเงิน บริษัทประกันภัย บริษัทหลักทรัพย์ บริษัทมหาชนจำกัด และกิจการอื่นที่กำหนดเพิ่ม (NPAEs 2.1–2.2)</p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-t2">
+      <div class="panel-h"><h2 id="h-t2">ผังการตัดสินใจ: แบบที่ต้องใช้และข้อกำหนดงบกระแสเงินสด</h2><span class="hint">หัวข้อ 1.3</span></div>
+      <ol class="flow">
+        <li><span class="num">1</span><div>กิจการอยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงินหรือไม่<div class="y"><b>ใช่</b> ใช้รูปแบบตามกฎหมายเฉพาะ (บทที่ 9)</div><div class="nn"><b>ไม่ใช่</b> ไปขั้น 2</div></div></li>
+        <li><span class="num">2</span><div>กิจการเป็นบริษัทมหาชนจำกัด หรือเข้าลักษณะ PAEs อื่นหรือไม่<div class="y"><b>ใช่</b> แบบ 3 งบกระแสเงินสดบังคับ (บทที่ 7)</div><div class="nn"><b>ไม่ใช่</b> ไปขั้น 3</div></div></li>
+        <li><span class="num">3</span><div>กิจการเลือกใช้ TFRS for PAEs ทั้งชุดหรือไม่<div class="y"><b>ใช่</b> แบบ 3 ปรับรายการส่วนของเจ้าของ งบกระแสเงินสดบังคับ (บทที่ 8)</div><div class="nn"><b>ไม่ใช่</b> ไปขั้น 4</div></div></li>
+        <li><span class="num">4</span><div>กิจการเลือกจัดทำงบกระแสเงินสดหรือไม่<div class="y"><b>ใช่</b> แบบตามประเภทกิจการ ส่วนงบกระแสเงินสดตาม TAS 7 และระบุเกณฑ์ในหมายเหตุ (บทที่ 6)</div><div class="nn"><b>ไม่ใช่</b> ไม่ต้องจัดทำ ถ้าไม่เคยจัดทำ ไม่ต้องกล่าวถึงในหมายเหตุ ถ้าเคยนำเสนองบกระแสเงินสดแล้วเลิกจัดทำ ควรอธิบายเหตุผลในหมายเหตุ (บทที่ 6 หัวข้อ 6.6)</div></div></li>
+      </ol>
+    </section>
+
+    <section class="panel" aria-labelledby="h-t3">
+      <div class="panel-h"><h2 id="h-t3">ธุรกิจตามกฎหมายเฉพาะ</h2><span class="hint">หัวข้อ 9.1</span></div>
+      <div class="tbl-wrap"><table class="t w520">
+        <thead><tr><th>ธุรกิจ</th><th>หน่วยงานกำกับ</th><th>แหล่งรูปแบบงบ</th><th>สถานะ</th></tr></thead>
+        <tbody id="reg-rows"></tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">หลักการจัดทำยังเป็น TAS 7 เพราะกิจการกลุ่มนี้เป็น PAEs รูปแบบของหน่วยงานกำกับกำหนดชื่อและลำดับบรรทัด ไม่ได้เปลี่ยนหลักการจัดประเภท</p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-t4">
+      <div class="panel-h"><h2 id="h-t4">มาตรฐานที่บริษัทจำกัดเลือกใช้ได้ตาม TFRS for NPAEs</h2><span class="hint">หัวข้อ 6.5 · แบบ 2 หมายเหตุข้อ 5.2.1 เชิงอรรถ *5</span></div>
+      <div class="tbl-wrap"><table class="t">
+        <thead><tr><th>มาตรฐานที่เลือกใช้ได้</th><th>ย่อหน้าใน NPAEs</th></tr></thead>
+        <tbody id="std-rows"></tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">เชิงอรรถ *5 ของแบบ 2 กำหนดให้ระบุการเลือกไว้ในเกณฑ์การจัดทำงบการเงิน การเลือกใช้ TFRS for PAEs บางฉบับนอกเหนือจากที่ NPAEs เปิดให้เลือก ขัดกับ NPAEs 2.4</p>
+    </section>
+  </section>
+
+  <!-- TAB 3 -->
+  <section id="p-help" role="tabpanel" aria-labelledby="tab-help" hidden>
+    <div class="panel howto">
+      <div class="panel-h"><h2 id="h-help">วิธีใช้</h2></div>
+      <ol>
+        <li><b>เลือกประเภทกิจการ</b> ในขั้น 1 แล้วตอบขั้นต่อไปตามลำดับ ขั้นที่ไม่เกี่ยวข้องกับเส้นทางของกิจการจะแสดงว่าข้าม เช่น บริษัทมหาชนจำกัดไม่ต้องตอบขั้น 4–5 เพราะงบกระแสเงินสดบังคับแล้ว</li>
+        <li><b>อ่านผลทางขวา</b> (บนโทรศัพท์อยู่ใต้คำถาม) ผลแสดงกรอบการรายงาน ข้อกำหนดงบกระแสเงินสด แบบรายการย่อ หลักการจัดทำ เส้นทางในผังการตัดสินใจ ข้อควรระวัง และแหล่งอ้างอิงพร้อมหัวข้อในหนังสือ</li>
+        <li><b>ฝึกกับแบบฝึกหัด</b> กดปุ่มข้อ 1.3 (ก)–(ค) หรือข้อ 1.4 เพื่อโหลดข้อเท็จจริงของโจทย์ ช่อง "เทียบกับเฉลยในหนังสือ" จะตรวจทีละประเด็นว่าผลของเครื่องมือตรงกับเฉลย ลองแก้คำตอบบางขั้นเพื่อดูว่าผลเปลี่ยนอย่างไร</li>
+        <li><b>บริษัทจำกัดที่เลือกจัดทำงบกระแสเงินสด</b> จะเห็นตัวอย่างหมายเหตุเกณฑ์การจัดทำงบการเงินจากหัวข้อ 6.5 เลือกวิธีทางตรงหรือทางอ้อมได้ และถ้าเลือกใช้มาตรฐานอื่นตามเชิงอรรถ *5 เครื่องมือจะบอกว่าต้องแก้ประโยคใด</li>
+        <li><b>แท็บตารางสรุป</b> รวมตารางและผังจากหัวข้อ 1.3, 6.5 และ 9.1 สำหรับทบทวน</li>
+      </ol>
+      <h3 style="margin-top:16px">ความหมายของป้าย</h3>
+      <ul>
+        <li><span class="chip c-req">บังคับ</span> ต้องจัดทำงบกระแสเงินสด · <span class="chip c-opt">ไม่บังคับ</span> กิจการเลือกได้</li>
+        <li><span class="status s-chk">ตรวจตัวบท</span> ข้อความที่ยังรอยืนยันกับตัวบทภาษาไทย ควรตรวจสอบกับตัวบทฉบับที่มีผลบังคับ ณ วันใช้งาน</li>
+      </ul>
+      <h3 style="margin-top:16px">ขอบเขต</h3>
+      <ul>
+        <li>เครื่องมือใช้เฉพาะเกณฑ์ที่หนังสือระบุ หนังสือระบุว่า NPAEs 2.2 กำหนดกิจการที่มีส่วนได้เสียสาธารณะไว้ 7 กลุ่ม แต่ระบุชื่อเฉพาะบางกลุ่ม ถ้ากิจการอาจเข้า "กิจการอื่นที่กำหนดเพิ่ม" ให้ตรวจกับตัวมาตรฐาน</li>
+        <li>ธุรกิจตามกฎหมายเฉพาะมีมากกว่าสามกลุ่มในเครื่องมือ (เช่น บริษัทบริหารสินทรัพย์) แต่หนังสือให้รายละเอียดหน่วยงานกำกับเฉพาะสามกลุ่มในบทที่ 9</li>
+        <li>เครื่องมือนี้ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ ผู้ใช้ควรตรวจกับตัวบทฉบับที่มีผลบังคับ ณ วันจัดทำงบ</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>เครื่องมือที่ 5 ประกอบบทที่ 1 (หัวข้อ 1.3 และ 1.5 แบบฝึกหัด 1.3–1.4) และบทที่ 6 (หัวข้อ 6.1 และ 6.5) ของคู่มือการจัดทำงบกระแสเงินสด TAS 7 สำหรับบริษัทจดทะเบียนและบริษัทจำกัด ถ้อยคำทั้งหมดเป็นการสรุปของผู้เขียน ไม่ใช่ตัวบทกฎหมายหรือมาตรฐาน</p>
+    <p>© ดร.วิทยา อรุณศิริเพ็ชร</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Data from the book ---------- */
+const ENTITIES=[
+  {k:'pcl',t:'บริษัทมหาชนจำกัด',d:'แบบ 3 · เป็น PAEs (NPAEs 2.1–2.2)',form:'3'},
+  {k:'listed',t:'บริษัทจดทะเบียน (ในตลาดหลักทรัพย์ฯ)',d:'มีตราสารทุนซื้อขายต่อประชาชน · แบบ 3 (บทที่ 7)',form:'3'},
+  {k:'ltd',t:'บริษัทจำกัด',d:'แบบ 2',form:'2'},
+  {k:'part',t:'ห้างหุ้นส่วนจดทะเบียน',d:'รวมห้างหุ้นส่วนจำกัด · แบบ 1',form:'1'},
+  {k:'foreign',t:'นิติบุคคลต่างประเทศที่ประกอบธุรกิจในไทย',d:'แบบ 4',form:'4'},
+  {k:'jv',t:'กิจการร่วมค้าตามประมวลรัษฎากร',d:'แบบ 5',form:'5'}
+];
+const ENT=Object.fromEntries(ENTITIES.map(e=>[e.k,e]));
+const REGS=[
+  {k:'none',t:'ไม่ใช่',d:'ไปขั้น 3'},
+  {k:'bank',t:'ธนาคารพาณิชย์ หรือบริษัทโฮลดิ้งที่เป็นบริษัทแม่ของกลุ่มธุรกิจทางการเงิน',reg:'ธนาคารแห่งประเทศไทย',src:'ประกาศธนาคารแห่งประเทศไทย ที่ สนส. 21/2561 และที่แก้ไขเพิ่มเติม',flag:'ต74'},
+  {k:'ins',t:'บริษัทประกันชีวิตหรือประกันวินาศภัย',reg:'สำนักงาน คปภ.',src:'ประกาศเรื่องการจัดทำและยื่นงบการเงินของบริษัทประกันวินาศภัย และของบริษัทประกันชีวิต พ.ศ. 2566 (8 ก.พ. 2566)',flag:'ต49'},
+  {k:'sec',t:'บริษัทหลักทรัพย์',reg:'สำนักงาน ก.ล.ต.',src:'ประกาศสำนักงาน ก.ล.ต. ที่ สธ./น. 53/2553 เรื่อง แบบงบการเงินสำหรับบริษัทหลักทรัพย์ และที่แก้ไขเพิ่มเติม',flag:'ต50'}
+];
+const REG=Object.fromEntries(REGS.map(r=>[r.k,r]));
+const PAE_ITEMS=[
+  {k:'traded',t:'มีตราสารทุนหรือตราสารหนี้ซื้อขายต่อประชาชน',d:'เช่น ออกหุ้นกู้เสนอขายต่อประชาชน (เฉลยข้อ 1.3 (ข), หัวข้อ 8.1)'},
+  {k:'issuing',t:'อยู่ระหว่างออกตราสารเพื่อเสนอขาย'},
+  {k:'other',t:'เป็นกิจการอื่นที่กำหนดเพิ่มตาม NPAEs 2.2',d:'หนังสือไม่ได้ระบุชื่อกลุ่มที่เหลือ ตรวจกับตัวมาตรฐาน'}
+];
+const STDS=[
+  ['TAS 7','งบกระแสเงินสด','4.2'],
+  ['TAS 12','ภาษีเงินได้','15.2'],
+  ['TAS 19','ผลประโยชน์ของพนักงาน','16.14'],
+  ['TAS 24','การเปิดเผยข้อมูลเกี่ยวกับบุคคลหรือกิจการที่เกี่ยวข้องกัน','4.21'],
+  ['TFRS 7','การเปิดเผยข้อมูลเครื่องมือทางการเงิน','4.22'],
+  ['TFRS 8','ส่วนงานดำเนินงาน','4.20']
+];
+const WORDING_HEAD='หมายเหตุ 2 เกณฑ์การจัดทำงบการเงิน (ส่วนที่เพิ่ม)';
+const W1='งบการเงินฉบับนี้จัดทำขึ้นตามมาตรฐานการรายงานทางการเงินสำหรับกิจการที่ไม่มีส่วนได้เสียสาธารณะ (TFRS for NPAEs) (ปรับปรุง 2565) ตามประกาศสภาวิชาชีพบัญชี ที่ 48/2565 และแสดงรายการตามประกาศกรมพัฒนาธุรกิจการค้า เรื่อง กำหนดรายการย่อที่ต้องมีในงบการเงิน พ.ศ. 2566 บริษัทเลือกจัดทำงบกระแสเงินสดโดยถือปฏิบัติตามข้อกำหนดของมาตรฐานการบัญชี ฉบับที่ 7 เรื่อง งบกระแสเงินสด ทั้งฉบับ รวมถึงการเปิดเผยข้อมูลที่เกี่ยวข้อง ตามที่ TFRS for NPAEs ย่อหน้า 4.2 เปิดให้เลือก และแสดงกระแสเงินสดจากกิจกรรมดำเนินงานด้วย';
+const W_LAST='บริษัทไม่ได้เลือกใช้มาตรฐานฉบับอื่นตามเชิงอรรถ *5 ของแบบ 2';
+
+/* ---------- Presets: exercises 1.3 and 1.4 ---------- */
+const BLANK=()=>({entity:'',reg:'',pae:{traded:false,issuing:false,other:false},sub:false,electPAE:'',electCFS:'',year:'',change:false,prevNPAEs:false,prevNoCFS:false,method:'indirect',stds:[]});
+const PRESETS={
+  e13a:{label:'ข้อ 1.3 (ก)',q:'ข้อ 1.3 (ก) ห้างหุ้นส่วนจำกัดที่ใช้ NPAEs',
+    s:{entity:'part',reg:'none',electPAE:'no',electCFS:'no'},
+    ans:'(ก) แบบ 1 ไม่บังคับ',
+    checks:[['แบบ 1',r=>r.formCode==='1'],['งบกระแสเงินสดไม่บังคับ',r=>r.cfs==='opt'],['กรอบ TFRS for NPAEs',r=>r.fw==='npaes']]},
+  e13b:{label:'ข้อ 1.3 (ข)',q:'ข้อ 1.3 (ข) บริษัทจำกัดที่ออกหุ้นกู้เสนอขายต่อประชาชน',
+    s:{entity:'ltd',reg:'none',pae:{traded:true,issuing:false,other:false}},
+    ans:'(ข) มีตราสารหนี้ซื้อขายต่อประชาชน จึงเป็น PAEs ใช้แบบ 3 งบกระแสเงินสดบังคับ',
+    checks:[['เป็น PAEs',r=>r.isPAE===true],['ใช้แบบ 3',r=>r.formCode==='3'],['งบกระแสเงินสดบังคับ',r=>r.cfs==='req']]},
+  e13c:{label:'ข้อ 1.3 (ค)',q:'ข้อ 1.3 (ค) บริษัทจำกัดที่เป็นบริษัทย่อยของบริษัทจดทะเบียน และใช้ NPAEs ในงบของตน',
+    s:{entity:'ltd',reg:'none',sub:true,electPAE:'no',electCFS:'no'},
+    ans:'(ค) บริษัทย่อยไม่ได้เป็น PAEs เพราะบริษัทแม่จดทะเบียน (NPAEs 2.2) จึงใช้แบบ 2 ได้ งบกระแสเงินสดไม่บังคับในงบของตน แต่บริษัทแม่ยังต้องการข้อมูลกระแสเงินสดของบริษัทย่อยเพื่อจัดทำงบรวมตาม TFRS for PAEs',
+    checks:[['ไม่เป็น PAEs',r=>r.isPAE===false],['ใช้แบบ 2',r=>r.formCode==='2'],['งบกระแสเงินสดไม่บังคับในงบของตน',r=>r.cfs==='opt'],['บริษัทแม่ยังต้องการข้อมูลกระแสเงินสดของบริษัทย่อยเพื่อจัดทำงบรวม',r=>r.keys.has('parentInfo')]]},
+  e14:{label:'ข้อ 1.4',q:'ข้อ 1.4 บริษัท สยามตัวอย่าง จำกัด แปรสภาพเป็นบริษัทมหาชนจำกัดระหว่างปี 2570 โดยปี 2569 ยื่นงบตาม NPAEs พร้อมงบกระแสเงินสดที่เลือกจัดทำ',
+    s:{entity:'pcl',reg:'none',year:'2570',change:true,prevNPAEs:true,prevNoCFS:false},
+    ans:'ใช้แบบ 3 และ TFRS for PAEs จัดทำงบกระแสเงินสดของปี 2570 และจัดทำงบปีเปรียบเทียบ 2569 ใหม่ตามกรอบใหม่ อธิบายผลต่างจากงบกระแสเงินสดตาม NPAEs ที่เคยยื่น (TFRS 1 ย่อหน้า 25) ในตัวอย่างนี้ กระแสเงินสดจากกิจกรรมดำเนินงานเปลี่ยนจาก 1,140 เป็น 1,260 พันบาท เพราะสัญญาเช่าโกดัง (บทที่ 8 หัวข้อ 8.4) จัดประเภทตัวเลขปีก่อนให้ตรงแบบใหม่ หรือเปิดเผยเหตุผลถ้าทำไม่ได้ และพิจารณาข้อกำหนดการเปลี่ยนจาก NPAEs เป็น PAEs (บทที่ 8)',
+    checks:[['ใช้แบบ 3',r=>r.formCode==='3'],['TFRS for PAEs',r=>r.fw==='paes'],['งบกระแสเงินสดปี 2570 และปีเปรียบเทียบ 2569',r=>r.cfs==='req'&&r.years==='2570 และปีเปรียบเทียบ 2569'],['จัดประเภทตัวเลขปีก่อนให้ตรงแบบใหม่ หรือเปิดเผยเหตุผล',r=>r.keys.has('reclass')],['พิจารณาการเปลี่ยนจาก NPAEs เป็น PAEs (บทที่ 8)',r=>r.keys.has('transition')],['อธิบายผลต่างจากงบกระแสเงินสดตาม NPAEs ที่เคยยื่น (TFRS 1 ย่อหน้า 25)',r=>r.keys.has('explainDiff')]]}
+};
+
+/* ---------- State ---------- */
+let S=BLANK(); let preset=null;
+const TAB_KEY='tool5-tab';
+function getTab(){try{return localStorage.getItem(TAB_KEY)}catch(e){return null}}
+function setTab(t){try{localStorage.setItem(TAB_KEY,t)}catch(e){}}
+
+/* ---------- Evaluation (book §1.3 decision flow) ---------- */
+function evaluate(s){
+  const r={complete:false,missing:'',trace:[],cautions:[],refs:[],keys:new Set(),fw:null,cfs:null,formCode:null,form:'',std:'',isPAE:null,years:'',wording:false,regInfo:null};
+  const C=(key,t,ref,flag)=>{r.keys.add(key);r.cautions.push({k:key,t,ref,flag})};
+  const R=(ref,where,flag)=>{if(!r.refs.some(x=>x.ref===ref))r.refs.push({ref,where,flag})};
+  if(!s.entity){r.missing='เลือกประเภทกิจการในขั้น 1';return r}
+  const e=ENT[s.entity];
+  R('พ.ร.บ.การบัญชี พ.ศ. 2543 มาตรา 11','หัวข้อ 1.2');
+  R('ประกาศกรมพัฒนาธุรกิจการค้า เรื่อง กำหนดรายการย่อที่ต้องมีในงบการเงิน พ.ศ. 2566 และคำชี้แจง','หัวข้อ 1.2–1.3');
+  if(!s.reg){r.missing='ตอบขั้น 2 เรื่องกฎหมายเฉพาะ';return r}
+  // Step 1
+  if(s.reg!=='none'){
+    const g=REG[s.reg];
+    r.trace.push({n:1,q:'อยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงิน',a:'ใช่ · '+g.t,pass:true});
+    r.complete=true;r.isPAE=true;r.fw='paes';r.cfs='req';r.formCode='special';
+    r.form='ไม่ใช้แบบ 1–5 ใช้รูปแบบงบการเงินตามกฎหมายเฉพาะ: '+g.src;r.regInfo=g;
+    r.std='TAS 7 (กิจการกลุ่มนี้เป็น PAEs รูปแบบของหน่วยงานกำกับกำหนดชื่อและลำดับบรรทัด ไม่ได้เปลี่ยนหลักการจัดประเภท)';
+    C('regFormat','ใช้แบบของหน่วยงานกำกับ ('+g.reg+') ประกอบกับ TAS 7 และตรวจประกาศฉบับล่าสุด ณ วันจัดทำงบ','หัวข้อ 9.1',g.flag);
+    C('regTas7','ข้อกำหนดเฉพาะใน TAS 7 สำหรับสถาบันการเงิน: เงินให้สินเชื่อและหลักทรัพย์เพื่อค้าเป็นกิจกรรมดำเนินงาน (ย่อหน้า 15) แสดงยอดสุทธิได้บางรายการ (ย่อหน้า 24) ดอกเบี้ยและเงินปันผลมักจัดเป็นกิจกรรมดำเนินงาน (ย่อหน้า 33)','หัวข้อ 9.2');
+    R('คำชี้แจงประกาศกรมพัฒนาธุรกิจการค้า ส่วนที่ 1 ข้อ 1','หัวข้อ 1.2, 9.1');
+    R(g.src,'หัวข้อ 9.1',g.flag);
+    R('TAS 7 ย่อหน้า 15, 24, 33','หัวข้อ 9.2');
+    addTransition(s,r,C,R);addFuture(r,C,false);
+    return r;
+  }
+  r.trace.push({n:1,q:'อยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงิน',a:'ไม่ใช่',pass:false});
+  // Step 2
+  const traits=PAE_ITEMS.filter(i=>s.pae[i.k]).map(i=>i.t);
+  const byType=s.entity==='pcl'||s.entity==='listed';
+  if(byType||traits.length){
+    const why=s.entity==='pcl'?'บริษัทมหาชนจำกัด':s.entity==='listed'?'บริษัทจดทะเบียน มีตราสารทุนซื้อขายต่อประชาชน':traits.join(' · ');
+    r.trace.push({n:2,q:'เป็นบริษัทมหาชนจำกัด หรือเข้าลักษณะ PAEs อื่น',a:'ใช่ · '+why,pass:true});
+    r.complete=true;r.isPAE=true;r.fw='paes';r.cfs='req';r.formCode='3';
+    r.std='TAS 7 (เป็นส่วนหนึ่งของ TFRS for PAEs)';
+    R('TFRS for NPAEs ย่อหน้า 2.1–2.2','หัวข้อ 1.3');
+    if(byType){
+      r.form='แบบ 3';
+      C('fullTas7','ต้องเปิดเผยตาม TAS 7 ทุกย่อหน้าที่บังคับและเกี่ยวข้องกับบริษัท ถ้ามีบริษัทย่อยต้องแสดงทั้งงบการเงินรวมและงบเฉพาะกิจการ','บทที่ 7 (บทนำ)');
+      if(s.entity==='listed'){
+        C('quarterly','บริษัทจดทะเบียนต้องส่งงบการเงินประจำปีและรายไตรมาส งบระหว่างกาลใช้ TAS 34 ซึ่งรวมงบกระแสเงินสดแบบย่อ','หัวข้อ 1.2 ชั้น 6, หัวข้อ 7.4');
+        R('พ.ร.บ.หลักทรัพย์และตลาดหลักทรัพย์ พ.ศ. 2535 มาตรา 56 · TAS 34','หัวข้อ 1.2');
+      }
+    }else{
+      r.form='แบบ 3 ปรับรายการส่วนของเจ้าของ';
+      C('form3','ใช้แบบ 3 ไม่ใช่แบบ '+e.form+' และปรับรายการส่วนของเจ้าของให้ตรงกับรูปแบบนิติบุคคล','หัวข้อ 1.3 จุดที่มักพลาด, 8.1–8.2 (คำชี้แจงข้อ 2.2(2))');
+      R('คำชี้แจงข้อ 2.2(2)','หัวข้อ 1.3, 8.1');
+      R('TAS 1 ย่อหน้า 10 (งบกระแสเงินสดเป็นองค์ประกอบของงบการเงินครบชุด)','หัวข้อ 8.1');
+      if(s.pae.other) C('otherPAE','หนังสือระบุว่า NPAEs 2.2 กำหนดกิจการที่มีส่วนได้เสียสาธารณะไว้ 7 กลุ่ม แต่ไม่ได้ระบุชื่อกลุ่มที่เหลือ ให้ตรวจกับตัวมาตรฐานก่อนสรุป','หัวข้อ 1.3');
+    }
+    addTransition(s,r,C,R);addFuture(r,C,false);
+    return r;
+  }
+  r.trace.push({n:2,q:'เป็นบริษัทมหาชนจำกัด หรือเข้าลักษณะ PAEs อื่น',a:'ไม่ใช่',pass:false});
+  r.isPAE=false;
+  R('TFRS for NPAEs ย่อหน้า 2.1–2.2','หัวข้อ 1.3');
+  if(s.sub){
+    C('parentInfo','การเป็นบริษัทย่อยของบริษัทจดทะเบียนไม่ทำให้เป็น PAEs งบกระแสเงินสดไม่บังคับในงบของตน แต่บริษัทแม่ยังต้องการข้อมูลกระแสเงินสดของบริษัทย่อยเพื่อจัดทำงบรวมตาม TFRS for PAEs','เฉลยข้อ 1.3 (ค) (ไม่เป็น PAEs: NPAEs 2.2)');
+    C('consolSep','อย่านำตัวเลขตาม TFRS for PAEs (เช่น TFRS 16) ที่บริษัทแม่ต้องการมาแสดงในงบที่ใช้ NPAEs ข้อมูลเพื่อการรวมงบควรจัดทำแยก','หัวข้อ 6.6 จุดที่มักพลาด');
+  }
+  // Step 3
+  if(!s.electPAE){r.missing='ตอบขั้น 4 ว่าเลือกใช้ TFRS for PAEs ทั้งชุดหรือไม่';return r}
+  if(s.electPAE==='yes'){
+    r.trace.push({n:3,q:'เลือกใช้ TFRS for PAEs ทั้งชุด',a:'ใช่ (ทาง ข)',pass:true});
+    r.complete=true;r.fw='paes';r.cfs='req';r.formCode='3';r.form='แบบ 3 ปรับรายการส่วนของเจ้าของ';
+    r.std='TAS 7 (เป็นส่วนหนึ่งของ TFRS for PAEs)';
+    C('form3','ใช้แบบ 3 ไม่ใช่แบบ '+e.form+' และปรับรายการส่วนของเจ้าของให้ตรงกับรูปแบบนิติบุคคล','หัวข้อ 1.3 จุดที่มักพลาด, 8.2 (คำชี้แจงข้อ 2.2(2))');
+    C('noPick','ต้องใช้ทั้งชุด ห้ามเลือกใช้ TFRS for PAEs เป็นรายฉบับร่วมกับ NPAEs นอกเหนือจากที่ NPAEs เปิดให้เลือก งบส่วนอื่นใช้ TFRS 9, TFRS 15, TFRS 16, TAS 12 และมาตรฐานอื่นทั้งหมด','หัวข้อ 1.5 (NPAEs 2.4)');
+    C('revert','ถ้าจะกลับไปใช้ NPAEs ต้องปฏิบัติตามบทที่ 5 ของ NPAEs และย่อหน้า 2.4','หัวข้อ 1.5');
+    R('TFRS for NPAEs ย่อหน้า 2.4','หัวข้อ 1.5');
+    R('คำชี้แจงข้อ 2.2(2)','หัวข้อ 1.3, 8.1');
+    R('TAS 1 ย่อหน้า 10 (งบกระแสเงินสดเป็นองค์ประกอบของงบการเงินครบชุด)','หัวข้อ 8.1');
+    addTransition(s,r,C,R);addFuture(r,C,false);
+    return r;
+  }
+  r.trace.push({n:3,q:'เลือกใช้ TFRS for PAEs ทั้งชุด',a:'ไม่ใช่',pass:false});
+  r.fw='npaes';r.formCode=e.form;r.form='แบบ '+e.form;
+  // Step 4
+  if(!s.electCFS){r.missing='ตอบขั้น 5 ว่าเลือกจัดทำงบกระแสเงินสดหรือไม่';return r}
+  r.complete=true;r.cfs='opt';
+  R('TFRS for NPAEs ย่อหน้า 4.2','หัวข้อ 1.3, 6.1');
+  if(s.electCFS==='yes'){
+    r.trace.push({n:4,q:'เลือกจัดทำงบกระแสเงินสด',a:'ใช่ (ทาง ก)',pass:true});
+    r.elected=true;r.wording=true;
+    r.std='TAS 7 ผ่าน NPAEs 4.2 · ตัวเลขวัดตาม NPAEs หลักการจัดประเภทและการเปิดเผยตาม TAS 7 รูปแบบตามแบบ '+e.form;
+    C('basis','ระบุเกณฑ์การจัดทำงบกระแสเงินสดในหมายเหตุ ถ้าไม่ระบุ ผู้ใช้งบไม่รู้ว่างบจัดทำตาม TAS 7','หัวข้อ 1.3 จุดที่มักพลาด, 6.1 (แบบ 2 หมายเหตุข้อ 5.2.1 และเชิงอรรถ *5)','ต32');
+    C('fullDisc','ผู้เขียนอ่านว่าต้องใช้ TAS 7 ทั้งฉบับ รวมการเปิดเผยที่แบบ 2 ไม่มีที่ให้ เช่น การเปลี่ยนแปลงของหนี้สินที่เกิดจากกิจกรรมจัดหาเงิน (ย่อหน้า 44ก–44จ) และองค์ประกอบเงินสดฯ (ย่อหน้า 45–47) การอ่านนี้เป็นการตีความของผู้เขียน','หัวข้อ 6.5','ต36');
+    if(e.form==='2') C('lineNames','ใช้ชื่อบรรทัดตามแบบ 2 ไม่ใช้ชื่อบรรทัดของแบบ 3 เช่น "เงินสดจ่ายชำระหนี้สินตามสัญญาเช่า" ในงบที่วัดมูลค่าตาม NPAEs','หัวข้อ 6.2, 6.6 จุดที่มักพลาด');
+    else C('otherForm','ตัวอย่างหมายเหตุและตารางบรรทัดในบทที่ 6 เขียนสำหรับบริษัทจำกัดที่ใช้แบบ 2 กิจการนี้ใช้แบบ '+e.form+' ตามประเภทกิจการ หนังสือไม่ได้ให้ถ้อยคำสำหรับแบบนี้','หัวข้อ 1.3 ผังขั้น 4, บทที่ 6');
+    C('compar','จัดทำพร้อมตัวเลขเปรียบเทียบ ไม่จัดทำเฉพาะปีปัจจุบัน','หัวข้อ 6.6 จุดที่มักพลาด');
+    C('stop','เลิกจัดทำได้ในปีต่อไป แต่ถ้าเลิกโดยไม่อธิบาย ผู้ใช้งบที่เคยได้รับข้อมูลจะไม่รู้เหตุผล','หัวข้อ 1.5, 6.6 จุดที่มักพลาด');
+    R('แบบ 2 หมายเหตุข้อ 5.2.1 และเชิงอรรถ *5','หัวข้อ 6.1, 6.5','ต32');
+    R('คำชี้แจงข้อ 2.3(3.1) และ 2.3(3.2)','หัวข้อ 6.1');
+    if(s.stds.length) C('stdsPicked','กิจการเลือกใช้ '+s.stds.join(', ')+' ด้วย ต้องระบุการเลือกไว้ในเกณฑ์การจัดทำงบการเงิน และแก้ประโยคท้ายของตัวอย่างหมายเหตุ','หัวข้อ 6.5 (เชิงอรรถ *5 ของแบบ 2)');
+    addTransition(s,r,C,R);addFuture(r,C,true);
+  }else{
+    r.trace.push({n:4,q:'เลือกจัดทำงบกระแสเงินสด',a:'ไม่ใช่',pass:false});
+    r.std='ไม่จัดทำ · ถ้าจัดทำในอนาคตต้องตาม TAS 7 (NPAEs 4.2)';
+    C('noCfs','ไม่ต้องจัดทำงบกระแสเงินสด ถ้าไม่เคยจัดทำ ไม่ต้องกล่าวถึงในหมายเหตุ ถ้าเคยนำเสนองบกระแสเงินสดแล้วเลิกจัดทำ ควรอธิบายเหตุผลในหมายเหตุ','หัวข้อ 1.3 ผังขั้น 4, 6.6 จุดที่มักพลาด');
+    C('myth','อย่าเข้าใจว่า NPAEs ต้องจัดทำงบกระแสเงินสด ข้อกำหนดที่ถูกคือไม่บังคับ','หัวข้อ 1.3 จุดที่มักพลาด (NPAEs 4.2)');
+    C('twoWays','ถ้าผู้ใช้งบ เช่น ธนาคาร ขอให้ส่งงบกระแสเงินสด มีสองทาง: ทาง ก คงใช้ NPAEs แล้วเลือกจัดทำ (NPAEs 4.2) หรือทาง ข เปลี่ยนไปใช้ TFRS for PAEs ทั้งชุด (NPAEs 2.4) ผลต่องบส่วนอื่นต่างกันมาก','หัวข้อ 1.5');
+    addTransition(s,r,C,R);
+  }
+  return r;
+}
+function addTransition(s,r,C,R){
+  const y=parseInt(s.year,10);
+  if(r.cfs==='req'||r.elected){
+    r.years=Number.isFinite(y)?(y+' และปีเปรียบเทียบ '+(y-1)):'ปีปัจจุบัน และปีเปรียบเทียบ';
+  }
+  if(s.change){
+    C('reclass','ปีแรกที่เปลี่ยนแบบ ให้จัดประเภทตัวเลขปีก่อนให้สอดคล้องกับแบบใหม่ ถ้าทำไม่ได้ในทางปฏิบัติ ให้เปิดเผยเหตุผลในหมายเหตุ และไม่ต้องแสดงรายการในแบบที่กิจการไม่มี','หัวข้อ 1.3 (คำชี้แจงข้อ 2.3(1) และ 2.3(3.1))');
+    R('คำชี้แจงข้อ 2.3(1)','หัวข้อ 1.3');
+  }
+  if(r.fw==='paes'&&s.prevNPAEs){
+    C('transition','พิจารณาข้อกำหนดการเปลี่ยนจาก NPAEs เป็น TFRS for PAEs','เฉลยข้อ 1.4, บทที่ 8 หัวข้อ 8.3');
+    if(s.prevNoCFS){
+      C('tfrs1','ปีก่อนไม่ได้จัดทำงบกระแสเงินสด ปีแรกตาม TFRS for PAEs ต้องมีงบกระแสเงินสดของปีเปรียบเทียบด้วย'+(Number.isFinite(y)?' (ปี '+(y-1)+')':'')+' ตาม TFRS 1 เพราะเป็นการนำ TFRS for PAEs มาใช้ทั้งชุดเป็นครั้งแรก','หัวข้อ 1.3 กรอบปีแรกที่เปลี่ยนแบบ');
+      R('TFRS 1','หัวข้อ 1.3, บทที่ 8');
+    } else {
+      C('explainDiff','ปีก่อนยื่นงบกระแสเงินสดตาม NPAEs ไว้แล้ว ให้จัดทำงบกระแสเงินสดปีเปรียบเทียบ'+(Number.isFinite(y)?' '+(y-1):'')+' ใหม่ตาม TFRS for PAEs และอธิบายรายการปรับปรุงที่มีสาระสำคัญต่องบกระแสเงินสดที่เคยยื่น (TFRS 1 ย่อหน้า 25) เช่น สัญญาเช่าที่ทำให้กระแสเงินสดจากกิจกรรมดำเนินงานเปลี่ยนจาก 1,140 เป็น 1,260 พันบาท','เฉลยข้อ 1.4, บทที่ 8 หัวข้อ 8.4 และ 8.6');
+      R('TFRS 1 ย่อหน้า 25','บทที่ 8 หัวข้อ 8.3–8.4');
+    }
+  }
+}
+function addFuture(r,C,npaes){
+  if(npaes) C('tfrs18','ตั้งแต่รอบปีที่เริ่มในหรือหลังวันที่ 1 มกราคม 2571 (ตามร่าง TFRS 18) TAS 7 ให้วิธีทางอ้อมเริ่มที่กำไรหรือขาดทุนจากการดำเนินงาน ซึ่ง NPAEs ไม่ได้นิยามยอดรวมย่อยนี้ บริษัทควรเลือกวิธีที่อธิบายได้ ใช้สม่ำเสมอ และเปิดเผยไว้','หัวข้อ 1.3 กรอบ TFRS 18, 6.6','ต37');
+  else C('tfrs18','TFRS 18 และการแก้ไข TAS 7 มีผลรอบปีที่เริ่มในหรือหลังวันที่ 1 มกราคม 2571 ตามร่าง TFRS 18 เลขประกาศและเลขย่อหน้าภาษาไทยยังรอยืนยัน','หัวข้อ 1.4','ต2');
+}
+
+/* ---------- Rendering: questions ---------- */
+function optHTML(name,type,o,checked,extra){
+  return `<label class="opt"><input type="${type}" name="${name}" value="${o.k}" ${checked?'checked':''} ${extra||''}><span><span class="t">${esc(o.t)}</span>${o.d?`<span class="d">${esc(o.d)}</span>`:''}</span></label>`;
+}
+function renderQuestions(){
+  $('o-entity').innerHTML=ENTITIES.map(o=>optHTML('entity','radio',o,S.entity===o.k)).join('');
+  $('o-reg').innerHTML=REGS.map(o=>optHTML('reg','radio',{k:o.k,t:o.t,d:o.k==='none'?o.d:('หน่วยงานกำกับ: '+o.reg)},S.reg===o.k)).join('');
+  const regYes=S.reg&&S.reg!=='none';
+  const byType=S.entity==='pcl'||S.entity==='listed';
+  // Q3
+  let q3='';
+  if(!S.entity||!S.reg) q3='<p class="skip">ตอบขั้น 1–2 ก่อน</p>';
+  else if(regYes) q3='<p class="skip">ข้าม: ขั้น 2 ตอบว่าอยู่ภายใต้กฎหมายเฉพาะ กิจการกลุ่มนี้เป็น PAEs (หัวข้อ 9.1)</p>';
+  else if(byType) q3=`<p class="skip">เป็น PAEs จากประเภทกิจการ: ${S.entity==='pcl'?'บริษัทมหาชนจำกัด':'บริษัทจดทะเบียน มีตราสารทุนซื้อขายต่อประชาชน'} (NPAEs 2.1–2.2)</p>`;
+  else{
+    q3='<div class="opts">'+PAE_ITEMS.map(o=>optHTML('pae','checkbox',o,S.pae[o.k],'data-pae="'+o.k+'"')).join('')+'</div>'+
+      '<p class="sub" style="margin-top:10px">ข้อมูลเพิ่มเติม (ไม่ใช่เกณฑ์ PAEs)</p><div class="opts">'+
+      optHTML('sub','checkbox',{k:'sub',t:'เป็นบริษัทย่อยของบริษัทจดทะเบียน',d:'การเป็นบริษัทย่อยไม่ทำให้เป็น PAEs (เฉลยข้อ 1.3 (ค))'},S.sub,'id="i-sub"')+'</div>';
+  }
+  $('q3-body').innerHTML=q3;
+  const r=evaluate(S);
+  const pae=regYes||byType||PAE_ITEMS.some(i=>S.pae[i.k]);
+  // Q4
+  let q4='';
+  if(!S.entity||!S.reg) q4='<p class="skip">ตอบขั้น 1–2 ก่อน</p>';
+  else if(pae) q4='<p class="skip">ข้าม: กิจการเป็น PAEs ต้องใช้ TFRS for PAEs อยู่แล้ว</p>';
+  else q4='<div class="opts">'+[{k:'no',t:'ไม่ใช่ คงใช้ TFRS for NPAEs',d:'ไปขั้น 5'},{k:'yes',t:'ใช่ เลือกใช้ TFRS for PAEs ทั้งชุด',d:'แบบ 3 ปรับรายการส่วนของเจ้าของ (บทที่ 8)'}].map(o=>optHTML('electPAE','radio',o,S.electPAE===o.k)).join('')+'</div>';
+  $('q4-body').innerHTML=q4;
+  // Q5
+  let q5='';
+  if(!S.entity||!S.reg) q5='<p class="skip">ตอบขั้น 1–2 ก่อน</p>';
+  else if(pae||S.electPAE==='yes') q5='<p class="skip">ข้าม: ใช้ TFRS for PAEs งบกระแสเงินสดบังคับ</p>';
+  else if(!S.electPAE) q5='<p class="skip">ตอบขั้น 4 ก่อน</p>';
+  else{
+    q5='<div class="opts">'+[{k:'no',t:'ไม่จัดทำ',d:'ถ้าไม่เคยจัดทำ ไม่ต้องกล่าวถึงในหมายเหตุ ถ้าเคยนำเสนอแล้วเลิกจัดทำ ควรอธิบายเหตุผลในหมายเหตุ'},{k:'yes',t:'เลือกจัดทำตาม TAS 7',d:'ระบุเกณฑ์ในหมายเหตุ (บทที่ 6)'}].map(o=>optHTML('electCFS','radio',o,S.electCFS===o.k)).join('')+'</div>';
+    if(S.electCFS==='yes'){
+      q5+=`<div class="row2"><span class="hint">วิธีแสดงกิจกรรมดำเนินงาน (แบบ 2 ข้อ 4.1 หรือ 4.2):</span>
+        <label><input type="radio" name="method" value="indirect" ${S.method==='indirect'?'checked':''}> วิธีทางอ้อม</label>
+        <label><input type="radio" name="method" value="direct" ${S.method==='direct'?'checked':''}> วิธีทางตรง</label></div>
+        <p class="sub" style="margin-top:8px">เลือกใช้มาตรฐานอื่นตามเชิงอรรถ *5 ของแบบ 2 ด้วยหรือไม่ (หัวข้อ 6.5)</p>
+        <div class="opts">${STDS.slice(1).map(x=>optHTML('stds','checkbox',{k:x[0],t:x[0]+' '+x[1],d:'NPAEs ย่อหน้า '+x[2]},S.stds.includes(x[0]))).join('')}</div>`;
+    }
+  }
+  $('q5-body').innerHTML=q5;
+  $('i-year').value=S.year;
+  $('i-change').checked=S.change;$('i-prevnpaes').checked=S.prevNPAEs;$('i-prevnocfs').checked=S.prevNoCFS;
+  renderResult(r);
+}
+
+/* ---------- Rendering: result ---------- */
+const FW={paes:'TFRS for PAEs',npaes:'TFRS for NPAEs (ปรับปรุง 2565)'};
+function flag(f){return f?'<span class="status s-chk" title="ตรวจสอบกับตัวบทฉบับที่มีผลบังคับ ณ วันใช้งาน">ตรวจตัวบท</span>':''}
+function renderResult(r){
+  const D=$('result');
+  let h='<div class="panel-h"><h2 id="h-r">ผลการตัดสินใจ</h2>'+(preset?`<span class="chip c-acc">${esc(PRESETS[preset].label)}</span>`:'')+'</div>';
+  if(!r.complete){
+    h+=`<p class="empty" id="r-missing">${esc(r.missing)}</p>`;
+    if(r.trace.length) h+=traceHTML(r);
+    h+=matchHTML(r);
+    D.innerHTML=h;return;
+  }
+  const cfsChip=r.cfs==='req'?'<span class="chip c-req">บังคับ</span>':(r.elected?'<span class="chip c-opt">ไม่บังคับ</span> <span class="chip c-acc">กิจการเลือกจัดทำ</span>':'<span class="chip c-opt">ไม่บังคับ</span> <span class="chip c-no">กิจการไม่จัดทำ</span>');
+  const vcls=r.cfs==='req'?'req':'opt';
+  const head=(r.formCode==='special'?'รูปแบบตามกฎหมายเฉพาะ':r.form)+' · '+FW[r.fw]+' · งบกระแสเงินสด'+(r.cfs==='req'?'บังคับ':'ไม่บังคับ');
+  h+=`<div class="verdict ${vcls}"><div class="eyebrow">ผลตามผังหัวข้อ 1.3</div><div class="v" id="r-verdict">${esc(head)}</div></div>
+  <dl class="kv">
+    <dt>กรอบการรายงาน</dt><dd id="r-fw">${FW[r.fw]}</dd>
+    <dt>ฐานะของกิจการ</dt><dd id="r-pae">${r.isPAE?'กิจการที่มีส่วนได้เสียสาธารณะ (PAEs)':'กิจการที่ไม่มีส่วนได้เสียสาธารณะ (NPAEs)'}</dd>
+    <dt>งบกระแสเงินสด</dt><dd id="r-cfs" data-v="${r.cfs}">${cfsChip}</dd>
+    <dt>แบบรายการย่อ</dt><dd id="r-form" data-v="${esc(r.formCode)}">${esc(r.form)}${r.regInfo?flag(r.regInfo.flag):''}</dd>
+    <dt>หลักการจัดทำ</dt><dd id="r-std">${esc(r.std)}</dd>
+    ${r.years?`<dt>ปีที่ต้องแสดง</dt><dd id="r-years">${esc(r.years)}</dd>`:''}
+  </dl>`;
+  h+=traceHTML(r);
+  if(r.wording) h+=wordingHTML();
+  h+=`<div class="sec"><h3>ข้อควรระวังจากหนังสือ</h3><ul class="cautions" id="r-cautions">${r.cautions.map(c=>`<li data-k="${c.k}">${esc(c.t)}<span class="ref">${esc(c.ref)}${flag(c.flag)}</span></li>`).join('')}</ul></div>`;
+  h+=`<div class="sec"><h3>แหล่งอ้างอิงที่หนังสือใช้</h3><ul class="srcs" id="r-refs">${r.refs.map(x=>`<li><span>${esc(x.ref)}${flag(x.flag)}</span><span class="w">${esc(x.where)}</span></li>`).join('')}</ul></div>`;
+  h+=matchHTML(r);
+  D.innerHTML=h;
+}
+function traceHTML(r){
+  return `<div class="sec"><h3>เส้นทางในผังการตัดสินใจ</h3><ol class="trace">${r.trace.map(t=>`<li class="step"><span class="dot ${t.pass?'p':'n'}" aria-hidden="true">${t.n}</span><div>${esc(t.q)}<div class="ref">ขั้น ${t.n} · ${esc(t.a)}</div></div></li>`).join('')}</ol></div>`;
+}
+function wordingHTML(){
+  const m=S.method==='direct'?'วิธีทางตรง':'วิธีทางอ้อม';
+  const changed=S.method==='direct';
+  const last=S.stds.length?`<del>${esc(W_LAST)}</del> <span class="hint">(ต้องแก้: กิจการเลือกใช้ ${esc(S.stds.join(', '))} ตามเชิงอรรถ *5)</span>`:esc(W_LAST);
+  return `<div class="sec" id="r-wording"><h3>ตัวอย่างหมายเหตุเกณฑ์การจัดทำงบการเงิน</h3>
+  <div class="quote"><div class="qh">${esc(WORDING_HEAD)}</div><p>${esc(W1)}${changed?`<mark>${m}</mark>`:m} ${last}</p></div>
+  <p class="hint" style="margin-top:6px">ถ้อยคำจากตัวอย่างหมายเหตุในหัวข้อ 6.5 ของหนังสือ${changed?' ส่วนที่เน้นสีเปลี่ยนตามวิธีที่เลือก (ตัวอย่างในหนังสือใช้วิธีทางอ้อม)':''} ใช้เป็นแนวทาง ไม่ใช่ถ้อยคำบังคับ</p></div>`;
+}
+function matchHTML(r){
+  if(!preset) return '';
+  const P=PRESETS[preset];
+  const res=P.checks.map(([l,f])=>{let ok=false;try{ok=r.complete&&!!f(r)}catch(e){ok=false}return {l,ok}});
+  const all=res.every(x=>x.ok);
+  return `<div class="match ${all?'ok':'bad'}" id="r-match" data-match="${all?'1':'0'}"><div class="panel-h" style="margin:0"><h3>เทียบกับเฉลยในหนังสือ</h3><span class="mark ${all?'ok':'no'}">${all?'ตรงกับเฉลยทุกประเด็น':'ยังไม่ตรงกับเฉลย'}</span></div>
+  <p class="book-ans"><b>เฉลย:</b> ${esc(P.ans)}</p>
+  <ul>${res.map(x=>`<li><span class="dot ${x.ok?'p':'f'}" aria-hidden="true">${x.ok?'✓':'✕'}</span><span>${esc(x.l)} <span class="sr">${x.ok?'(ตรง)':'(ไม่ตรง)'}</span></span></li>`).join('')}</ul></div>`;
+}
+
+/* ---------- Reference tables ---------- */
+$('reg-rows').innerHTML=REGS.slice(1).map(g=>`<tr><td>${esc(g.t)}</td><td>${esc(g.reg)}</td><td>${esc(g.src)}</td><td>${flag(g.flag)}</td></tr>`).join('');
+$('std-rows').innerHTML=STDS.map(x=>`<tr><td>${esc(x[0])} ${esc(x[1])}</td><td class="c">${esc(x[2])}</td></tr>`).join('');
+
+/* ---------- Events ---------- */
+$('f').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.name==='entity'){S.entity=t.value;if(t.value==='pcl'||t.value==='listed'){S.pae={traded:false,issuing:false,other:false};S.sub=false}}
+  else if(t.name==='reg') S.reg=t.value;
+  else if(t.dataset.pae) S.pae[t.dataset.pae]=t.checked;
+  else if(t.id==='i-sub') S.sub=t.checked;
+  else if(t.name==='electPAE') S.electPAE=t.value;
+  else if(t.name==='electCFS') S.electCFS=t.value;
+  else if(t.name==='method') S.method=t.value;
+  else if(t.name==='stds'){S.stds=STDS.slice(1).map(x=>x[0]).filter(k=>k===t.value?t.checked:S.stds.includes(k))}
+  else if(t.id==='i-change') S.change=t.checked;
+  else if(t.id==='i-prevnpaes') S.prevNPAEs=t.checked;
+  else if(t.id==='i-prevnocfs') S.prevNoCFS=t.checked;
+  else if(t.id==='i-year'){S.year=t.value.trim()}
+  const sel=t.name?`[name="${t.name}"][value="${t.value}"]`:(t.id?'#'+t.id:null);
+  renderQuestions();
+  if(sel){const n=document.querySelector(sel);if(n)n.focus({preventScroll:true})}
+});
+$('i-year').addEventListener('input',e=>{S.year=e.target.value.trim();renderResult(evaluate(S))});
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>loadPreset(b.dataset.preset)));
+$('b-clear').addEventListener('click',()=>{S=BLANK();preset=null;syncPresetUI();renderQuestions()});
+function loadPreset(k){
+  const P=PRESETS[k];const b=BLANK();
+  S=Object.assign(b,JSON.parse(JSON.stringify(P.s)));S.pae=Object.assign(BLANK().pae,P.s.pae||{});
+  preset=k;syncPresetUI();renderQuestions();
+}
+function syncPresetUI(){
+  document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.preset===preset));
+  const q=$('preset-q');
+  if(preset){q.hidden=false;q.textContent='โจทย์: '+PRESETS[preset].q}else{q.hidden=true;q.textContent=''}
+}
+/* tabs */
+const TABS=['flow','ref','help'];
+function showTab(t,focus){
+  if(!TABS.includes(t))t='flow';
+  TABS.forEach(x=>{const b=$('tab-'+x),p=$('p-'+x);const on=x===t;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;p.hidden=!on});
+  if(focus)$('tab-'+t).focus();
+  setTab(t);
+}
+document.querySelectorAll('[role=tab]').forEach(b=>{
+  b.addEventListener('click',()=>showTab(b.dataset.tab));
+  b.addEventListener('keydown',e=>{const i=TABS.indexOf(b.dataset.tab);
+    if(e.key==='ArrowRight'){e.preventDefault();showTab(TABS[(i+1)%TABS.length],true)}
+    if(e.key==='ArrowLeft'){e.preventDefault();showTab(TABS[(i+TABS.length-1)%TABS.length],true)}});
+});
+showTab(getTab()||'flow');
+renderQuestions();
+})();
+</script>
+</body>
+</html>

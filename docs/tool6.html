@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>กระทบยอดหนี้สินตามสัญญาเช่า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: inputs (left) + tabbed outputs (right); stacks on phone. Tokens from Tool 1 */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px;min-width:0}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+.lead{color:var(--muted);max-width:72ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted)}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet);max-width:100%}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"],.seg button[aria-selected="true"]{background:var(--accent);color:#fff}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.hint{font-size:.84rem;color:var(--muted)}
+.chip{font-size:.78rem;border-radius:5px;padding:1px 8px;font-weight:500;border:1px solid transparent;white-space:nowrap}
+.c-ce{background:var(--pass-soft);color:var(--pass)}
+.c-oth{background:var(--accent-soft);color:var(--accent)}
+.c-res{background:var(--warn-soft);color:var(--warn)}
+.c-liab{background:var(--fail-soft);color:var(--fail)}
+.c-hide{background:var(--paper);color:var(--muted);border-color:var(--rule)}
+.verdict{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-soft);border-radius:0 8px 8px 0;margin-top:14px}
+.verdict .v{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.status{font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;margin-left:4px;white-space:nowrap}
+.s-ok{background:var(--pass-soft);color:var(--pass)} .s-chk{background:var(--warn-soft);color:var(--warn)} .s-no{background:var(--fail-soft);color:var(--fail)}
+.foot{font-size:.8rem;color:var(--muted);max-width:90ch;margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* inputs */
+fieldset{border:0;margin:0 0 14px;padding:0;min-width:0}
+legend{font-family:var(--f-display);font-weight:600;font-size:.95rem;margin-bottom:6px;padding:0}
+.f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+@media (max-width:420px){.f2{grid-template-columns:minmax(0,1fr)}}
+.f2 label,.radio{display:grid;gap:3px;font-size:.84rem;color:var(--muted);min-width:0}
+input[type=number],select{font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;width:100%;min-width:0;font-variant-numeric:tabular-nums}
+.yg{display:grid;grid-template-columns:minmax(0,1fr) minmax(64px,92px) minmax(64px,92px);gap:6px 8px;align-items:center;font-size:.86rem}
+.yg .hd{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);text-align:center}
+.yg .lb{min-width:0}
+.yg .lb small{display:block;color:var(--muted);font-size:.74rem;line-height:1.3}
+.yg input,.yg select{padding:5px 6px;font-size:.88rem;text-align:right}
+.yg select{text-align:left}
+.opts{display:grid;gap:6px}
+.opts label{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;color:var(--ink)}
+.opts input{margin-top:5px;flex:none}
+.opts small{color:var(--muted)}
+
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{width:100%;border-collapse:collapse;font-size:.9rem}
+table.t th,table.t td{padding:7px 9px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table.t th{font-weight:500;color:var(--muted);font-size:.8rem}
+table.t th.n{text-align:right}
+table.t td.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr.tot td{font-weight:600;border-top:1.5px solid var(--ink);border-bottom:0}
+table.t tr.sec td{font-family:var(--f-display);font-weight:600;background:var(--paper)}
+table.t th.grp{text-align:center;border-bottom:1px solid var(--rule)}
+table.t td.pad{padding-left:22px}
+.wide{min-width:700px} .mid{min-width:520px}
+.tabpanel{margin-top:14px}
+.tabpanel h3{margin:16px 0 8px}
+.tabpanel h3:first-child{margin-top:0}
+.checks{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:8px}
+.ck{font-size:.8rem;border:1px solid var(--rule);border-radius:6px;padding:2px 8px;background:var(--paper)}
+.ck.ok{border-color:var(--pass);color:var(--pass)} .ck.no{border-color:var(--fail);color:var(--fail)}
+.ck b{font-family:var(--f-mono);font-weight:500}
+details.how{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:12px 18px}
+details.how summary{font-family:var(--f-display);font-weight:600;cursor:pointer}
+details.how ol{margin:10px 0 4px;padding-left:22px}
+details.how li{margin-bottom:4px}
+details.mon{margin-top:8px}
+details.mon summary{cursor:pointer;font-size:.86rem;color:var(--accent)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px}
+.kpi>div{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:var(--paper);min-width:0}
+.kpi .k{font-size:.78rem;color:var(--muted)}
+.kpi .v{font-family:var(--f-mono);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.note{font-size:.84rem;color:var(--muted);margin:8px 0 0}
+.warn{color:var(--warn)}
+footer{border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:6px}
+</style>
+</head><body>
+<div class="wrap">
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <a href="index.html" title="หน้าแรกของแอป"><img src="logo.png" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block"></a>
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร<br>อาจารย์พงษ์ธร ดวงปัญญา<br><a href="index.html" style="color:#1D3E9E">กลับหน้าแรกของแอป</a></span>
+</div>
+  <header>
+    <div class="eyebrow">เครื่องมือที่ 6 · บทที่ 11 · TFRS 16 ย่อหน้า 50 · TAS 7 ย่อหน้า 17, 43, 44ก–44จ</div>
+    <h1>กระทบยอดหนี้สินตามสัญญาเช่า</h1>
+    <p class="lead">ป้อนสัญญาเช่าของผู้เช่า แล้วดูตารางผ่อนชำระ ตารางกระทบยอดตามย่อหน้า 44ก–44จ ที่แยกการเปลี่ยนแปลงที่เป็นเงินสดออกจากที่ไม่ใช่เงินสด ตำแหน่งของเงินแต่ละก้อนในงบกระแสเงินสด และผลต่างเมื่อสัญญาเดียวกันเป็นสัญญาเช่าดำเนินงานตาม TFRS for NPAEs ค่าตั้งต้นเป็นสัญญาเช่าโกดังของบริษัท สยามตัวอย่าง จำกัด (มหาชน) ในหัวข้อ 11.2 หน่วย: พันบาท</p>
+    <div class="los">
+      <span class="lo"><b>LO11.1</b> อธิบายการแยกเงินที่ผู้เช่าจ่ายตาม TFRS 16 ย่อหน้า 50 · เข้าใจ</span>
+      <span class="lo"><b>LO11.2</b> จัดทำตารางกระทบยอดหนี้สินตามสัญญาเช่า · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO11.3</b> วิเคราะห์การเปลี่ยนแปลงสัญญาและส่วนลดค่าเช่า · วิเคราะห์</span>
+      <span class="lo"><b>LO11.4</b> คำนวณกระแสเงินสดของสัญญาเช่าซื้อ · ประยุกต์ใช้</span>
+    </div>
+  </header>
+
+  <details class="how" id="how">
+    <summary>วิธีใช้</summary>
+    <ol>
+      <li>เลือกตัวอย่าง: <b>หัวข้อ 11.2</b> (สัญญาเช่าโกดัง) <b>แบบฝึกหัด 11.7</b> (เพิ่มสัญญาเช่าใหม่ 200 ณ สิ้นปี 2570) หรือ <b>เช่าซื้อรถบรรทุก 11.4</b></li>
+      <li>เลือกนโยบายดอกเบี้ยจ่าย: กิจกรรมดำเนินงาน กิจกรรมจัดหาเงิน หรือแนว TFRS 18 ซึ่งกำหนดให้ดอกเบี้ยของหนี้สินตามสัญญาเช่าอยู่ในกิจกรรมจัดหาเงิน</li>
+      <li>แก้ตัวเลขรายปีได้ทุกช่อง สัญญาเช่าใหม่เลือกได้ว่าเริ่ม "ต้นปี" (คิดดอกเบี้ยทั้งปี) หรือ "สิ้นปี" (ยังไม่คิดดอกเบี้ย) ค่าเช่าที่จ่ายถือว่าจ่าย ณ สิ้นปี หรือทุกสิ้นเดือนถ้าเลือกงวดรายเดือน การเปลี่ยนแปลงสัญญาและส่วนลดค่าเช่าถือว่าเกิด ณ สิ้นปี</li>
+      <li>ช่อง "ดอกเบี้ย (ป้อนเอง)" ใช้เมื่อต้องการตัวเลขจากตารางของผู้ให้เช่า ถ้าเว้นว่าง เครื่องมือคำนวณด้วยวิธีอัตราดอกเบี้ยที่แท้จริงจากยอดต้นงวด</li>
+      <li>ดูผลในแท็บทั้งสี่ แถบ "ตรวจกับหนังสือ" แสดงว่าตัวเลขตรงกับหนังสือหรือไม่ เมื่อแก้ข้อมูล ตัวเลขที่ตรวจอาจไม่ตรงอีกต่อไป</li>
+    </ol>
+    <p class="note">ตัวเลขปัดเป็นจำนวนเต็มพันบาทเพื่อแสดงผล การคำนวณภายในใช้ทศนิยมเต็ม เครื่องมือนี้ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ</p>
+  </details>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="ตัวอย่าง">
+      <button type="button" data-preset="book" aria-pressed="true">หัวข้อ 11.2</button>
+      <button type="button" data-preset="ex117" aria-pressed="false">แบบฝึกหัด 11.7</button>
+      <button type="button" data-preset="hp" aria-pressed="false">เช่าซื้อ 11.4</button>
+    </div>
+    <span class="hint" id="preset-note"></span>
+  </div>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-in">
+      <div class="panel-h"><h2 id="h-in">ข้อมูลสัญญา</h2><span class="hint">พันบาท</span></div>
+      <form id="f" onsubmit="return false">
+        <fieldset>
+          <legend>ข้อมูลทั่วไป</legend>
+          <div class="f2">
+            <label>ยอดหนี้สินต้นปี 2569 <input type="number" id="i-open" step="1" min="0"></label>
+            <label>อัตราดอกเบี้ยตามสัญญา (% ต่อปี) <input type="number" id="i-rate" step="0.0001" min="0"></label>
+            <label>งวดการจ่าย
+              <select id="i-freq"><option value="annual">ปีละครั้ง ณ สิ้นปี</option><option value="monthly">รายเดือน (ค่างวดปีละ ÷ 12)</option></select></label>
+            <label>เงินจ่าย ณ หรือก่อนวันเริ่มสัญญา จัดเป็น
+              <select id="i-prepol"><option value="inv">กิจกรรมลงทุน (ค่าเริ่มต้นของผู้เขียน)</option><option value="fin">กิจกรรมจัดหาเงิน</option></select></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>รายการรายปี</legend>
+          <div class="yg" id="yg"></div>
+        </fieldset>
+        <fieldset>
+          <legend>นโยบายดอกเบี้ยจ่าย</legend>
+          <div class="opts" id="pol">
+            <label><input type="radio" name="pol" value="op"> <span>กิจกรรมดำเนินงาน <small>(TAS 7 ย่อหน้า 33 · TFRS 16 ย่อหน้า 50.2)</small></span></label>
+            <label><input type="radio" name="pol" value="fin"> <span>กิจกรรมจัดหาเงิน <small>(TAS 7 ย่อหน้า 33)</small></span></label>
+            <label><input type="radio" name="pol" value="t18"> <span>แนว TFRS 18: ดอกเบี้ยของหนี้สินตามสัญญาเช่าเป็นกิจกรรมจัดหาเงิน <small>(รอบบัญชีที่เริ่มในหรือหลัง 1 มกราคม 2571 ตามร่าง ใช้ทดลองดูผลล่วงหน้า)</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset id="fs-style">
+          <legend>รูปแบบตารางกระทบยอดเมื่อดอกเบี้ยจ่ายอยู่ในกิจกรรมดำเนินงาน</legend>
+          <div class="opts">
+            <label><input type="radio" name="sty" value="gross"> <span>แบบแรก: แสดงเงินจ่ายทั้งจำนวน แล้วแยกดอกเบี้ยจ่ายไว้อีกคอลัมน์</span></label>
+            <label><input type="radio" name="sty" value="net"> <span>แบบที่สอง: แสดงเฉพาะเงินต้น ดอกเบี้ยตั้งค้างกับดอกเบี้ยจ่ายหักกลบเป็นศูนย์</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>การจัดประเภทตาม TFRS for NPAEs (แผงเปรียบเทียบ)</legend>
+          <div class="opts">
+            <label><input type="radio" name="npa" value="op"> <span>สัญญาเช่าดำเนินงาน</span></label>
+            <label><input type="radio" name="npa" value="fin"> <span>สัญญาเช่าเงินทุน <small>(เช่น เช่าซื้อ 14.23.1 หรือสิทธิเลือกซื้อราคาต่ำ 14.23.2)</small></span></label>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="h-out">
+      <div class="panel-h"><h2 id="h-out">ผลลัพธ์</h2><span class="hint" id="pol-label"></span></div>
+      <div class="kpi" id="kpi"></div>
+      <div class="checks" id="checks" aria-live="polite"></div>
+      <div class="seg" role="tablist" aria-label="ผลลัพธ์" style="margin-top:14px" id="tabs">
+        <button type="button" role="tab" data-tab="sched" id="t-sched" aria-controls="p-sched">ตารางผ่อนชำระ</button>
+        <button type="button" role="tab" data-tab="recon" id="t-recon" aria-controls="p-recon">กระทบยอด 44ก–44จ</button>
+        <button type="button" role="tab" data-tab="cfs" id="t-cfs" aria-controls="p-cfs">ในงบกระแสเงินสด</button>
+        <button type="button" role="tab" data-tab="cmp" id="t-cmp" aria-controls="p-cmp">NPAEs เทียบ TFRS 16</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-sched" aria-labelledby="t-sched"></div>
+      <div class="tabpanel" role="tabpanel" id="p-recon" aria-labelledby="t-recon"></div>
+      <div class="tabpanel" role="tabpanel" id="p-cfs" aria-labelledby="t-cfs"></div>
+      <div class="tabpanel" role="tabpanel" id="p-cmp" aria-labelledby="t-cmp"></div>
+    </section>
+  </div>
+
+  <footer>
+    <p class="foot">เครื่องมือนี้ใช้ประกอบบทที่ 11 สัญญาเช่าและสัญญาเช่าซื้อ ของคู่มือการจัดทำงบกระแสเงินสด TAS 7 ตัวอย่างทั้งหมดเป็นตัวเลขสมมติ ชื่อบรรทัดในงบตามแบบ 2 และแบบ 3 ของประกาศกรมพัฒนาธุรกิจการค้า พ.ศ. 2566 ถ้อยคำเป็นการสรุปของผู้เขียน ไม่ใช่ตัวบทมาตรฐาน ควรตรวจเทียบกับตัวบทฉบับที่มีผลบังคับใช้</p>
+    <p class="foot">© ดร.วิทยา อรุณศิริเพ็ชร และ อาจารย์พงษ์ธร ดวงปัญญา · เนื้อหาเป็นการถอดความของคณะผู้เขียน ไม่ใช่ถ้อยคำของมาตรฐาน</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const YEARS=[2569,2570];
+const TAB_KEY='tool6-tab';
+const blankY=()=>({newL:0,newT:'start',pay:0,mod:0,conc:0,intOv:'',pre:0,st:0,dep:0,sl:0});
+/* later years of the warehouse lease in section 11.2 (payments after the two input years) */
+const LATER=[[2571,58],[2572,58],[2573,58]];
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+const BASE={policy:'op',sty:'gross',freq:'annual',rate:7.5,opening:0,prePol:'inv',npaes:'op',
+  y:{2569:Object.assign(blankY(),{newL:400,pay:150,dep:80,sl:95}),2570:Object.assign(blankY(),{pay:150,dep:80,sl:95})}};
+const PRESETS={
+  book:{s:BASE,note:'สัญญาเช่าโกดัง 5 ปี เริ่ม 1 ม.ค. 2569 ไม่มีสิทธิเลือกซื้อ หนี้สิน 400 จ่าย ณ สิ้นปี 150 ในปี 2569–2570 และ 58 ในปี 2571–2573 อัตรา 7.5% ค่าเสื่อมราคาสินทรัพย์สิทธิการใช้ปีละ 80 ตามอายุสัญญา 5 ปี (TFRS 16 ย่อหน้า 31–32) · NPAEs สัญญาเช่าดำเนินงาน ค่าเช่าตามวิธีเส้นตรงปีละ 95',
+    checks:[['ดอกเบี้ย 2569','int',2569,30,'11.2'],['เงินต้น 2569','prin',2569,120,'11.2'],['ยอดปลายปี 2569','close',2569,280,'11.2'],
+            ['ดอกเบี้ย 2570','int',2570,21,'แบบฝึกหัด 11.2'],['เงินต้น 2570','prin',2570,129,'แบบฝึกหัด 11.2'],['ยอดปลายปี 2570','close',2570,151,'แบบฝึกหัด 11.2'],
+            ['ผลต่างกระแสเงินสดดำเนินงาน 2569','diff',2569,null,'11.7'],
+            ['ค่าเช่าเส้นตรง NPAEs 2569','npExp',2569,95,'6.4 · 11.7'],['ค่าเช่าจ่ายล่วงหน้า สิ้นปี 2569','prep',2569,55,'6.4 · 11.7']]},
+  ex117:{s:(()=>{const s=clone(BASE);s.y[2570].newL=200;s.y[2570].newT='end';return s})(),
+    note:'ต่อจากหัวข้อ 11.2 และเพิ่มสัญญาเช่าใหม่ 200 ที่เริ่ม ณ สิ้นปี 2570 ยังไม่มีการจ่ายและยังไม่คิดดอกเบี้ย',
+    checks:[['สัญญาเช่าใหม่ (ไม่ใช่เงินสด) 2570','newTot',2570,200,'แบบฝึกหัด 11.7'],['ดอกเบี้ย 2570','int',2570,21,'แบบฝึกหัด 11.2'],['ยอดปลายปี 2570','close',2570,351,'แบบฝึกหัด 11.7']]},
+  hp:{s:{policy:'op',sty:'gross',freq:'monthly',rate:5.0648,opening:0,prePol:'inv',npaes:'fin',
+      y:{2569:Object.assign(blankY(),{newL:1000,pay:360,pre:200}),2570:Object.assign(blankY(),{pay:360})}},
+    note:'รถบรรทุก 1,200 จ่ายเงินดาวน์ 200 ผ่อน 1,000 ใน 36 งวด งวดละ 30 (ปีละ 360) อัตราที่แท้จริง 5.0648% ต่อปี (0.4221% ต่อเดือน) คำนวณจากเงื่อนไขนี้ ปี 2570 เป็นตัวเลขที่เครื่องมือคำนวณ หนังสือแสดงเฉพาะปีแรก',
+    checks:[['เงินต้นในค่างวด 2569','prin',2569,317,'11.4'],['ดอกเบี้ยในค่างวด 2569','int',2569,43,'11.4'],['เงินดาวน์ (ลงทุน) 2569','pre',2569,200,'11.4'],
+            ['รับรู้หนี้สิน (ไม่ใช่เงินสด)','newTot',2569,1000,'11.4'],['เงินสดจ่ายรวม 2569','cashTot',2569,560,'แบบฝึกหัด 11.5']]}
+};
+
+let S=clone(BASE), preset='book';
+let tab='sched';
+try{const t=localStorage.getItem(TAB_KEY);if(['sched','recon','cfs','cmp'].includes(t))tab=t}catch(e){}
+
+/* ---------- formatting ---------- */
+const r0=n=>{const v=Math.round(n);return Object.is(v,-0)?0:v};
+const fmt=n=>r0(n).toLocaleString('th-TH');
+const fs=n=>{const v=r0(n);return v<0?'('+(-v).toLocaleString('th-TH')+')':v.toLocaleString('th-TH')}; // signed
+const fo=n=>{const v=r0(n);return v===0?'—':'('+v.toLocaleString('th-TH')+')'}; // outflow (positive input)
+const fz=n=>r0(n)===0?'—':fs(n);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>{const x=parseFloat(v);return Number.isFinite(x)?x:0};
+
+/* ---------- engine ---------- */
+function compute(s){
+  const out={}; let bal=num(s.opening); const r=num(s.rate)/100; let prepCum=0;
+  YEARS.forEach(yr=>{
+    const y=s.y[yr]; const o={yr,open:bal,months:[]};
+    o.newStart=y.newT==='start'?num(y.newL):0; o.newEnd=y.newT==='end'?num(y.newL):0; o.newTot=num(y.newL);
+    o.pay=num(y.pay); o.mod=num(y.mod); o.conc=num(y.conc); o.pre=num(y.pre); o.st=num(y.st); o.dep=num(y.dep); o.sl=num(y.sl);
+    let b=bal+o.newStart; const ov=String(y.intOv).trim()!=='';
+    if(ov){o.int=num(y.intOv);o.ovr=true}
+    else if(s.freq==='monthly'){
+      let it=0; const rm=r/12, pm=o.pay/12;
+      for(let m=1;m<=12;m++){const i=b*rm; it+=i; const ob=b; b=b+i-pm; o.months.push({m,open:ob,int:i,pay:pm,close:b});}
+      o.int=it;
+    } else o.int=b*r;
+    o.prin=o.pay-o.int;
+    o.close=bal+o.newStart+o.int-o.pay+o.newEnd+o.mod-o.conc;
+    o.other=o.mod-o.conc;
+    /* cash flow placement */
+    const pol=s.policy;
+    o.cf={op:{int:pol==='op'?o.int:0,st:o.st,pre:0},inv:{pre:s.prePol==='inv'?o.pre:0},fin:{prin:o.prin,int:pol==='op'?0:o.int,pre:s.prePol==='fin'?o.pre:0}};
+    o.tOp=o.cf.op.int+o.st; o.tInv=o.cf.inv.pre; o.tFin=o.prin+o.cf.fin.int+o.cf.fin.pre;
+    o.cashTot=o.pay+o.pre+o.st;
+    /* NPAEs (Form 2) */
+    if(s.npaes==='op'){const slr=o.sl>0?o.sl:o.pay; prepCum+=o.pay-slr; o.npExp=slr; o.prep=prepCum; o.np={op:o.pay+o.st+o.pre,inv:0,fin:0,exp:slr+o.st}}
+    else{const npi=pol==='fin'?'fin':'op'; o.np={op:(npi==='op'?o.int:0)+o.st,inv:o.pre,fin:o.prin+(npi==='fin'?o.int:0),exp:o.dep+o.int+o.st,npi}}
+    o.diff=o.np.op-o.tOp;
+    o.tfExp=o.dep+o.int+o.st;
+    bal=o.close; out[yr]=o;
+  });
+  return out;
+}
+
+/* ---------- inputs ---------- */
+const ROWS=[
+  ['newL','สัญญาเช่าใหม่','ไม่ใช่เงินสด · ย่อหน้า 43','n'],
+  ['newT','เริ่มสัญญา','ต้นปีคิดดอกเบี้ยทั้งปี','t'],
+  ['pay','ค่าเช่าที่จ่ายตามหนี้สิน','รวมเงินต้นและดอกเบี้ย','n'],
+  ['intOv','ดอกเบี้ย (ป้อนเอง)','เว้นว่าง = คำนวณ','o'],
+  ['mod','การเปลี่ยนแปลงสัญญา','เพิ่ม (+) หรือลด (−) ไม่ใช่เงินสด','m'],
+  ['conc','ส่วนลดค่าเช่าที่ได้รับ','ลดหนี้สิน ไม่ใช่เงินสด','n'],
+  ['pre','เงินจ่าย ณ หรือก่อนวันเริ่มสัญญา','เช่น เงินดาวน์ · ไม่อยู่ในหนี้สิน','n'],
+  ['st','ค่าเช่าระยะสั้น/มูลค่าต่ำ/ผันแปร','ย่อหน้า 50.3 · ดำเนินงาน','n'],
+  ['dep','ค่าเสื่อมราคาสินทรัพย์สิทธิการใช้','ไม่ใช่เงินสด · ใช้ในแผงเปรียบเทียบ','n'],
+  ['sl','ค่าเช่าตามวิธีเส้นตรง (NPAEs)','ย่อหน้า 14.38 · 0 = เท่ากับที่จ่าย · ใช้ในแผงเปรียบเทียบ','n']
+];
+function buildInputs(){
+  let h='<div></div>'+YEARS.map(y=>`<div class="hd">${y}</div>`).join('');
+  ROWS.forEach(([k,l,sub,t])=>{
+    h+=`<div class="lb">${l}<small>${sub}</small></div>`;
+    YEARS.forEach(y=>{
+      const id=`y-${k}-${y}`, al=`${l} ปี ${y}`;
+      if(t==='t') h+=`<select id="${id}" aria-label="${al}"><option value="start">ต้นปี</option><option value="end">สิ้นปี</option></select>`;
+      else h+=`<input type="number" id="${id}" aria-label="${al}" step="any" ${t==='m'?'':'min="0"'} ${t==='o'?'placeholder="อัตโนมัติ"':''} inputmode="decimal">`;
+    });
+  });
+  $('yg').innerHTML=h;
+}
+function fill(){
+  $('i-open').value=S.opening; $('i-rate').value=S.rate; $('i-freq').value=S.freq; $('i-prepol').value=S.prePol;
+  YEARS.forEach(y=>ROWS.forEach(([k])=>{$(`y-${k}-${y}`).value=S.y[y][k]}));
+  document.querySelectorAll('input[name=pol]').forEach(e=>e.checked=e.value===S.policy);
+  document.querySelectorAll('input[name=sty]').forEach(e=>e.checked=e.value===S.sty);
+  document.querySelectorAll('input[name=npa]').forEach(e=>e.checked=e.value===S.npaes);
+}
+function read(){
+  S.opening=$('i-open').value; S.rate=$('i-rate').value; S.freq=$('i-freq').value; S.prePol=$('i-prepol').value;
+  YEARS.forEach(y=>ROWS.forEach(([k])=>{S.y[y][k]=$(`y-${k}-${y}`).value}));
+  const g=n=>{const e=document.querySelector(`input[name=${n}]:checked`);return e?e.value:null};
+  S.policy=g('pol')||'op'; S.sty=g('sty')||'gross'; S.npaes=g('npa')||'op';
+}
+function same(a,b){ // compare state to preset numerically
+  const n=v=>String(v).trim()===''?'':num(v);
+  if(a.policy!==b.policy||a.freq!==b.freq||a.prePol!==b.prePol||a.npaes!==b.npaes||n(a.rate)!==n(b.rate)||n(a.opening)!==n(b.opening))return false;
+  return YEARS.every(y=>ROWS.every(([k,,,t])=>t==='t'?a.y[y][k]===b.y[y][k]:n(a.y[y][k])===n(b.y[y][k])));
+}
+
+/* ---------- render ---------- */
+const POL_LABEL={op:'ดอกเบี้ยจ่าย: กิจกรรมดำเนินงาน',fin:'ดอกเบี้ยจ่าย: กิจกรรมจัดหาเงิน',t18:'ดอกเบี้ยจ่าย: กิจกรรมจัดหาเงิน (แนว TFRS 18)'};
+function render(){
+  const R=compute(S);
+  $('fs-style').hidden=S.policy!=='op';
+  $('pol-label').textContent=POL_LABEL[S.policy];
+  const last=R[2570];
+  $('kpi').innerHTML=YEARS.map(y=>`<div><div class="k">ยอดหนี้สินปลายปี ${y}</div><div class="v" data-k="close-${y}">${fmt(R[y].close)}</div></div>`).join('')+
+    `<div><div class="k">ชำระเงินต้น 2569 / 2570</div><div class="v">${fmt(R[2569].prin)} / ${fmt(last.prin)}</div></div>`;
+  // checks
+  const P=PRESETS[preset], match=same(S,P.s);
+  let ch='';
+  if(match){
+    ch='<span class="hint">ตรวจกับหนังสือ:</span>'+P.checks.map(([l,k,y,exp,src])=>{
+      let e=exp; if(k==='diff') e=S.policy==='op'?120:150;
+      const v=r0(R[y][k]); const ok=v===e;
+      return `<span class="ck ${ok?'ok':'no'}" title="อ้างอิง ${src}">${ok?'✓':'✗'} ${l} <b>${fmt(v)}</b>${ok?'':' (หนังสือ '+fmt(e)+')'}</span>`}).join('');
+  } else ch='<span class="hint">ข้อมูลเปลี่ยนจากตัวอย่าง จึงไม่ตรวจกับตัวเลขในหนังสือ กดปุ่มตัวอย่างเพื่อคืนค่า</span>';
+  $('checks').innerHTML=ch;
+  $('preset-note').textContent=PRESETS[preset].note;
+  renderSched(R); renderRecon(R); renderCfs(R); renderCmp(R); showTab();
+}
+
+function renderSched(R){
+  let h=`<h3>ตารางผ่อนชำระหนี้สินตามสัญญาเช่า</h3><div class="tw"><table class="t wide" id="tbl-sched"><thead><tr><th>ปี</th><th class="n">ยอดต้นปี</th><th class="n">สัญญาใหม่ (ต้นปี)</th><th class="n">ดอกเบี้ย</th><th class="n">ค่าเช่าที่จ่าย</th><th class="n">เงินต้นที่ลด</th><th class="n">สัญญาใหม่ (สิ้นปี)</th><th class="n">เปลี่ยนแปลง / ส่วนลด</th><th class="n">ยอดปลายปี</th></tr></thead><tbody>`;
+  YEARS.forEach(y=>{const o=R[y];
+    h+=`<tr><td>${y}</td><td class="n">${fz(o.open)}</td><td class="n">${fz(o.newStart)}</td><td class="n" data-k="int-${y}">${fmt(o.int)}${o.ovr?' *':''}</td><td class="n">${fo(o.pay)}</td><td class="n" data-k="prin-${y}">${fs(o.prin)}</td><td class="n">${fz(o.newEnd)}</td><td class="n">${fz(o.other)}</td><td class="n"><b>${fmt(o.close)}</b></td></tr>`});
+  h+='</tbody></table></div>';
+  const r=num(S.rate);
+  h+=`<p class="note">ดอกเบี้ย = ยอดต้นงวด × ${r}%${S.freq==='monthly'?' ÷ 12 ทุกเดือน แล้วรวม 12 เดือน':''} เงินต้นที่ลด = ค่าเช่าที่จ่าย − ดอกเบี้ย${YEARS.some(y=>R[y].ovr)?' · * ดอกเบี้ยที่ป้อนเอง':''}</p>`;
+  YEARS.forEach(y=>{const o=R[y];
+    if(!o.ovr&&S.freq!=='monthly'){const base=o.open+o.newStart;
+      h+=`<p class="note">ปี ${y}: ${fmt(base)} × ${r}% = ${fmt(o.int)} · เงินต้น ${fmt(o.pay)} − ${fmt(o.int)} = ${fmt(o.prin)} · ยอดปลายปี ${fmt(o.open)}${o.newStart?' + '+fmt(o.newStart):''} + ${fmt(o.int)} − ${fmt(o.pay)}${o.newEnd?' + '+fmt(o.newEnd):''}${o.mod?' '+(o.mod<0?'− '+fmt(-o.mod):'+ '+fmt(o.mod)):''}${o.conc?' − '+fmt(o.conc):''} = ${fmt(o.close)}</p>`}
+    if(o.prin<0) h+=`<p class="note warn">ปี ${y}: ค่าเช่าที่จ่ายน้อยกว่าดอกเบี้ย หนี้สินจึงเพิ่มขึ้น ตรวจข้อมูลอีกครั้ง</p>`;
+  });
+  if(S.freq==='monthly') YEARS.forEach(y=>{const o=R[y]; if(!o.months.length)return;
+    h+=`<details class="mon"><summary>ดูรายเดือน ปี ${y}</summary><div class="tw"><table class="t mid"><thead><tr><th>เดือน</th><th class="n">ต้นงวด</th><th class="n">ดอกเบี้ย</th><th class="n">ค่างวด</th><th class="n">ปลายงวด</th></tr></thead><tbody>`+
+      o.months.map(m=>`<tr><td>${m.m}</td><td class="n">${m.open.toFixed(2)}</td><td class="n">${m.int.toFixed(2)}</td><td class="n">(${m.pay.toFixed(2)})</td><td class="n">${m.close.toFixed(2)}</td></tr>`).join('')+
+      `<tr class="tot"><td>รวม</td><td></td><td class="n">${o.int.toFixed(2)}</td><td class="n">(${o.pay.toFixed(2)})</td><td class="n">${(o.open+o.newStart+o.int-o.pay).toFixed(2)}</td></tr></tbody></table></div></details>`});
+  if(preset==='book'&&same(S,PRESETS.book.s)){
+    /* full 5-year schedule of section 11.2: interest rounded to thousand baht each year, as in the book */
+    let b=R[2570].close; const all=YEARS.map(y=>({y,open:R[y].open+R[y].newStart,int:R[y].int,pay:R[y].pay,close:R[y].close}));
+    LATER.forEach(([y,p])=>{const i=Math.round(b*num(S.rate)/100); all.push({y,open:b,int:i,pay:p,close:b+i-p}); b=b+i-p;});
+    h+=`<h3>ตารางผ่อนชำระตลอดอายุสัญญา 5 ปี (หัวข้อ 11.2)</h3><div class="tw"><table class="t mid" id="tbl-full"><thead><tr><th>ปี</th><th class="n">ยอดต้นปี</th><th class="n">ดอกเบี้ย</th><th class="n">ค่าเช่าที่จ่าย</th><th class="n">เงินต้นที่ลด</th><th class="n">ยอดปลายปี</th></tr></thead><tbody>`+
+      all.map(o=>`<tr><td>${o.y}</td><td class="n">${fmt(o.open)}</td><td class="n">${fmt(o.int)}</td><td class="n">${fo(o.pay)}</td><td class="n">${fmt(o.pay-o.int)}</td><td class="n" data-k="full-close-${o.y}"><b>${fmt(o.close)}</b></td></tr>`).join('')+
+      `<tr class="tot"><td>รวม</td><td></td><td class="n" data-k="full-int">${fmt(all.reduce((a,o)=>a+o.int,0))}</td><td class="n">${fo(all.reduce((a,o)=>a+o.pay,0))}</td><td class="n">${fmt(all.reduce((a,o)=>a+o.pay-o.int,0))}</td><td></td></tr></tbody></table></div>`;
+    h+=`<p class="note">ปี 2571–2573 จ่ายปีละ 58 ตามสัญญา ดอกเบี้ยแต่ละปีปัดเป็นพันบาท (151 × 7.5% = 11 · 104 × 7.5% = 8 · 54 × 7.5% = 4) ยอดปลายปี 2573 จึงเป็นศูนย์พอดี มูลค่าปัจจุบันของค่าเช่าทั้งสัญญา ≈ 399.9 ปัดเป็น 400 ค่าเช่าสองปีแรกสูงกว่าเพราะรวมค่าปรับปรุงโกดังที่ผู้ให้เช่าออกให้ สัญญาไม่มีสิทธิเลือกซื้อ ตารางด้านบนแสดงเฉพาะปีที่ป้อนข้อมูลได้ (2569–2570)</p>`;
+  } else if(preset==='book'||preset==='ex117') h+=`<p class="note">ข้อมูลประกอบจากหัวข้อ 11.2: สัญญา 5 ปี ไม่มีสิทธิเลือกซื้อ จ่าย 150 ในปี 2569–2570 และ 58 ในปี 2571–2573 ตารางผ่อนชำระ 5 ปีแสดงเมื่อข้อมูลตรงกับตัวอย่างหัวข้อ 11.2</p>`;
+  $('p-sched').innerHTML=h;
+}
+
+function renderRecon(R){
+  const gross=S.policy!=='op'||S.sty==='gross';
+  const intCol=S.policy==='op'?'ดอกเบี้ยจ่าย (ดำเนินงาน)':'ดอกเบี้ยจ่าย (จัดหาเงิน)';
+  let h=`<h3>ตารางกระทบยอดหนี้สินที่เกิดจากกิจกรรมจัดหาเงิน (ย่อหน้า 44ก–44จ)</h3>
+  <div class="tw"><table class="t wide" id="tbl-recon"><thead>
+  <tr><th rowspan="2">ปี</th><th rowspan="2" class="n">ยอดต้นปี</th><th colspan="${gross?2:1}" class="grp">กระแสเงินสด (44ข)</th><th colspan="3" class="grp">การเปลี่ยนแปลงที่ไม่ใช่เงินสด</th><th rowspan="2" class="n">ยอดปลายปี</th></tr>
+  <tr><th class="n">ชำระเงินต้น</th>${gross?`<th class="n">${intCol}</th>`:''}<th class="n">สัญญาเช่าใหม่ (44ค)</th><th class="n">ดอกเบี้ยตั้งค้าง</th><th class="n">อื่น ๆ (44จ)</th></tr></thead><tbody>`;
+  YEARS.forEach(y=>{const o=R[y]; const accr=gross?o.int:0;
+    const close=o.open-o.prin-(gross?o.int:0)+o.newTot+accr+o.other;
+    h+=`<tr><td>${y}</td><td class="n">${fz(o.open)}</td><td class="n" data-k="rc-prin-${y}">${fs(-o.prin)}</td>${gross?`<td class="n">${fs(-o.int)}</td>`:''}<td class="n" data-k="rc-new-${y}">${fz(o.newTot)}</td><td class="n">${gross?fz(accr):'0'}</td><td class="n" data-k="rc-oth-${y}">${fz(o.other)}</td><td class="n" data-k="rc-close-${y}"><b>${fmt(close)}</b></td></tr>`});
+  h+='</tbody></table></div>';
+  if(!gross) h+=`<p class="note">แบบที่สอง: ดอกเบี้ยตั้งค้างกับดอกเบี้ยจ่ายหักกลบเป็นศูนย์ เช่น ปี 2569 ${fmt(R[2569].int)} − ${fmt(R[2569].int)} = 0 ดอกเบี้ยจ่ายแสดงในกิจกรรมดำเนินงานแยกต่างหาก</p>`;
+  else if(S.policy==='op') h+=`<p class="note">แบบแรก: เงินจ่ายรวม ${YEARS.map(y=>`ปี ${y} (${fmt(R[y].pay)})`).join(' และ ')} แยกเป็นเงินต้นในกิจกรรมจัดหาเงินกับดอกเบี้ยจ่ายซึ่งแสดงในกิจกรรมดำเนินงาน</p>`;
+  // book-style vertical table
+  h+=`<h3>รูปแบบเดียวกับหนังสือ (หัวข้อ 11.2)</h3><div class="tw"><table class="t mid" id="tbl-book"><thead><tr><th>หนี้สินตามสัญญาเช่า (พันบาท)</th>${YEARS.map(y=>`<th class="n">${y}</th>`).join('')}<th>กระแสเงินสดหรือไม่</th></tr></thead><tbody>`;
+  const row=(l,f,t)=>`<tr><td>${l}</td>${YEARS.map(y=>`<td class="n">${f(R[y])}</td>`).join('')}<td>${t}</td></tr>`;
+  h+=row('ยอดต้นปี',o=>fz(o.open),'');
+  h+=row('สัญญาเช่าใหม่',o=>fz(o.newTot),'<span class="chip c-oth">ไม่ใช่เงินสด</span>');
+  if(gross){
+    h+=row('ดอกเบี้ยตามสัญญาเช่า',o=>fmt(o.int),'<span class="chip c-oth">ไม่ใช่เงินสด (ตั้งค้าง)</span>');
+    h+=row('เงินจ่ายตามสัญญาเช่า',o=>fo(o.pay),'<span class="chip c-ce">เงินสด</span> '+YEARS.map(y=>`${y}: เงินต้น (${fmt(R[y].prin)}) ดอกเบี้ย (${fmt(R[y].int)})`).join(' · '));
+  } else {
+    h+=row('ดอกเบี้ยตั้งค้างหักดอกเบี้ยจ่าย',()=>'0','<span class="chip c-hide">หักกลบ</span>');
+    h+=row('เงินจ่ายชำระเงินต้น',o=>fs(-o.prin),'<span class="chip c-ce">เงินสด</span>');
+  }
+  if(YEARS.some(y=>R[y].mod)) h+=row('การเปลี่ยนแปลงสัญญา',o=>fz(o.mod),'<span class="chip c-oth">ไม่ใช่เงินสด</span>');
+  if(YEARS.some(y=>R[y].conc)) h+=row('ส่วนลดค่าเช่าที่ผู้ให้เช่ายกให้',o=>fz(-o.conc),'<span class="chip c-oth">ไม่ใช่เงินสด</span>');
+  h+=`<tr class="tot"><td>ยอดปลายปี</td>${YEARS.map(y=>`<td class="n">${fmt(R[y].close)}</td>`).join('')}<td></td></tr></tbody></table></div>`;
+  // reconcile to statement
+  h+=`<div class="verdict"><div class="v">กระทบกับงบกระแสเงินสด</div>`+YEARS.map(y=>{const o=R[y];
+    return `<div>ปี ${y}: คอลัมน์ชำระเงินต้น (${fmt(o.prin)}) = บรรทัด "เงินสดจ่ายชำระหนี้สินตามสัญญาเช่า" (${fmt(o.prin)}) <span class="status s-ok">ลงตัว</span>${o.newTot||o.other?` · คอลัมน์ไม่ใช่เงินสดรวม ${fs(o.newTot+o.other)} ไม่ปรากฏในตัวงบ`:''}</div>`}).join('')+`</div>`;
+  $('p-recon').innerHTML=h;
+}
+
+function renderCfs(R){
+  const pol=S.policy;
+  let h=`<h3>ตำแหน่งในงบกระแสเงินสด (แบบ 3 · TFRS 16)</h3><div class="tw"><table class="t mid" id="tbl-cfs"><thead><tr><th>บรรทัดในงบ</th>${YEARS.map(y=>`<th class="n">${y}</th>`).join('')}<th>ที่มา</th></tr></thead><tbody>`;
+  const row=(l,f,ref,cls='pad',k='')=>`<tr><td class="${cls}">${l}</td>${YEARS.map(y=>`<td class="n" ${k?`data-k="${k}-${y}"`:''}>${f(R[y])}</td>`).join('')}<td class="hint">${ref}</td></tr>`;
+  const sec=l=>`<tr class="sec"><td colspan="${YEARS.length+2}">${l}</td></tr>`;
+  h+=sec('กระแสเงินสดจากกิจกรรมดำเนินงาน');
+  if(pol==='op') h+=row('ดอกเบี้ยจ่าย (ส่วนของหนี้สินตามสัญญาเช่า)',o=>fo(o.int),'TFRS 16 ย่อหน้า 50.2 · TAS 7 ย่อหน้า 31–33','pad','cf-opint');
+  if(YEARS.some(y=>R[y].st)) h+=row('ค่าเช่าระยะสั้น มูลค่าต่ำ และผันแปร',o=>fo(o.st),'TFRS 16 ย่อหน้า 50.3');
+  h+=row('<b>รวมผลต่อกิจกรรมดำเนินงาน</b>',o=>fo(o.tOp),'','pad','cf-op');
+  h+=row('<i>ข้อมูลประกอบ ไม่รวมในยอดข้างบน: ค่าเสื่อมราคาสินทรัพย์สิทธิการใช้</i>',o=>o.dep?fmt(o.dep):'—','ไม่ใช่เงินสด วิธีทางอ้อมบวกกลับจากกำไร หักล้างกับค่าเสื่อมราคาที่หักในกำไร จึงไม่เป็นเงินสดจ่าย','pad memo','cf-dep');
+  h+=sec('กระแสเงินสดจากกิจกรรมลงทุน');
+  h+=row(S.prePol==='inv'?'เงินสดจ่ายเพื่อซื้อสินทรัพย์ระยะยาวอื่น (จ่าย ณ หรือก่อนวันเริ่มสัญญา)':'—',o=>fo(o.tInv),S.prePol==='inv'?'TFRS 16 ย่อหน้า 24.2 · TAS 7 ย่อหน้า 16 (แนวการตีความ)':'นโยบายเลือกจัดเป็นกิจกรรมจัดหาเงิน','pad','cf-inv');
+  h+=sec('กระแสเงินสดจากกิจกรรมจัดหาเงิน');
+  h+=row('เงินสดจ่ายชำระหนี้สินตามสัญญาเช่า',o=>fo(o.prin),'TFRS 16 ย่อหน้า 50.1 · TAS 7 ย่อหน้า 17.5','pad','cf-prin');
+  if(pol!=='op') h+=row('ดอกเบี้ยจ่าย (ส่วนของหนี้สินตามสัญญาเช่า)',o=>fo(o.int),pol==='t18'?'แนว TFRS 18':'TAS 7 ย่อหน้า 33','pad','cf-finint');
+  if(S.prePol==='fin') h+=row('เงินสดจ่ายตามสัญญาเช่า ณ หรือก่อนวันเริ่มสัญญา',o=>fo(o.pre),'นโยบายทางเลือก (หัวข้อ 11.3)');
+  h+=row('<b>รวมผลต่อกิจกรรมจัดหาเงิน</b>',o=>fo(o.tFin),'','pad','cf-fin');
+  h+=`<tr class="tot"><td>เงินสดจ่ายรวมเกี่ยวกับสัญญาเช่า</td>${YEARS.map(y=>`<td class="n" data-k="cf-tot-${y}">${fo(R[y].cashTot)}</td>`).join('')}<td></td></tr>`;
+  h+='</tbody></table></div>';
+  // non-cash disclosure
+  const nc=YEARS.some(y=>R[y].newTot||R[y].mod||R[y].conc);
+  h+=`<h3>ข้อมูลกระแสเงินสดเปิดเผยเพิ่มเติม · รายการที่ไม่ใช่เงินสด (ย่อหน้า 43 · แบบ 3 แสดงท้ายวิธีทางตรง หรือเปิดเผยในหมายเหตุ)</h3>`;
+  if(nc){
+    h+=`<div class="tw"><table class="t mid"><thead><tr><th>รายการ</th>${YEARS.map(y=>`<th class="n">${y}</th>`).join('')}</tr></thead><tbody>`;
+    h+=`<tr><td>สินทรัพย์สิทธิการใช้ที่ได้มาโดยรับรู้หนี้สินตามสัญญาเช่า</td>${YEARS.map(y=>`<td class="n">${fz(R[y].newTot)}</td>`).join('')}</tr>`;
+    if(YEARS.some(y=>R[y].mod)) h+=`<tr><td>การเปลี่ยนแปลงสัญญาเช่า</td>${YEARS.map(y=>`<td class="n">${fz(R[y].mod)}</td>`).join('')}</tr>`;
+    if(YEARS.some(y=>R[y].conc)) h+=`<tr><td>ส่วนลดค่าเช่าที่ลดหนี้สินโดยไม่มีเงินจ่าย</td>${YEARS.map(y=>`<td class="n">${fz(-R[y].conc)}</td>`).join('')}</tr>`;
+    h+='</tbody></table></div>';
+  } else h+='<p class="note">ไม่มีในปีที่แสดง</p>';
+  h+=`<p class="note">ห้ามแสดงการได้มาซึ่งสินทรัพย์สิทธิการใช้เป็นเงินจ่ายลงทุนคู่กับเงินรับจัดหาเงิน เพราะไม่มีเงินสดเคลื่อนไหว (ย่อหน้า 43) และห้ามรวมค่าเช่าระยะสั้นหรือค่าเช่าผันแปรในบรรทัดชำระหนี้สินตามสัญญาเช่า${pol==='t18'?' · แนว TFRS 18 มีผลกับรอบบัญชีที่เริ่มในหรือหลัง 1 มกราคม 2571 ตามร่างที่เปิดรับฟังความเห็นปี 2568 ปี 2569–2570 ในเครื่องมือจึงเป็นการทดลองดูผล':''}</p>`;
+  $('p-cfs').innerHTML=h;
+}
+
+function renderCmp(R){
+  const npOp=S.npaes==='op';
+  let h=`<h3>สัญญาเดียวกัน: TFRS for NPAEs (แบบ 2) เทียบ TFRS 16 (แบบ 3)</h3>
+  <p class="note" style="margin-top:0">NPAEs จัดเป็น<b>${npOp?'สัญญาเช่าดำเนินงาน':'สัญญาเช่าเงินทุน'}</b> · TFRS 16 ${POL_LABEL[S.policy]}</p>`;
+  h+=`<div class="tw"><table class="t wide" id="tbl-cmp"><thead><tr><th rowspan="2">กิจกรรม</th>${YEARS.map(y=>`<th colspan="3" class="grp">${y}</th>`).join('')}</tr><tr>${YEARS.map(()=>'<th class="n">NPAEs</th><th class="n">TFRS 16</th><th class="n">ผลต่าง</th>').join('')}</tr></thead><tbody>`;
+  const line=(l,a,b,k)=>`<tr><td>${l}</td>${YEARS.map(y=>{const o=R[y],x=a(o),z=b(o);return `<td class="n">${fo(x)}</td><td class="n">${fo(z)}</td><td class="n" ${k?`data-k="${k}-${y}"`:''}>${r0(x-z)===0?'—':fs(x-z)}</td>`}).join('')}</tr>`;
+  h+=line('ดำเนินงาน',o=>o.np.op,o=>o.tOp,'diff');
+  h+=line('ลงทุน',o=>o.np.inv,o=>o.tInv);
+  h+=line('จัดหาเงิน',o=>o.np.fin,o=>o.tFin);
+  h+=`<tr class="tot"><td>เงินสดจ่ายรวม</td>${YEARS.map(y=>{const o=R[y];return `<td class="n">${fo(o.np.op+o.np.inv+o.np.fin)}</td><td class="n">${fo(o.tOp+o.tInv+o.tFin)}</td><td class="n">—</td>`}).join('')}</tr>`;
+  h+='</tbody></table></div>';
+  h+=`<p class="note">ผลต่าง = เงินจ่ายตาม NPAEs − เงินจ่ายตาม TFRS 16 ในกิจกรรมเดียวกัน ค่าบวกในบรรทัดดำเนินงานหมายถึงกระแสเงินสดจากกิจกรรมดำเนินงานตาม TFRS 16 สูงกว่า</p>`;
+  const o=R[2569];
+  h+=`<div class="verdict"><div class="v" data-k="diff-text">ปี 2569 กระแสเงินสดจากกิจกรรมดำเนินงานตาม TFRS 16 ${o.diff>0.5?'สูงกว่า '+fmt(o.diff)+' พันบาท':o.diff<-0.5?'ต่ำกว่า '+fmt(-o.diff)+' พันบาท':'เท่ากัน'} ทั้งที่เงินสดออกรวมเท่ากัน</div>`;
+  if(npOp){
+    h+=`<div>NPAEs: ค่าเช่าที่จ่าย (${fmt(o.pay)}) อยู่ในกิจกรรมดำเนินงานทั้งจำนวน บรรทัดในแบบ 2 คือเงินสดจ่ายค่าใช้จ่ายดำเนินงาน ไม่มีสินทรัพย์สิทธิการใช้และหนี้สินตามสัญญาเช่า ค่าใช้จ่ายตามวิธีเส้นตรง ${fmt(o.npExp)}${r0(o.prep)?` ส่วนต่างสะสม ${fmt(o.prep)} เป็นค่าเช่าจ่ายล่วงหน้า (วิธีทางอ้อมหักการเพิ่มขึ้น)`:''} TFRS 16: ${S.policy==='op'?`ดำเนินงานรับเฉพาะดอกเบี้ย (${fmt(o.int)}) เงินต้น (${fmt(o.prin)}) ไปอยู่ในกิจกรรมจัดหาเงิน ผลต่างจึงเท่ากับเงินต้น`:`เงินจ่ายทั้ง (${fmt(o.pay)}) อยู่ในกิจกรรมจัดหาเงิน ผลต่างจึงเท่ากับเงินจ่ายทั้งจำนวน`}</div>`;
+  } else {
+    h+=`<div>NPAEs สัญญาเช่าเงินทุน: เงินต้นอยู่ในบรรทัด "เงินสดที่ผู้เช่าจ่ายเพื่อลดจำนวนหนี้สินซึ่งเกิดขึ้นจากสัญญาเช่าเงินทุน" ในกิจกรรมจัดหาเงิน เหมือน TFRS 16 ผลต่างจึง${Math.abs(o.diff)<0.5?'ไม่เกิดขึ้น':'เหลือเฉพาะส่วนที่นโยบายดอกเบี้ยต่างกัน'}${S.policy==='t18'?' (สมมติ NPAEs จัดดอกเบี้ยจ่ายไว้ในกิจกรรมดำเนินงาน เพราะ TFRS 18 ไม่ใช้กับ NPAEs)':''}</div>`;
+  }
+  h+='</div>';
+  if(npOp&&S.policy==='t18') h+=`<p class="note">ด้าน NPAEs ไม่อยู่ในขอบเขตของ TFRS 18 ผลต่างของกระแสเงินสดจากการดำเนินงานระหว่างบริษัทจำกัดกับบริษัทมหาชนจึงกว้างขึ้นเป็นเงินจ่ายทั้งจำนวน</p>`;
+  // expenses
+  h+=`<h3>ค่าใช้จ่ายในงบกำไรขาดทุน (ข้อมูลประกอบ)</h3><div class="tw"><table class="t mid"><thead><tr><th>รายการ</th>${YEARS.map(y=>`<th class="n">${y}</th>`).join('')}</tr></thead><tbody>`+
+    `<tr><td>NPAEs ${npOp?'ค่าเช่าตามวิธีเส้นตรง (ย่อหน้า 14.38)':'ค่าเสื่อมราคา + ดอกเบี้ย'}</td>${YEARS.map(y=>`<td class="n" data-k="npexp-${y}">${fmt(R[y].np.exp)}</td>`).join('')}</tr>`+
+    (npOp?`<tr><td>NPAEs ค่าเช่าที่จ่าย (กิจกรรมดำเนินงาน)</td>${YEARS.map(y=>`<td class="n">${fo(R[y].pay+R[y].st)}</td>`).join('')}</tr><tr><td>NPAEs ค่าเช่าจ่ายล่วงหน้า ณ สิ้นปี (สะสม)</td>${YEARS.map(y=>`<td class="n" data-k="prep-${y}">${fz(R[y].prep)}</td>`).join('')}</tr>`:'')+
+    `<tr><td>TFRS 16 ค่าเสื่อมราคาสินทรัพย์สิทธิการใช้ + ดอกเบี้ย${YEARS.some(y=>R[y].st)?' + ค่าเช่าตาม 50.3':''}</td>${YEARS.map(y=>`<td class="n">${fmt(R[y].dep)} + ${fmt(R[y].int)}${R[y].st?' + '+fmt(R[y].st):''} = ${fmt(R[y].tfExp)}</td>`).join('')}</tr></tbody></table></div>`;
+  if(preset!=='hp') h+=`<p class="note">ข้อสังเกตจากหัวข้อ 11.7: สัญญาโกดังในหัวข้อ 11.2 ไม่โอนกรรมสิทธิ์ ไม่มีสิทธิเลือกซื้อ อายุ 5 ปีสั้นกว่าอายุเชิงเศรษฐกิจของโกดังมาก และมูลค่าปัจจุบันของจำนวนเงินขั้นต่ำต่ำกว่ามูลค่ายุติธรรมของโกดังมาก จึงไม่เข้าย่อหน้า 14.23.1–14.23.4 และเป็นสัญญาเช่าดำเนินงาน ค่าเช่าตามวิธีเส้นตรง (150 + 150 + 58 × 3) ÷ 5 ≈ 95 ต่อปี เทียบกับเงินที่จ่าย 150 ในปี 2569 ถ้าสัญญามีสิทธิเลือกซื้อในราคาต่ำมากที่ค่อนข้างแน่นอนว่าจะใช้ สัญญาจะเข้าย่อหน้า 14.23.2 และจัดเป็นสัญญาเช่าเงินทุน (14.23 เป็นข้อบ่งชี้ ไม่ใช่ข้อยุติ ตามย่อหน้า 14.24) เลือก "สัญญาเช่าเงินทุน" ทางซ้ายเพื่อดูว่าผลต่าง 120 หายไป ผลต่างระหว่างสองกรอบจึงขึ้นกับการจัดประเภทสัญญา ไม่ได้เกิดจากกรอบเพียงอย่างเดียว</p>`;
+  else h+=`<p class="note">สัญญาเช่าซื้อโอนความเป็นเจ้าของเมื่อสิ้นสุดสัญญา NPAEs จัดเป็นสัญญาเช่าเงินทุน (ย่อหน้า 14.23.1) ผลต่อสามกิจกรรมจึงเท่ากับ TFRS 16 ต่างกันที่ชื่อบรรทัดในกิจกรรมจัดหาเงินเท่านั้น</p>`;
+  $('p-cmp').innerHTML=h;
+}
+
+function showTab(){
+  document.querySelectorAll('#tabs [role=tab]').forEach(b=>{const on=b.dataset.tab===tab;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;$('p-'+b.dataset.tab).hidden=!on});
+}
+
+/* ---------- events ---------- */
+function loadPreset(k){preset=k;S=clone(PRESETS[k].s);fill();
+  document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.preset===k));render()}
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>loadPreset(b.dataset.preset)));
+const tabsEl=$('tabs');
+tabsEl.addEventListener('click',e=>{const b=e.target.closest('[role=tab]');if(!b)return;tab=b.dataset.tab;try{localStorage.setItem(TAB_KEY,tab)}catch(err){}showTab()});
+tabsEl.addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const bs=[...tabsEl.querySelectorAll('[role=tab]')];let i=bs.findIndex(b=>b.dataset.tab===tab);i=(i+(e.key==='ArrowRight'?1:bs.length-1))%bs.length;bs[i].click();bs[i].focus()});
+$('f').addEventListener('input',()=>{read();render()});
+$('f').addEventListener('change',()=>{read();render()});
+
+buildInputs(); loadPreset('book');
+})();
+</script>
+</body>
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h" style="position:fixed;inset:0;z-index:99999;background:#f5f7fa;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#18212e">
+ <form id="gate-f" style="background:#fff;border:1px solid #d9dfe7;border-top:6px solid #E8731B;border-radius:12px;padding:22px 20px;max-width:420px;width:100%;display:grid;gap:12px">
+  <img src="logo.png" alt="Dr.VIT &amp; PD" style="height:44px;width:auto;justify-self:start">
+  <h2 id="gate-h" style="margin:0;font-size:1.1rem;line-height:1.4;color:#1D3E9E">แอปประกอบคู่มือการจัดทำงบกระแสเงินสด TAS 7</h2>
+  <p style="margin:0;font-size:.92rem;color:#5a6676">สำหรับผู้ซื้อคู่มือ ใส่รหัสเข้าแอปที่พิมพ์ไว้ใต้ QR code ในเล่ม</p>
+  <label style="display:grid;gap:4px;font-size:.88rem">รหัสเข้าแอป
+   <span style="display:flex;gap:6px"><input id="gate-in" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:0;font:inherit;font-size:1rem;padding:8px 10px;border:1px solid #d9dfe7;border-radius:8px">
+   <button type="button" id="gate-show" style="font:inherit;font-size:.85rem;border:1px solid #d9dfe7;background:#fff;border-radius:8px;padding:0 10px;cursor:pointer">แสดง</button></span></label>
+  <label style="display:flex;gap:8px;align-items:center;font-size:.88rem"><input type="checkbox" id="gate-rem" checked> จำรหัสในเครื่องนี้</label>
+  <p id="gate-err" role="alert" style="margin:0;color:#b3362b;font-size:.88rem" hidden>รหัสไม่ถูกต้อง โปรดดูรหัสที่พิมพ์ไว้ในคู่มือ</p>
+  <button type="submit" style="font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px;background:#1D3E9E;color:#fff;cursor:pointer">เปิดแอป</button>
+  <p style="margin:0;font-size:.78rem;color:#5a6676">ดร.วิทยา อรุณศิริเพ็ชร · อาจารย์พงษ์ธร ดวงปัญญา</p>
+ </form>
+</div>
+<script>
+(function(){
+ var H='30bbac4ed235952c14f284ee9df8f6ae0fcabe8beca6b4fb70cf67bf128dd116',K='tas7cf-ok',g=document.getElementById('gate');
+ function ok(){try{if(localStorage.getItem(K)===H||sessionStorage.getItem(K)===H)return true}catch(e){}return false}
+ function open(){g.remove();document.documentElement.style.overflow=''}
+ if(ok()){open();return}
+ document.documentElement.style.overflow='hidden';
+ var inp=document.getElementById('gate-in');
+ document.getElementById('gate-show').onclick=function(){var p=inp.type==='password';inp.type=p?'text':'password';this.textContent=p?'ซ่อน':'แสดง'};
+ document.getElementById('gate-f').onsubmit=function(e){e.preventDefault();
+  var v=inp.value.toUpperCase().replace(/[\s-]/g,'');
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)).then(function(b){
+   var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+   if(h!==H){document.getElementById('gate-err').hidden=false;return}
+   try{(document.getElementById('gate-rem').checked?localStorage:sessionStorage).setItem(K,H)}catch(e){}
+   open()})};
+ inp.focus();
+})();
+</script>
+</html>

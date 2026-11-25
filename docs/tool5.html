@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เลือกกรอบมาตรฐานและแบบรายการย่อ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: questions (left) + result (right); stacks on phone. Tokens and components from Tool 1 */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;overflow-wrap:break-word}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px;min-width:0}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.45rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+.lead{color:var(--muted);max-width:72ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted);max-width:100%}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet);max-width:100%}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .seg button[aria-selected="true"]{color:#0f141b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button[aria-selected="true"],:root:not([data-theme="light"]) .btn.primary{color:#0f141b}}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+@media (max-width:520px){.panel{padding:14px}}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.hint{font-size:.84rem;color:var(--muted)}
+.presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.presets .lbl{font-size:.84rem;color:var(--muted);margin-right:2px}
+/* steps */
+fieldset.q{border:0;border-top:1px solid var(--rule-soft);margin:0;padding:14px 0 4px;min-width:0}
+fieldset.q:first-of-type{border-top:0;padding-top:0}
+fieldset.q legend{padding:0;display:flex;gap:10px;align-items:flex-start;font-family:var(--f-display);font-weight:600;font-size:.98rem;width:100%}
+.num{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.76rem;font-weight:700;font-family:var(--f-mono);background:var(--accent-soft);color:var(--accent);margin-top:1px}
+.q .sub{font-size:.82rem;color:var(--muted);margin:2px 0 8px 34px}
+.opts{display:grid;gap:6px;margin:8px 0 6px 34px}
+@media (max-width:520px){.opts{margin-left:0}.q .sub{margin-left:0}}
+.opt{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start;border:1px solid var(--rule);border-radius:8px;padding:8px 10px;cursor:pointer;background:var(--sheet)}
+.opt:hover{background:var(--paper)}
+.opt input{margin:4px 0 0;accent-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt .t{font-weight:500}
+.opt .d{display:block;font-size:.8rem;color:var(--muted)}
+.opt.auto{cursor:default;opacity:.9}
+.row2{display:flex;flex-wrap:wrap;gap:10px 14px;margin:8px 0 6px 34px;align-items:center}
+@media (max-width:520px){.row2{margin-left:0}}
+.row2 label{font-size:.86rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.row2 input[type=number]{font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:4px 8px;width:7.5em}
+.skip{margin:6px 0 6px 34px;font-size:.84rem;color:var(--muted);border-left:3px solid var(--rule);padding:2px 10px}
+@media (max-width:520px){.skip{margin-left:0}}
+/* result */
+.verdict{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-soft);border-radius:0 8px 8px 0}
+.verdict.req{border-color:var(--pass);background:var(--pass-soft)}
+.verdict.opt{border-color:var(--warn);background:var(--warn-soft)}
+.verdict .v{font-family:var(--f-display);font-weight:600;font-size:1.08rem}
+.kv{display:grid;grid-template-columns:minmax(7.5em,auto) minmax(0,1fr);gap:6px 14px;font-size:.9rem;margin-top:14px}
+@media (max-width:420px){.kv{grid-template-columns:minmax(0,1fr)}.kv dd{margin-bottom:6px}}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.chip{font-size:.78rem;border-radius:5px;padding:1px 8px;font-weight:500;border:1px solid transparent;white-space:nowrap}
+.c-req{background:var(--pass-soft);color:var(--pass)}
+.c-opt{background:var(--warn-soft);color:var(--warn)}
+.c-no{background:var(--paper);color:var(--muted);border-color:var(--rule)}
+.c-acc{background:var(--accent-soft);color:var(--accent)}
+.trace{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
+.step{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;font-family:var(--f-mono)}
+.dot.p{background:var(--pass-soft);color:var(--pass)}
+.dot.f{background:var(--fail-soft);color:var(--fail)}
+.dot.n{background:var(--paper);color:var(--muted);border:1px solid var(--rule)}
+.step .ref,.ref{font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.status{font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;margin-left:4px;white-space:nowrap}
+.s-ok{background:var(--pass-soft);color:var(--pass)} .s-chk{background:var(--warn-soft);color:var(--warn)}
+.sec{margin-top:18px}
+.cautions{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.cautions li{border:1px solid var(--rule);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;padding:8px 12px;font-size:.88rem;background:var(--sheet)}
+.cautions li .ref{display:block;margin-top:2px}
+.srcs{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:.86rem}
+.srcs li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;border-bottom:1px solid var(--rule-soft);padding:5px 0}
+.srcs .w{color:var(--muted);font-size:.8rem;text-align:right}
+@media (max-width:420px){.srcs li{grid-template-columns:minmax(0,1fr)}.srcs .w{text-align:left}}
+.quote{border:1px solid var(--rule);border-radius:8px;padding:12px 14px;background:var(--paper);font-size:.9rem;margin-top:8px}
+.quote .qh{font-family:var(--f-display);font-weight:600;font-size:.9rem;margin-bottom:4px}
+.quote mark{background:var(--accent-soft);color:var(--ink);padding:0 2px;border-radius:3px}
+.quote del{color:var(--fail);text-decoration-thickness:1.5px}
+.match{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-top:16px;background:var(--sheet)}
+.match.ok{border-color:var(--pass)}
+.match.bad{border-color:var(--fail)}
+.match ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:.88rem}
+.match li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start}
+.book-ans{font-size:.86rem;color:var(--muted);margin-top:6px}
+.mark{font-weight:600;font-size:.86rem}
+.mark.ok{color:var(--pass)} .mark.no{color:var(--fail)}
+.empty{color:var(--muted);font-size:.9rem;border:1px dashed var(--rule);border-radius:8px;padding:14px}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{width:100%;border-collapse:collapse;font-size:.9rem}
+table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table.t th{font-weight:500;color:var(--muted);font-size:.82rem}
+table.t td.c{white-space:nowrap;font-family:var(--f-mono)}
+table.t.w520{min-width:520px}
+.flow{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.flow li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px}
+.flow .y,.flow .nn{font-size:.86rem}
+.flow .y b{color:var(--pass)} .flow .nn b{color:var(--muted)}
+.howto ol{margin:6px 0 0;padding-left:1.3em;display:grid;gap:6px}
+.howto ul{margin:6px 0 0;padding-left:1.2em;display:grid;gap:4px}
+.foot{font-size:.8rem;color:var(--muted);max-width:90ch;border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){.opt{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <a href="index.html" title="หน้าแรกของแอป"><img src="logo.png" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block"></a>
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร<br>อาจารย์พงษ์ธร ดวงปัญญา<br><a href="index.html" style="color:#1D3E9E">กลับหน้าแรกของแอป</a></span>
+</div>
+
+  <header>
+    <div class="eyebrow">เครื่องมือที่ 5 · บทที่ 1 และบทที่ 6 · NPAEs 2.1–2.4, 4.2 · คำชี้แจงข้อ 2.2–2.3</div>
+    <h1>เลือกกรอบมาตรฐานและแบบรายการย่อ</h1>
+    <p class="lead">ตอบคำถามทีละขั้นตามผังการตัดสินใจในหัวข้อ 1.3 เพื่อดูว่ากิจการใช้กรอบการรายงานใด ต้องจัดทำงบกระแสเงินสดหรือไม่ ใช้แบบรายการย่อแบบใด และอ้างอิงย่อหน้าหรือข้อใด เกณฑ์ทั้งหมดมาจากหนังสือ ไม่ได้เพิ่มเกณฑ์อื่น</p>
+    <div class="los">
+      <span class="lo"><b>LO1.3</b> จำแนก PAEs หรือ NPAEs และระบุแบบรายการย่อ · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO1.5</b> เปรียบเทียบทาง ก กับทาง ข ของบริษัทจำกัด · วิเคราะห์</span>
+      <span class="lo"><b>LO6.1</b> อธิบายความสัมพันธ์ของ NPAEs, TAS 7 และแบบ 2 · เข้าใจ</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg" role="tablist" aria-label="ส่วนของเครื่องมือ">
+      <button type="button" role="tab" id="tab-flow" aria-controls="p-flow" data-tab="flow">ผังการตัดสินใจ</button>
+      <button type="button" role="tab" id="tab-ref" aria-controls="p-ref" data-tab="ref">ตารางสรุปจากหนังสือ</button>
+      <button type="button" role="tab" id="tab-help" aria-controls="p-help" data-tab="help">วิธีใช้</button>
+    </div>
+  </div>
+
+  <!-- TAB 1 -->
+  <section id="p-flow" role="tabpanel" aria-labelledby="tab-flow" class="wrap" style="gap:16px">
+    <div class="panel">
+      <div class="presets" role="group" aria-label="โจทย์จากแบบฝึกหัด">
+        <span class="lbl">โหลดโจทย์จากแบบฝึกหัด:</span>
+        <button type="button" class="btn" data-preset="e13a" aria-pressed="false">ข้อ 1.3 (ก)</button>
+        <button type="button" class="btn" data-preset="e13b" aria-pressed="false">ข้อ 1.3 (ข)</button>
+        <button type="button" class="btn" data-preset="e13c" aria-pressed="false">ข้อ 1.3 (ค)</button>
+        <button type="button" class="btn" data-preset="e14" aria-pressed="false">ข้อ 1.4</button>
+        <button type="button" class="btn" id="b-clear">เริ่มใหม่</button>
+      </div>
+      <p class="hint" id="preset-q" style="margin-top:8px" hidden></p>
+    </div>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-q">
+        <div class="panel-h"><h2 id="h-q">ข้อมูลของกิจการ</h2><span class="hint">ตอบตามลำดับ ขั้นที่ไม่เกี่ยวข้องจะข้ามให้</span></div>
+        <form id="f" onsubmit="return false">
+          <fieldset class="q" id="q1">
+            <legend><span class="num">1</span><span>ผู้มีหน้าที่จัดทำบัญชีเป็นกิจการประเภทใด</span></legend>
+            <p class="sub">ประเภทตามตารางในหัวข้อ 1.3 ใช้กำหนดแบบรายการย่อ</p>
+            <div class="opts" id="o-entity"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q2">
+            <legend><span class="num">2</span><span>กิจการอยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงินหรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 1 · คำชี้แจง ส่วนที่ 1 ข้อ 1 · หน่วยงานกำกับตามหัวข้อ 9.1</p>
+            <div class="opts" id="o-reg"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q3">
+            <legend><span class="num">3</span><span>กิจการเข้าลักษณะกิจการที่มีส่วนได้เสียสาธารณะ (PAEs) หรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 2 · กลุ่มที่ไม่ใช่ NPAEs ตาม NPAEs 2.1–2.2 ตามที่หนังสือระบุ เลือกได้มากกว่าหนึ่งข้อ</p>
+            <div id="q3-body"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q4">
+            <legend><span class="num">4</span><span>กิจการเลือกใช้ TFRS for PAEs ทั้งชุดหรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 3 · ทาง ข ในหัวข้อ 1.5 (NPAEs 2.4)</p>
+            <div id="q4-body"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q5">
+            <legend><span class="num">5</span><span>กิจการเลือกจัดทำงบกระแสเงินสดหรือไม่</span></legend>
+            <p class="sub">ผังการตัดสินใจขั้น 4 · ทาง ก ในหัวข้อ 1.5 (NPAEs 4.2)</p>
+            <div id="q5-body"></div>
+          </fieldset>
+
+          <fieldset class="q" id="q6">
+            <legend><span class="num">6</span><span>ข้อมูลปีก่อน (ถ้ามี)</span></legend>
+            <p class="sub">ใช้กับปีแรกที่เปลี่ยนแบบรายการย่อ (กรอบ "ปีแรกที่เปลี่ยนแบบรายการย่อ" หัวข้อ 1.3)</p>
+            <div class="row2">
+              <label>ปีบัญชี พ.ศ. <input type="number" id="i-year" min="2500" max="2700" step="1" inputmode="numeric" placeholder="เช่น 2570"></label>
+            </div>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" id="i-change"><span><span class="t">ปีนี้เป็นปีแรกที่เปลี่ยนแบบรายการย่อ</span><span class="d">เช่น บริษัทจำกัดแปรสภาพเป็นบริษัทมหาชนจำกัด</span></span></label>
+              <label class="opt"><input type="checkbox" id="i-prevnpaes"><span><span class="t">ปีก่อนใช้ TFRS for NPAEs</span></span></label>
+              <label class="opt"><input type="checkbox" id="i-prevnocfs"><span><span class="t">ปีก่อนไม่ได้จัดทำงบกระแสเงินสด</span></span></label>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="h-r" id="result" aria-live="polite"></section>
+    </div>
+  </section>
+
+  <!-- TAB 2 -->
+  <section id="p-ref" role="tabpanel" aria-labelledby="tab-ref" class="wrap" style="gap:16px" hidden>
+    <section class="panel" aria-labelledby="h-t1">
+      <div class="panel-h"><h2 id="h-t1">ผู้มีหน้าที่จัดทำบัญชี แบบ และข้อกำหนดงบกระแสเงินสด</h2><span class="hint">หัวข้อ 1.3</span></div>
+      <div class="tbl-wrap"><table class="t w520">
+        <thead><tr><th>ผู้มีหน้าที่จัดทำบัญชี</th><th>แบบ</th><th>มาตรฐานอ้างอิงของแบบ</th><th>งบกระแสเงินสด</th></tr></thead>
+        <tbody>
+          <tr><td>ห้างหุ้นส่วนจดทะเบียน</td><td class="c">แบบ 1</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span></td></tr>
+          <tr><td>บริษัทจำกัด</td><td class="c">แบบ 2</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span> ถ้าจัดทำต้องตาม TAS 7 (NPAEs 4.2)</td></tr>
+          <tr><td>บริษัทมหาชนจำกัด</td><td class="c">แบบ 3</td><td>TFRS for PAEs</td><td><span class="chip c-req">บังคับ</span></td></tr>
+          <tr><td>นิติบุคคลต่างประเทศที่ประกอบธุรกิจในไทย</td><td class="c">แบบ 4</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span></td></tr>
+          <tr><td>กิจการร่วมค้าตามประมวลรัษฎากร</td><td class="c">แบบ 5</td><td>TFRS for NPAEs</td><td><span class="chip c-opt">ไม่บังคับ</span></td></tr>
+          <tr><td>กิจการตามแบบ 1, 2, 4, 5 ที่เป็น PAEs หรือเลือกใช้ TFRS for PAEs</td><td>แบบ 3 ปรับรายการส่วนของเจ้าของ</td><td>TFRS for PAEs</td><td><span class="chip c-req">บังคับ</span> (คำชี้แจงข้อ 2.2(2))</td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">กิจการที่ไม่ใช่ NPAEs ตามที่หนังสือระบุ: กิจการที่มีตราสารทุนหรือตราสารหนี้ซื้อขายต่อประชาชน หรืออยู่ระหว่างออกตราสารเพื่อเสนอขาย สถาบันการเงิน บริษัทประกันภัย บริษัทหลักทรัพย์ บริษัทมหาชนจำกัด และกิจการอื่นที่กำหนดเพิ่ม (NPAEs 2.1–2.2)</p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-t2">
+      <div class="panel-h"><h2 id="h-t2">ผังการตัดสินใจ: แบบที่ต้องใช้และข้อกำหนดงบกระแสเงินสด</h2><span class="hint">หัวข้อ 1.3</span></div>
+      <ol class="flow">
+        <li><span class="num">1</span><div>กิจการอยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงินหรือไม่<div class="y"><b>ใช่</b> ใช้รูปแบบตามกฎหมายเฉพาะ (บทที่ 9)</div><div class="nn"><b>ไม่ใช่</b> ไปขั้น 2</div></div></li>
+        <li><span class="num">2</span><div>กิจการเป็นบริษัทมหาชนจำกัด หรือเข้าลักษณะ PAEs อื่นหรือไม่<div class="y"><b>ใช่</b> แบบ 3 งบกระแสเงินสดบังคับ (บทที่ 7)</div><div class="nn"><b>ไม่ใช่</b> ไปขั้น 3</div></div></li>
+        <li><span class="num">3</span><div>กิจการเลือกใช้ TFRS for PAEs ทั้งชุดหรือไม่<div class="y"><b>ใช่</b> แบบ 3 ปรับรายการส่วนของเจ้าของ งบกระแสเงินสดบังคับ (บทที่ 8)</div><div class="nn"><b>ไม่ใช่</b> ไปขั้น 4</div></div></li>
+        <li><span class="num">4</span><div>กิจการเลือกจัดทำงบกระแสเงินสดหรือไม่<div class="y"><b>ใช่</b> แบบตามประเภทกิจการ ส่วนงบกระแสเงินสดตาม TAS 7 และระบุเกณฑ์ในหมายเหตุ (บทที่ 6)</div><div class="nn"><b>ไม่ใช่</b> ไม่ต้องจัดทำ ถ้าไม่เคยจัดทำ ไม่ต้องกล่าวถึงในหมายเหตุ ถ้าเคยนำเสนองบกระแสเงินสดแล้วเลิกจัดทำ ควรอธิบายเหตุผลในหมายเหตุ (บทที่ 6 หัวข้อ 6.6)</div></div></li>
+      </ol>
+    </section>
+
+    <section class="panel" aria-labelledby="h-t3">
+      <div class="panel-h"><h2 id="h-t3">ธุรกิจตามกฎหมายเฉพาะ</h2><span class="hint">หัวข้อ 9.1</span></div>
+      <div class="tbl-wrap"><table class="t w520">
+        <thead><tr><th>ธุรกิจ</th><th>หน่วยงานกำกับ</th><th>แหล่งรูปแบบงบ</th><th>สถานะ</th></tr></thead>
+        <tbody id="reg-rows"></tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">หลักการจัดทำยังเป็น TAS 7 เพราะกิจการกลุ่มนี้เป็น PAEs รูปแบบของหน่วยงานกำกับกำหนดชื่อและลำดับบรรทัด ไม่ได้เปลี่ยนหลักการจัดประเภท</p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-t4">
+      <div class="panel-h"><h2 id="h-t4">มาตรฐานที่บริษัทจำกัดเลือกใช้ได้ตาม TFRS for NPAEs</h2><span class="hint">หัวข้อ 6.5 · แบบ 2 หมายเหตุข้อ 5.2.1 เชิงอรรถ *5</span></div>
+      <div class="tbl-wrap"><table class="t">
+        <thead><tr><th>มาตรฐานที่เลือกใช้ได้</th><th>ย่อหน้าใน NPAEs</th></tr></thead>
+        <tbody id="std-rows"></tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">เชิงอรรถ *5 ของแบบ 2 กำหนดให้ระบุการเลือกไว้ในเกณฑ์การจัดทำงบการเงิน การเลือกใช้ TFRS for PAEs บางฉบับนอกเหนือจากที่ NPAEs เปิดให้เลือก ขัดกับ NPAEs 2.4</p>
+    </section>
+  </section>
+
+  <!-- TAB 3 -->
+  <section id="p-help" role="tabpanel" aria-labelledby="tab-help" hidden>
+    <div class="panel howto">
+      <div class="panel-h"><h2 id="h-help">วิธีใช้</h2></div>
+      <ol>
+        <li><b>เลือกประเภทกิจการ</b> ในขั้น 1 แล้วตอบขั้นต่อไปตามลำดับ ขั้นที่ไม่เกี่ยวข้องกับเส้นทางของกิจการจะแสดงว่าข้าม เช่น บริษัทมหาชนจำกัดไม่ต้องตอบขั้น 4–5 เพราะงบกระแสเงินสดบังคับแล้ว</li>
+        <li><b>อ่านผลทางขวา</b> (บนโทรศัพท์อยู่ใต้คำถาม) ผลแสดงกรอบการรายงาน ข้อกำหนดงบกระแสเงินสด แบบรายการย่อ หลักการจัดทำ เส้นทางในผังการตัดสินใจ ข้อควรระวัง และแหล่งอ้างอิงพร้อมหัวข้อในหนังสือ</li>
+        <li><b>ฝึกกับแบบฝึกหัด</b> กดปุ่มข้อ 1.3 (ก)–(ค) หรือข้อ 1.4 เพื่อโหลดข้อเท็จจริงของโจทย์ ช่อง "เทียบกับเฉลยในหนังสือ" จะตรวจทีละประเด็นว่าผลของเครื่องมือตรงกับเฉลย ลองแก้คำตอบบางขั้นเพื่อดูว่าผลเปลี่ยนอย่างไร</li>
+        <li><b>บริษัทจำกัดที่เลือกจัดทำงบกระแสเงินสด</b> จะเห็นตัวอย่างหมายเหตุเกณฑ์การจัดทำงบการเงินจากหัวข้อ 6.5 เลือกวิธีทางตรงหรือทางอ้อมได้ และถ้าเลือกใช้มาตรฐานอื่นตามเชิงอรรถ *5 เครื่องมือจะบอกว่าต้องแก้ประโยคใด</li>
+        <li><b>แท็บตารางสรุป</b> รวมตารางและผังจากหัวข้อ 1.3, 6.5 และ 9.1 สำหรับทบทวน</li>
+      </ol>
+      <h3 style="margin-top:16px">ความหมายของป้าย</h3>
+      <ul>
+        <li><span class="chip c-req">บังคับ</span> ต้องจัดทำงบกระแสเงินสด · <span class="chip c-opt">ไม่บังคับ</span> กิจการเลือกได้</li>
+        <li><span class="status s-chk">ตรวจตัวบท</span> ข้อความที่ยังรอยืนยันกับตัวบทภาษาไทย ควรตรวจสอบกับตัวบทฉบับที่มีผลบังคับ ณ วันใช้งาน</li>
+      </ul>
+      <h3 style="margin-top:16px">ขอบเขต</h3>
+      <ul>
+        <li>เครื่องมือใช้เฉพาะเกณฑ์ที่หนังสือระบุ หนังสือระบุว่า NPAEs 2.2 กำหนดกิจการที่มีส่วนได้เสียสาธารณะไว้ 7 กลุ่ม แต่ระบุชื่อเฉพาะบางกลุ่ม ถ้ากิจการอาจเข้า "กิจการอื่นที่กำหนดเพิ่ม" ให้ตรวจกับตัวมาตรฐาน</li>
+        <li>ธุรกิจตามกฎหมายเฉพาะมีมากกว่าสามกลุ่มในเครื่องมือ (เช่น บริษัทบริหารสินทรัพย์) แต่หนังสือให้รายละเอียดหน่วยงานกำกับเฉพาะสามกลุ่มในบทที่ 9</li>
+        <li>เครื่องมือนี้ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ ผู้ใช้ควรตรวจกับตัวบทฉบับที่มีผลบังคับ ณ วันจัดทำงบ</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>เครื่องมือที่ 5 ประกอบบทที่ 1 (หัวข้อ 1.3 และ 1.5 แบบฝึกหัด 1.3–1.4) และบทที่ 6 (หัวข้อ 6.1 และ 6.5) ของคู่มือการจัดทำงบกระแสเงินสด TAS 7 สำหรับบริษัทจดทะเบียนและบริษัทจำกัด ถ้อยคำทั้งหมดเป็นการสรุปของผู้เขียน ไม่ใช่ตัวบทกฎหมายหรือมาตรฐาน</p>
+    <p>© ดร.วิทยา อรุณศิริเพ็ชร และ อาจารย์พงษ์ธร ดวงปัญญา · เนื้อหาเป็นการถอดความของคณะผู้เขียน ไม่ใช่ถ้อยคำของมาตรฐาน</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Data from the book ---------- */
+const ENTITIES=[
+  {k:'pcl',t:'บริษัทมหาชนจำกัด',d:'แบบ 3 · เป็น PAEs (NPAEs 2.1–2.2)',form:'3'},
+  {k:'listed',t:'บริษัทจดทะเบียน (ในตลาดหลักทรัพย์ฯ)',d:'มีตราสารทุนซื้อขายต่อประชาชน · แบบ 3 (บทที่ 7)',form:'3'},
+  {k:'ltd',t:'บริษัทจำกัด',d:'แบบ 2',form:'2'},
+  {k:'part',t:'ห้างหุ้นส่วนจดทะเบียน',d:'รวมห้างหุ้นส่วนจำกัด · แบบ 1',form:'1'},
+  {k:'foreign',t:'นิติบุคคลต่างประเทศที่ประกอบธุรกิจในไทย',d:'แบบ 4',form:'4'},
+  {k:'jv',t:'กิจการร่วมค้าตามประมวลรัษฎากร',d:'แบบ 5',form:'5'}
+];
+const ENT=Object.fromEntries(ENTITIES.map(e=>[e.k,e]));
+const REGS=[
+  {k:'none',t:'ไม่ใช่',d:'ไปขั้น 3'},
+  {k:'bank',t:'ธนาคารพาณิชย์ หรือบริษัทโฮลดิ้งที่เป็นบริษัทแม่ของกลุ่มธุรกิจทางการเงิน',reg:'ธนาคารแห่งประเทศไทย',src:'ประกาศธนาคารแห่งประเทศไทย ที่ สนส. 21/2561 และที่แก้ไขเพิ่มเติม',flag:'ต74'},
+  {k:'ins',t:'บริษัทประกันชีวิตหรือประกันวินาศภัย',reg:'สำนักงาน คปภ.',src:'ประกาศเรื่องการจัดทำและยื่นงบการเงินของบริษัทประกันวินาศภัย และของบริษัทประกันชีวิต พ.ศ. 2566 (8 ก.พ. 2566)',flag:'ต49'},
+  {k:'sec',t:'บริษัทหลักทรัพย์',reg:'สำนักงาน ก.ล.ต.',src:'ประกาศสำนักงาน ก.ล.ต. ที่ สธ./น. 53/2553 เรื่อง แบบงบการเงินสำหรับบริษัทหลักทรัพย์ และที่แก้ไขเพิ่มเติม',flag:'ต50'}
+];
+const REG=Object.fromEntries(REGS.map(r=>[r.k,r]));
+const PAE_ITEMS=[
+  {k:'traded',t:'มีตราสารทุนหรือตราสารหนี้ซื้อขายต่อประชาชน',d:'เช่น ออกหุ้นกู้เสนอขายต่อประชาชน (เฉลยข้อ 1.3 (ข), หัวข้อ 8.1)'},
+  {k:'issuing',t:'อยู่ระหว่างออกตราสารเพื่อเสนอขาย'},
+  {k:'other',t:'เป็นกิจการอื่นที่กำหนดเพิ่มตาม NPAEs 2.2',d:'หนังสือไม่ได้ระบุชื่อกลุ่มที่เหลือ ตรวจกับตัวมาตรฐาน'}
+];
+const STDS=[
+  ['TAS 7','งบกระแสเงินสด','4.2'],
+  ['TAS 12','ภาษีเงินได้','15.2'],
+  ['TAS 19','ผลประโยชน์ของพนักงาน','16.14'],
+  ['TAS 24','การเปิดเผยข้อมูลเกี่ยวกับบุคคลหรือกิจการที่เกี่ยวข้องกัน','4.21'],
+  ['TFRS 7','การเปิดเผยข้อมูลเครื่องมือทางการเงิน','4.22'],
+  ['TFRS 8','ส่วนงานดำเนินงาน','4.20']
+];
+const WORDING_HEAD='หมายเหตุ 2 เกณฑ์การจัดทำงบการเงิน (ส่วนที่เพิ่ม)';
+const W1='งบการเงินฉบับนี้จัดทำขึ้นตามมาตรฐานการรายงานทางการเงินสำหรับกิจการที่ไม่มีส่วนได้เสียสาธารณะ (TFRS for NPAEs) (ปรับปรุง 2565) ตามประกาศสภาวิชาชีพบัญชี ที่ 48/2565 และแสดงรายการตามประกาศกรมพัฒนาธุรกิจการค้า เรื่อง กำหนดรายการย่อที่ต้องมีในงบการเงิน พ.ศ. 2566 บริษัทเลือกจัดทำงบกระแสเงินสดโดยถือปฏิบัติตามข้อกำหนดของมาตรฐานการบัญชี ฉบับที่ 7 เรื่อง งบกระแสเงินสด ทั้งฉบับ รวมถึงการเปิดเผยข้อมูลที่เกี่ยวข้อง ตามที่ TFRS for NPAEs ย่อหน้า 4.2 เปิดให้เลือก และแสดงกระแสเงินสดจากกิจกรรมดำเนินงานด้วย';
+const W_LAST='บริษัทไม่ได้เลือกใช้มาตรฐานฉบับอื่นตามเชิงอรรถ *5 ของแบบ 2';
+
+/* ---------- Presets: exercises 1.3 and 1.4 ---------- */
+const BLANK=()=>({entity:'',reg:'',pae:{traded:false,issuing:false,other:false},sub:false,electPAE:'',electCFS:'',year:'',change:false,prevNPAEs:false,prevNoCFS:false,method:'indirect',stds:[]});
+const PRESETS={
+  e13a:{label:'ข้อ 1.3 (ก)',q:'ข้อ 1.3 (ก) ห้างหุ้นส่วนจำกัดที่ใช้ NPAEs',
+    s:{entity:'part',reg:'none',electPAE:'no',electCFS:'no'},
+    ans:'(ก) แบบ 1 ไม่บังคับ',
+    checks:[['แบบ 1',r=>r.formCode==='1'],['งบกระแสเงินสดไม่บังคับ',r=>r.cfs==='opt'],['กรอบ TFRS for NPAEs',r=>r.fw==='npaes']]},
+  e13b:{label:'ข้อ 1.3 (ข)',q:'ข้อ 1.3 (ข) บริษัทจำกัดที่ออกหุ้นกู้เสนอขายต่อประชาชน',
+    s:{entity:'ltd',reg:'none',pae:{traded:true,issuing:false,other:false}},
+    ans:'(ข) มีตราสารหนี้ซื้อขายต่อประชาชน จึงเป็น PAEs ใช้แบบ 3 งบกระแสเงินสดบังคับ',
+    checks:[['เป็น PAEs',r=>r.isPAE===true],['ใช้แบบ 3',r=>r.formCode==='3'],['งบกระแสเงินสดบังคับ',r=>r.cfs==='req']]},
+  e13c:{label:'ข้อ 1.3 (ค)',q:'ข้อ 1.3 (ค) บริษัทจำกัดที่เป็นบริษัทย่อยของบริษัทจดทะเบียน และใช้ NPAEs ในงบของตน',
+    s:{entity:'ltd',reg:'none',sub:true,electPAE:'no',electCFS:'no'},
+    ans:'(ค) บริษัทย่อยไม่ได้เป็น PAEs เพราะบริษัทแม่จดทะเบียน (NPAEs 2.2) จึงใช้แบบ 2 ได้ งบกระแสเงินสดไม่บังคับในงบของตน แต่บริษัทแม่ยังต้องการข้อมูลกระแสเงินสดของบริษัทย่อยเพื่อจัดทำงบรวมตาม TFRS for PAEs',
+    checks:[['ไม่เป็น PAEs',r=>r.isPAE===false],['ใช้แบบ 2',r=>r.formCode==='2'],['งบกระแสเงินสดไม่บังคับในงบของตน',r=>r.cfs==='opt'],['บริษัทแม่ยังต้องการข้อมูลกระแสเงินสดของบริษัทย่อยเพื่อจัดทำงบรวม',r=>r.keys.has('parentInfo')]]},
+  e14:{label:'ข้อ 1.4',q:'ข้อ 1.4 บริษัท สยามตัวอย่าง จำกัด แปรสภาพเป็นบริษัทมหาชนจำกัดระหว่างปี 2570 โดยปี 2569 ยื่นงบตาม NPAEs พร้อมงบกระแสเงินสดที่เลือกจัดทำ',
+    s:{entity:'pcl',reg:'none',year:'2570',change:true,prevNPAEs:true,prevNoCFS:false},
+    ans:'ใช้แบบ 3 และ TFRS for PAEs จัดทำงบกระแสเงินสดของปี 2570 และจัดทำงบปีเปรียบเทียบ 2569 ใหม่ตามกรอบใหม่ อธิบายผลต่างจากงบกระแสเงินสดตาม NPAEs ที่เคยยื่น (TFRS 1 ย่อหน้า 25) ในตัวอย่างนี้ กระแสเงินสดจากกิจกรรมดำเนินงานเปลี่ยนจาก 1,140 เป็น 1,260 พันบาท เพราะสัญญาเช่าโกดัง (บทที่ 8 หัวข้อ 8.4) จัดประเภทตัวเลขปีก่อนให้ตรงแบบใหม่ หรือเปิดเผยเหตุผลถ้าทำไม่ได้ และพิจารณาข้อกำหนดการเปลี่ยนจาก NPAEs เป็น PAEs (บทที่ 8)',
+    checks:[['ใช้แบบ 3',r=>r.formCode==='3'],['TFRS for PAEs',r=>r.fw==='paes'],['งบกระแสเงินสดปี 2570 และปีเปรียบเทียบ 2569',r=>r.cfs==='req'&&r.years==='2570 และปีเปรียบเทียบ 2569'],['จัดประเภทตัวเลขปีก่อนให้ตรงแบบใหม่ หรือเปิดเผยเหตุผล',r=>r.keys.has('reclass')],['พิจารณาการเปลี่ยนจาก NPAEs เป็น PAEs (บทที่ 8)',r=>r.keys.has('transition')],['อธิบายผลต่างจากงบกระแสเงินสดตาม NPAEs ที่เคยยื่น (TFRS 1 ย่อหน้า 25)',r=>r.keys.has('explainDiff')]]}
+};
+
+/* ---------- State ---------- */
+let S=BLANK(); let preset=null;
+const TAB_KEY='tool5-tab';
+function getTab(){try{return localStorage.getItem(TAB_KEY)}catch(e){return null}}
+function setTab(t){try{localStorage.setItem(TAB_KEY,t)}catch(e){}}
+
+/* ---------- Evaluation (book §1.3 decision flow) ---------- */
+function evaluate(s){
+  const r={complete:false,missing:'',trace:[],cautions:[],refs:[],keys:new Set(),fw:null,cfs:null,formCode:null,form:'',std:'',isPAE:null,years:'',wording:false,regInfo:null};
+  const C=(key,t,ref,flag)=>{r.keys.add(key);r.cautions.push({k:key,t,ref,flag})};
+  const R=(ref,where,flag)=>{if(!r.refs.some(x=>x.ref===ref))r.refs.push({ref,where,flag})};
+  if(!s.entity){r.missing='เลือกประเภทกิจการในขั้น 1';return r}
+  const e=ENT[s.entity];
+  R('พ.ร.บ.การบัญชี พ.ศ. 2543 มาตรา 11','หัวข้อ 1.2');
+  R('ประกาศกรมพัฒนาธุรกิจการค้า เรื่อง กำหนดรายการย่อที่ต้องมีในงบการเงิน พ.ศ. 2566 และคำชี้แจง','หัวข้อ 1.2–1.3');
+  if(!s.reg){r.missing='ตอบขั้น 2 เรื่องกฎหมายเฉพาะ';return r}
+  // Step 1
+  if(s.reg!=='none'){
+    const g=REG[s.reg];
+    r.trace.push({n:1,q:'อยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงิน',a:'ใช่ · '+g.t,pass:true});
+    r.complete=true;r.isPAE=true;r.fw='paes';r.cfs='req';r.formCode='special';
+    r.form='ไม่ใช้แบบ 1–5 ใช้รูปแบบงบการเงินตามกฎหมายเฉพาะ: '+g.src;r.regInfo=g;
+    r.std='TAS 7 (กิจการกลุ่มนี้เป็น PAEs รูปแบบของหน่วยงานกำกับกำหนดชื่อและลำดับบรรทัด ไม่ได้เปลี่ยนหลักการจัดประเภท)';
+    C('regFormat','ใช้แบบของหน่วยงานกำกับ ('+g.reg+') ประกอบกับ TAS 7 และตรวจประกาศฉบับล่าสุด ณ วันจัดทำงบ','หัวข้อ 9.1',g.flag);
+    C('regTas7','ข้อกำหนดเฉพาะใน TAS 7 สำหรับสถาบันการเงิน: เงินให้สินเชื่อและหลักทรัพย์เพื่อค้าเป็นกิจกรรมดำเนินงาน (ย่อหน้า 15) แสดงยอดสุทธิได้บางรายการ (ย่อหน้า 24) ดอกเบี้ยและเงินปันผลมักจัดเป็นกิจกรรมดำเนินงาน (ย่อหน้า 33)','หัวข้อ 9.2');
+    R('คำชี้แจงประกาศกรมพัฒนาธุรกิจการค้า ส่วนที่ 1 ข้อ 1','หัวข้อ 1.2, 9.1');
+    R(g.src,'หัวข้อ 9.1',g.flag);
+    R('TAS 7 ย่อหน้า 15, 24, 33','หัวข้อ 9.2');
+    addTransition(s,r,C,R);addFuture(r,C,false);
+    return r;
+  }
+  r.trace.push({n:1,q:'อยู่ภายใต้กฎหมายเฉพาะที่กำหนดรูปแบบงบการเงิน',a:'ไม่ใช่',pass:false});
+  // Step 2
+  const traits=PAE_ITEMS.filter(i=>s.pae[i.k]).map(i=>i.t);
+  const byType=s.entity==='pcl'||s.entity==='listed';
+  if(byType||traits.length){
+    const why=s.entity==='pcl'?'บริษัทมหาชนจำกัด':s.entity==='listed'?'บริษัทจดทะเบียน มีตราสารทุนซื้อขายต่อประชาชน':traits.join(' · ');
+    r.trace.push({n:2,q:'เป็นบริษัทมหาชนจำกัด หรือเข้าลักษณะ PAEs อื่น',a:'ใช่ · '+why,pass:true});
+    r.complete=true;r.isPAE=true;r.fw='paes';r.cfs='req';r.formCode='3';
+    r.std='TAS 7 (เป็นส่วนหนึ่งของ TFRS for PAEs)';
+    R('TFRS for NPAEs ย่อหน้า 2.1–2.2','หัวข้อ 1.3');
+    if(byType){
+      r.form='แบบ 3';
+      C('fullTas7','ต้องเปิดเผยตาม TAS 7 ทุกย่อหน้าที่บังคับและเกี่ยวข้องกับบริษัท ถ้ามีบริษัทย่อยต้องแสดงทั้งงบการเงินรวมและงบเฉพาะกิจการ','บทที่ 7 (บทนำ)');
+      if(s.entity==='listed'){
+        C('quarterly','บริษัทจดทะเบียนต้องส่งงบการเงินประจำปีและรายไตรมาส งบระหว่างกาลใช้ TAS 34 ซึ่งรวมงบกระแสเงินสดแบบย่อ','หัวข้อ 1.2 ชั้น 6, หัวข้อ 7.4');
+        R('พ.ร.บ.หลักทรัพย์และตลาดหลักทรัพย์ พ.ศ. 2535 มาตรา 56 · TAS 34','หัวข้อ 1.2');
+      }
+    }else{
+      r.form='แบบ 3 ปรับรายการส่วนของเจ้าของ';
+      C('form3','ใช้แบบ 3 ไม่ใช่แบบ '+e.form+' และปรับรายการส่วนของเจ้าของให้ตรงกับรูปแบบนิติบุคคล','หัวข้อ 1.3 จุดที่มักพลาด, 8.1–8.2 (คำชี้แจงข้อ 2.2(2))');
+      R('คำชี้แจงข้อ 2.2(2)','หัวข้อ 1.3, 8.1');
+      R('TAS 1 ย่อหน้า 10 (งบกระแสเงินสดเป็นองค์ประกอบของงบการเงินครบชุด)','หัวข้อ 8.1');
+      if(s.pae.other) C('otherPAE','หนังสือระบุว่า NPAEs 2.2 กำหนดกิจการที่มีส่วนได้เสียสาธารณะไว้ 7 กลุ่ม แต่ไม่ได้ระบุชื่อกลุ่มที่เหลือ ให้ตรวจกับตัวมาตรฐานก่อนสรุป','หัวข้อ 1.3');
+    }
+    addTransition(s,r,C,R);addFuture(r,C,false);
+    return r;
+  }
+  r.trace.push({n:2,q:'เป็นบริษัทมหาชนจำกัด หรือเข้าลักษณะ PAEs อื่น',a:'ไม่ใช่',pass:false});
+  r.isPAE=false;
+  R('TFRS for NPAEs ย่อหน้า 2.1–2.2','หัวข้อ 1.3');
+  if(s.sub){
+    C('parentInfo','การเป็นบริษัทย่อยของบริษัทจดทะเบียนไม่ทำให้เป็น PAEs งบกระแสเงินสดไม่บังคับในงบของตน แต่บริษัทแม่ยังต้องการข้อมูลกระแสเงินสดของบริษัทย่อยเพื่อจัดทำงบรวมตาม TFRS for PAEs','เฉลยข้อ 1.3 (ค) (ไม่เป็น PAEs: NPAEs 2.2)');
+    C('consolSep','อย่านำตัวเลขตาม TFRS for PAEs (เช่น TFRS 16) ที่บริษัทแม่ต้องการมาแสดงในงบที่ใช้ NPAEs ข้อมูลเพื่อการรวมงบควรจัดทำแยก','หัวข้อ 6.6 จุดที่มักพลาด');
+  }
+  // Step 3
+  if(!s.electPAE){r.missing='ตอบขั้น 4 ว่าเลือกใช้ TFRS for PAEs ทั้งชุดหรือไม่';return r}
+  if(s.electPAE==='yes'){
+    r.trace.push({n:3,q:'เลือกใช้ TFRS for PAEs ทั้งชุด',a:'ใช่ (ทาง ข)',pass:true});
+    r.complete=true;r.fw='paes';r.cfs='req';r.formCode='3';r.form='แบบ 3 ปรับรายการส่วนของเจ้าของ';
+    r.std='TAS 7 (เป็นส่วนหนึ่งของ TFRS for PAEs)';
+    C('form3','ใช้แบบ 3 ไม่ใช่แบบ '+e.form+' และปรับรายการส่วนของเจ้าของให้ตรงกับรูปแบบนิติบุคคล','หัวข้อ 1.3 จุดที่มักพลาด, 8.2 (คำชี้แจงข้อ 2.2(2))');
+    C('noPick','ต้องใช้ทั้งชุด ห้ามเลือกใช้ TFRS for PAEs เป็นรายฉบับร่วมกับ NPAEs นอกเหนือจากที่ NPAEs เปิดให้เลือก งบส่วนอื่นใช้ TFRS 9, TFRS 15, TFRS 16, TAS 12 และมาตรฐานอื่นทั้งหมด','หัวข้อ 1.5 (NPAEs 2.4)');
+    C('revert','ถ้าจะกลับไปใช้ NPAEs ต้องปฏิบัติตามบทที่ 5 ของ NPAEs และย่อหน้า 2.4','หัวข้อ 1.5');
+    R('TFRS for NPAEs ย่อหน้า 2.4','หัวข้อ 1.5');
+    R('คำชี้แจงข้อ 2.2(2)','หัวข้อ 1.3, 8.1');
+    R('TAS 1 ย่อหน้า 10 (งบกระแสเงินสดเป็นองค์ประกอบของงบการเงินครบชุด)','หัวข้อ 8.1');
+    addTransition(s,r,C,R);addFuture(r,C,false);
+    return r;
+  }
+  r.trace.push({n:3,q:'เลือกใช้ TFRS for PAEs ทั้งชุด',a:'ไม่ใช่',pass:false});
+  r.fw='npaes';r.formCode=e.form;r.form='แบบ '+e.form;
+  // Step 4
+  if(!s.electCFS){r.missing='ตอบขั้น 5 ว่าเลือกจัดทำงบกระแสเงินสดหรือไม่';return r}
+  r.complete=true;r.cfs='opt';
+  R('TFRS for NPAEs ย่อหน้า 4.2','หัวข้อ 1.3, 6.1');
+  if(s.electCFS==='yes'){
+    r.trace.push({n:4,q:'เลือกจัดทำงบกระแสเงินสด',a:'ใช่ (ทาง ก)',pass:true});
+    r.elected=true;r.wording=true;
+    r.std='TAS 7 ผ่าน NPAEs 4.2 · ตัวเลขวัดตาม NPAEs หลักการจัดประเภทและการเปิดเผยตาม TAS 7 รูปแบบตามแบบ '+e.form;
+    C('basis','ระบุเกณฑ์การจัดทำงบกระแสเงินสดในหมายเหตุ ถ้าไม่ระบุ ผู้ใช้งบไม่รู้ว่างบจัดทำตาม TAS 7','หัวข้อ 1.3 จุดที่มักพลาด, 6.1 (แบบ 2 หมายเหตุข้อ 5.2.1 และเชิงอรรถ *5)','ต32');
+    C('fullDisc','ผู้เขียนอ่านว่าต้องใช้ TAS 7 ทั้งฉบับ รวมการเปิดเผยที่แบบ 2 ไม่มีที่ให้ เช่น การเปลี่ยนแปลงของหนี้สินที่เกิดจากกิจกรรมจัดหาเงิน (ย่อหน้า 44ก–44จ) และองค์ประกอบเงินสดฯ (ย่อหน้า 45–47) การอ่านนี้เป็นการตีความของผู้เขียน','หัวข้อ 6.5','ต36');
+    if(e.form==='2') C('lineNames','ใช้ชื่อบรรทัดตามแบบ 2 ไม่ใช้ชื่อบรรทัดของแบบ 3 เช่น "เงินสดจ่ายชำระหนี้สินตามสัญญาเช่า" ในงบที่วัดมูลค่าตาม NPAEs','หัวข้อ 6.2, 6.6 จุดที่มักพลาด');
+    else C('otherForm','ตัวอย่างหมายเหตุและตารางบรรทัดในบทที่ 6 เขียนสำหรับบริษัทจำกัดที่ใช้แบบ 2 กิจการนี้ใช้แบบ '+e.form+' ตามประเภทกิจการ หนังสือไม่ได้ให้ถ้อยคำสำหรับแบบนี้','หัวข้อ 1.3 ผังขั้น 4, บทที่ 6');
+    C('compar','จัดทำพร้อมตัวเลขเปรียบเทียบ ไม่จัดทำเฉพาะปีปัจจุบัน','หัวข้อ 6.6 จุดที่มักพลาด');
+    C('stop','เลิกจัดทำได้ในปีต่อไป แต่ถ้าเลิกโดยไม่อธิบาย ผู้ใช้งบที่เคยได้รับข้อมูลจะไม่รู้เหตุผล','หัวข้อ 1.5, 6.6 จุดที่มักพลาด');
+    R('แบบ 2 หมายเหตุข้อ 5.2.1 และเชิงอรรถ *5','หัวข้อ 6.1, 6.5','ต32');
+    R('คำชี้แจงข้อ 2.3(3.1) และ 2.3(3.2)','หัวข้อ 6.1');
+    if(s.stds.length) C('stdsPicked','กิจการเลือกใช้ '+s.stds.join(', ')+' ด้วย ต้องระบุการเลือกไว้ในเกณฑ์การจัดทำงบการเงิน และแก้ประโยคท้ายของตัวอย่างหมายเหตุ','หัวข้อ 6.5 (เชิงอรรถ *5 ของแบบ 2)');
+    addTransition(s,r,C,R);addFuture(r,C,true);
+  }else{
+    r.trace.push({n:4,q:'เลือกจัดทำงบกระแสเงินสด',a:'ไม่ใช่',pass:false});
+    r.std='ไม่จัดทำ · ถ้าจัดทำในอนาคตต้องตาม TAS 7 (NPAEs 4.2)';
+    C('noCfs','ไม่ต้องจัดทำงบกระแสเงินสด ถ้าไม่เคยจัดทำ ไม่ต้องกล่าวถึงในหมายเหตุ ถ้าเคยนำเสนองบกระแสเงินสดแล้วเลิกจัดทำ ควรอธิบายเหตุผลในหมายเหตุ','หัวข้อ 1.3 ผังขั้น 4, 6.6 จุดที่มักพลาด');
+    C('myth','อย่าเข้าใจว่า NPAEs ต้องจัดทำงบกระแสเงินสด ข้อกำหนดที่ถูกคือไม่บังคับ','หัวข้อ 1.3 จุดที่มักพลาด (NPAEs 4.2)');
+    C('twoWays','ถ้าผู้ใช้งบ เช่น ธนาคาร ขอให้ส่งงบกระแสเงินสด มีสองทาง: ทาง ก คงใช้ NPAEs แล้วเลือกจัดทำ (NPAEs 4.2) หรือทาง ข เปลี่ยนไปใช้ TFRS for PAEs ทั้งชุด (NPAEs 2.4) ผลต่องบส่วนอื่นต่างกันมาก','หัวข้อ 1.5');
+    addTransition(s,r,C,R);
+  }
+  return r;
+}
+function addTransition(s,r,C,R){
+  const y=parseInt(s.year,10);
+  if(r.cfs==='req'||r.elected){
+    r.years=Number.isFinite(y)?(y+' และปีเปรียบเทียบ '+(y-1)):'ปีปัจจุบัน และปีเปรียบเทียบ';
+  }
+  if(s.change){
+    C('reclass','ปีแรกที่เปลี่ยนแบบ ให้จัดประเภทตัวเลขปีก่อนให้สอดคล้องกับแบบใหม่ ถ้าทำไม่ได้ในทางปฏิบัติ ให้เปิดเผยเหตุผลในหมายเหตุ และไม่ต้องแสดงรายการในแบบที่กิจการไม่มี','หัวข้อ 1.3 (คำชี้แจงข้อ 2.3(1) และ 2.3(3.1))');
+    R('คำชี้แจงข้อ 2.3(1)','หัวข้อ 1.3');
+  }
+  if(r.fw==='paes'&&s.prevNPAEs){
+    C('transition','พิจารณาข้อกำหนดการเปลี่ยนจาก NPAEs เป็น TFRS for PAEs','เฉลยข้อ 1.4, บทที่ 8 หัวข้อ 8.3');
+    if(s.prevNoCFS){
+      C('tfrs1','ปีก่อนไม่ได้จัดทำงบกระแสเงินสด ปีแรกตาม TFRS for PAEs ต้องมีงบกระแสเงินสดของปีเปรียบเทียบด้วย'+(Number.isFinite(y)?' (ปี '+(y-1)+')':'')+' ตาม TFRS 1 เพราะเป็นการนำ TFRS for PAEs มาใช้ทั้งชุดเป็นครั้งแรก','หัวข้อ 1.3 กรอบปีแรกที่เปลี่ยนแบบ');
+      R('TFRS 1','หัวข้อ 1.3, บทที่ 8');
+    } else {
+      C('explainDiff','ปีก่อนยื่นงบกระแสเงินสดตาม NPAEs ไว้แล้ว ให้จัดทำงบกระแสเงินสดปีเปรียบเทียบ'+(Number.isFinite(y)?' '+(y-1):'')+' ใหม่ตาม TFRS for PAEs และอธิบายรายการปรับปรุงที่มีสาระสำคัญต่องบกระแสเงินสดที่เคยยื่น (TFRS 1 ย่อหน้า 25) เช่น สัญญาเช่าที่ทำให้กระแสเงินสดจากกิจกรรมดำเนินงานเปลี่ยนจาก 1,140 เป็น 1,260 พันบาท','เฉลยข้อ 1.4, บทที่ 8 หัวข้อ 8.4 และ 8.6');
+      R('TFRS 1 ย่อหน้า 25','บทที่ 8 หัวข้อ 8.3–8.4');
+    }
+  }
+}
+function addFuture(r,C,npaes){
+  if(npaes) C('tfrs18','ตั้งแต่รอบปีที่เริ่มในหรือหลังวันที่ 1 มกราคม 2571 (ตามร่าง TFRS 18) TAS 7 ให้วิธีทางอ้อมเริ่มที่กำไรหรือขาดทุนจากการดำเนินงาน ซึ่ง NPAEs ไม่ได้นิยามยอดรวมย่อยนี้ บริษัทควรเลือกวิธีที่อธิบายได้ ใช้สม่ำเสมอ และเปิดเผยไว้','หัวข้อ 1.3 กรอบ TFRS 18, 6.6','ต37');
+  else C('tfrs18','TFRS 18 และการแก้ไข TAS 7 มีผลรอบปีที่เริ่มในหรือหลังวันที่ 1 มกราคม 2571 ตามร่าง TFRS 18 เลขประกาศและเลขย่อหน้าภาษาไทยยังรอยืนยัน','หัวข้อ 1.4','ต2');
+}
+
+/* ---------- Rendering: questions ---------- */
+function optHTML(name,type,o,checked,extra){
+  return `<label class="opt"><input type="${type}" name="${name}" value="${o.k}" ${checked?'checked':''} ${extra||''}><span><span class="t">${esc(o.t)}</span>${o.d?`<span class="d">${esc(o.d)}</span>`:''}</span></label>`;
+}
+function renderQuestions(){
+  $('o-entity').innerHTML=ENTITIES.map(o=>optHTML('entity','radio',o,S.entity===o.k)).join('');
+  $('o-reg').innerHTML=REGS.map(o=>optHTML('reg','radio',{k:o.k,t:o.t,d:o.k==='none'?o.d:('หน่วยงานกำกับ: '+o.reg)},S.reg===o.k)).join('');
+  const regYes=S.reg&&S.reg!=='none';
+  const byType=S.entity==='pcl'||S.entity==='listed';
+  // Q3
+  let q3='';
+  if(!S.entity||!S.reg) q3='<p class="skip">ตอบขั้น 1–2 ก่อน</p>';
+  else if(regYes) q3='<p class="skip">ข้าม: ขั้น 2 ตอบว่าอยู่ภายใต้กฎหมายเฉพาะ กิจการกลุ่มนี้เป็น PAEs (หัวข้อ 9.1)</p>';
+  else if(byType) q3=`<p class="skip">เป็น PAEs จากประเภทกิจการ: ${S.entity==='pcl'?'บริษัทมหาชนจำกัด':'บริษัทจดทะเบียน มีตราสารทุนซื้อขายต่อประชาชน'} (NPAEs 2.1–2.2)</p>`;
+  else{
+    q3='<div class="opts">'+PAE_ITEMS.map(o=>optHTML('pae','checkbox',o,S.pae[o.k],'data-pae="'+o.k+'"')).join('')+'</div>'+
+      '<p class="sub" style="margin-top:10px">ข้อมูลเพิ่มเติม (ไม่ใช่เกณฑ์ PAEs)</p><div class="opts">'+
+      optHTML('sub','checkbox',{k:'sub',t:'เป็นบริษัทย่อยของบริษัทจดทะเบียน',d:'การเป็นบริษัทย่อยไม่ทำให้เป็น PAEs (เฉลยข้อ 1.3 (ค))'},S.sub,'id="i-sub"')+'</div>';
+  }
+  $('q3-body').innerHTML=q3;
+  const r=evaluate(S);
+  const pae=regYes||byType||PAE_ITEMS.some(i=>S.pae[i.k]);
+  // Q4
+  let q4='';
+  if(!S.entity||!S.reg) q4='<p class="skip">ตอบขั้น 1–2 ก่อน</p>';
+  else if(pae) q4='<p class="skip">ข้าม: กิจการเป็น PAEs ต้องใช้ TFRS for PAEs อยู่แล้ว</p>';
+  else q4='<div class="opts">'+[{k:'no',t:'ไม่ใช่ คงใช้ TFRS for NPAEs',d:'ไปขั้น 5'},{k:'yes',t:'ใช่ เลือกใช้ TFRS for PAEs ทั้งชุด',d:'แบบ 3 ปรับรายการส่วนของเจ้าของ (บทที่ 8)'}].map(o=>optHTML('electPAE','radio',o,S.electPAE===o.k)).join('')+'</div>';
+  $('q4-body').innerHTML=q4;
+  // Q5
+  let q5='';
+  if(!S.entity||!S.reg) q5='<p class="skip">ตอบขั้น 1–2 ก่อน</p>';
+  else if(pae||S.electPAE==='yes') q5='<p class="skip">ข้าม: ใช้ TFRS for PAEs งบกระแสเงินสดบังคับ</p>';
+  else if(!S.electPAE) q5='<p class="skip">ตอบขั้น 4 ก่อน</p>';
+  else{
+    q5='<div class="opts">'+[{k:'no',t:'ไม่จัดทำ',d:'ถ้าไม่เคยจัดทำ ไม่ต้องกล่าวถึงในหมายเหตุ ถ้าเคยนำเสนอแล้วเลิกจัดทำ ควรอธิบายเหตุผลในหมายเหตุ'},{k:'yes',t:'เลือกจัดทำตาม TAS 7',d:'ระบุเกณฑ์ในหมายเหตุ (บทที่ 6)'}].map(o=>optHTML('electCFS','radio',o,S.electCFS===o.k)).join('')+'</div>';
+    if(S.electCFS==='yes'){
+      q5+=`<div class="row2"><span class="hint">วิธีแสดงกิจกรรมดำเนินงาน (แบบ 2 ข้อ 4.1 หรือ 4.2):</span>
+        <label><input type="radio" name="method" value="indirect" ${S.method==='indirect'?'checked':''}> วิธีทางอ้อม</label>
+        <label><input type="radio" name="method" value="direct" ${S.method==='direct'?'checked':''}> วิธีทางตรง</label></div>
+        <p class="sub" style="margin-top:8px">เลือกใช้มาตรฐานอื่นตามเชิงอรรถ *5 ของแบบ 2 ด้วยหรือไม่ (หัวข้อ 6.5)</p>
+        <div class="opts">${STDS.slice(1).map(x=>optHTML('stds','checkbox',{k:x[0],t:x[0]+' '+x[1],d:'NPAEs ย่อหน้า '+x[2]},S.stds.includes(x[0]))).join('')}</div>`;
+    }
+  }
+  $('q5-body').innerHTML=q5;
+  $('i-year').value=S.year;
+  $('i-change').checked=S.change;$('i-prevnpaes').checked=S.prevNPAEs;$('i-prevnocfs').checked=S.prevNoCFS;
+  renderResult(r);
+}
+
+/* ---------- Rendering: result ---------- */
+const FW={paes:'TFRS for PAEs',npaes:'TFRS for NPAEs (ปรับปรุง 2565)'};
+function flag(f){return f?'<span class="status s-chk" title="ตรวจสอบกับตัวบทฉบับที่มีผลบังคับ ณ วันใช้งาน">ตรวจตัวบท</span>':''}
+function renderResult(r){
+  const D=$('result');
+  let h='<div class="panel-h"><h2 id="h-r">ผลการตัดสินใจ</h2>'+(preset?`<span class="chip c-acc">${esc(PRESETS[preset].label)}</span>`:'')+'</div>';
+  if(!r.complete){
+    h+=`<p class="empty" id="r-missing">${esc(r.missing)}</p>`;
+    if(r.trace.length) h+=traceHTML(r);
+    h+=matchHTML(r);
+    D.innerHTML=h;return;
+  }
+  const cfsChip=r.cfs==='req'?'<span class="chip c-req">บังคับ</span>':(r.elected?'<span class="chip c-opt">ไม่บังคับ</span> <span class="chip c-acc">กิจการเลือกจัดทำ</span>':'<span class="chip c-opt">ไม่บังคับ</span> <span class="chip c-no">กิจการไม่จัดทำ</span>');
+  const vcls=r.cfs==='req'?'req':'opt';
+  const head=(r.formCode==='special'?'รูปแบบตามกฎหมายเฉพาะ':r.form)+' · '+FW[r.fw]+' · งบกระแสเงินสด'+(r.cfs==='req'?'บังคับ':'ไม่บังคับ');
+  h+=`<div class="verdict ${vcls}"><div class="eyebrow">ผลตามผังหัวข้อ 1.3</div><div class="v" id="r-verdict">${esc(head)}</div></div>
+  <dl class="kv">
+    <dt>กรอบการรายงาน</dt><dd id="r-fw">${FW[r.fw]}</dd>
+    <dt>ฐานะของกิจการ</dt><dd id="r-pae">${r.isPAE?'กิจการที่มีส่วนได้เสียสาธารณะ (PAEs)':'กิจการที่ไม่มีส่วนได้เสียสาธารณะ (NPAEs)'}</dd>
+    <dt>งบกระแสเงินสด</dt><dd id="r-cfs" data-v="${r.cfs}">${cfsChip}</dd>
+    <dt>แบบรายการย่อ</dt><dd id="r-form" data-v="${esc(r.formCode)}">${esc(r.form)}${r.regInfo?flag(r.regInfo.flag):''}</dd>
+    <dt>หลักการจัดทำ</dt><dd id="r-std">${esc(r.std)}</dd>
+    ${r.years?`<dt>ปีที่ต้องแสดง</dt><dd id="r-years">${esc(r.years)}</dd>`:''}
+  </dl>`;
+  h+=traceHTML(r);
+  if(r.wording) h+=wordingHTML();
+  h+=`<div class="sec"><h3>ข้อควรระวังจากหนังสือ</h3><ul class="cautions" id="r-cautions">${r.cautions.map(c=>`<li data-k="${c.k}">${esc(c.t)}<span class="ref">${esc(c.ref)}${flag(c.flag)}</span></li>`).join('')}</ul></div>`;
+  h+=`<div class="sec"><h3>แหล่งอ้างอิงที่หนังสือใช้</h3><ul class="srcs" id="r-refs">${r.refs.map(x=>`<li><span>${esc(x.ref)}${flag(x.flag)}</span><span class="w">${esc(x.where)}</span></li>`).join('')}</ul></div>`;
+  h+=matchHTML(r);
+  D.innerHTML=h;
+}
+function traceHTML(r){
+  return `<div class="sec"><h3>เส้นทางในผังการตัดสินใจ</h3><ol class="trace">${r.trace.map(t=>`<li class="step"><span class="dot ${t.pass?'p':'n'}" aria-hidden="true">${t.n}</span><div>${esc(t.q)}<div class="ref">ขั้น ${t.n} · ${esc(t.a)}</div></div></li>`).join('')}</ol></div>`;
+}
+function wordingHTML(){
+  const m=S.method==='direct'?'วิธีทางตรง':'วิธีทางอ้อม';
+  const changed=S.method==='direct';
+  const last=S.stds.length?`<del>${esc(W_LAST)}</del> <span class="hint">(ต้องแก้: กิจการเลือกใช้ ${esc(S.stds.join(', '))} ตามเชิงอรรถ *5)</span>`:esc(W_LAST);
+  return `<div class="sec" id="r-wording"><h3>ตัวอย่างหมายเหตุเกณฑ์การจัดทำงบการเงิน</h3>
+  <div class="quote"><div class="qh">${esc(WORDING_HEAD)}</div><p>${esc(W1)}${changed?`<mark>${m}</mark>`:m} ${last}</p></div>
+  <p class="hint" style="margin-top:6px">ถ้อยคำจากตัวอย่างหมายเหตุในหัวข้อ 6.5 ของหนังสือ${changed?' ส่วนที่เน้นสีเปลี่ยนตามวิธีที่เลือก (ตัวอย่างในหนังสือใช้วิธีทางอ้อม)':''} ใช้เป็นแนวทาง ไม่ใช่ถ้อยคำบังคับ</p></div>`;
+}
+function matchHTML(r){
+  if(!preset) return '';
+  const P=PRESETS[preset];
+  const res=P.checks.map(([l,f])=>{let ok=false;try{ok=r.complete&&!!f(r)}catch(e){ok=false}return {l,ok}});
+  const all=res.every(x=>x.ok);
+  return `<div class="match ${all?'ok':'bad'}" id="r-match" data-match="${all?'1':'0'}"><div class="panel-h" style="margin:0"><h3>เทียบกับเฉลยในหนังสือ</h3><span class="mark ${all?'ok':'no'}">${all?'ตรงกับเฉลยทุกประเด็น':'ยังไม่ตรงกับเฉลย'}</span></div>
+  <p class="book-ans"><b>เฉลย:</b> ${esc(P.ans)}</p>
+  <ul>${res.map(x=>`<li><span class="dot ${x.ok?'p':'f'}" aria-hidden="true">${x.ok?'✓':'✕'}</span><span>${esc(x.l)} <span class="sr">${x.ok?'(ตรง)':'(ไม่ตรง)'}</span></span></li>`).join('')}</ul></div>`;
+}
+
+/* ---------- Reference tables ---------- */
+$('reg-rows').innerHTML=REGS.slice(1).map(g=>`<tr><td>${esc(g.t)}</td><td>${esc(g.reg)}</td><td>${esc(g.src)}</td><td>${flag(g.flag)}</td></tr>`).join('');
+$('std-rows').innerHTML=STDS.map(x=>`<tr><td>${esc(x[0])} ${esc(x[1])}</td><td class="c">${esc(x[2])}</td></tr>`).join('');
+
+/* ---------- Events ---------- */
+$('f').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.name==='entity'){S.entity=t.value;if(t.value==='pcl'||t.value==='listed'){S.pae={traded:false,issuing:false,other:false};S.sub=false}}
+  else if(t.name==='reg') S.reg=t.value;
+  else if(t.dataset.pae) S.pae[t.dataset.pae]=t.checked;
+  else if(t.id==='i-sub') S.sub=t.checked;
+  else if(t.name==='electPAE') S.electPAE=t.value;
+  else if(t.name==='electCFS') S.electCFS=t.value;
+  else if(t.name==='method') S.method=t.value;
+  else if(t.name==='stds'){S.stds=STDS.slice(1).map(x=>x[0]).filter(k=>k===t.value?t.checked:S.stds.includes(k))}
+  else if(t.id==='i-change') S.change=t.checked;
+  else if(t.id==='i-prevnpaes') S.prevNPAEs=t.checked;
+  else if(t.id==='i-prevnocfs') S.prevNoCFS=t.checked;
+  else if(t.id==='i-year'){S.year=t.value.trim()}
+  const sel=t.name?`[name="${t.name}"][value="${t.value}"]`:(t.id?'#'+t.id:null);
+  renderQuestions();
+  if(sel){const n=document.querySelector(sel);if(n)n.focus({preventScroll:true})}
+});
+$('i-year').addEventListener('input',e=>{S.year=e.target.value.trim();renderResult(evaluate(S))});
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>loadPreset(b.dataset.preset)));
+$('b-clear').addEventListener('click',()=>{S=BLANK();preset=null;syncPresetUI();renderQuestions()});
+function loadPreset(k){
+  const P=PRESETS[k];const b=BLANK();
+  S=Object.assign(b,JSON.parse(JSON.stringify(P.s)));S.pae=Object.assign(BLANK().pae,P.s.pae||{});
+  preset=k;syncPresetUI();renderQuestions();
+}
+function syncPresetUI(){
+  document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.preset===preset));
+  const q=$('preset-q');
+  if(preset){q.hidden=false;q.textContent='โจทย์: '+PRESETS[preset].q}else{q.hidden=true;q.textContent=''}
+}
+/* tabs */
+const TABS=['flow','ref','help'];
+function showTab(t,focus){
+  if(!TABS.includes(t))t='flow';
+  TABS.forEach(x=>{const b=$('tab-'+x),p=$('p-'+x);const on=x===t;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;p.hidden=!on});
+  if(focus)$('tab-'+t).focus();
+  setTab(t);
+}
+document.querySelectorAll('[role=tab]').forEach(b=>{
+  b.addEventListener('click',()=>showTab(b.dataset.tab));
+  b.addEventListener('keydown',e=>{const i=TABS.indexOf(b.dataset.tab);
+    if(e.key==='ArrowRight'){e.preventDefault();showTab(TABS[(i+1)%TABS.length],true)}
+    if(e.key==='ArrowLeft'){e.preventDefault();showTab(TABS[(i+TABS.length-1)%TABS.length],true)}});
+});
+showTab(getTab()||'flow');
+renderQuestions();
+})();
+</script>
+</body>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h" style="position:fixed;inset:0;z-index:99999;background:#f5f7fa;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#18212e">
+ <form id="gate-f" style="background:#fff;border:1px solid #d9dfe7;border-top:6px solid #E8731B;border-radius:12px;padding:22px 20px;max-width:420px;width:100%;display:grid;gap:12px">
+  <img src="logo.png" alt="Dr.VIT &amp; PD" style="height:44px;width:auto;justify-self:start">
+  <h2 id="gate-h" style="margin:0;font-size:1.1rem;line-height:1.4;color:#1D3E9E">แอปประกอบคู่มือการจัดทำงบกระแสเงินสด TAS 7</h2>
+  <p style="margin:0;font-size:.92rem;color:#5a6676">สำหรับผู้ซื้อคู่มือ ใส่รหัสเข้าแอปที่พิมพ์ไว้ใต้ QR code ในเล่ม</p>
+  <label style="display:grid;gap:4px;font-size:.88rem">รหัสเข้าแอป
+   <span style="display:flex;gap:6px"><input id="gate-in" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:0;font:inherit;font-size:1rem;padding:8px 10px;border:1px solid #d9dfe7;border-radius:8px">
+   <button type="button" id="gate-show" style="font:inherit;font-size:.85rem;border:1px solid #d9dfe7;background:#fff;border-radius:8px;padding:0 10px;cursor:pointer">แสดง</button></span></label>
+  <label style="display:flex;gap:8px;align-items:center;font-size:.88rem"><input type="checkbox" id="gate-rem" checked> จำรหัสในเครื่องนี้</label>
+  <p id="gate-err" role="alert" style="margin:0;color:#b3362b;font-size:.88rem" hidden>รหัสไม่ถูกต้อง โปรดดูรหัสที่พิมพ์ไว้ในคู่มือ</p>
+  <button type="submit" style="font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px;background:#1D3E9E;color:#fff;cursor:pointer">เปิดแอป</button>
+  <p style="margin:0;font-size:.78rem;color:#5a6676">ดร.วิทยา อรุณศิริเพ็ชร · อาจารย์พงษ์ธร ดวงปัญญา</p>
+ </form>
+</div>
+<script>
+(function(){
+ var H='30bbac4ed235952c14f284ee9df8f6ae0fcabe8beca6b4fb70cf67bf128dd116',K='tas7cf-ok',g=document.getElementById('gate');
+ function ok(){try{if(localStorage.getItem(K)===H||sessionStorage.getItem(K)===H)return true}catch(e){}return false}
+ function open(){g.remove();document.documentElement.style.overflow=''}
+ if(ok()){open();return}
+ document.documentElement.style.overflow='hidden';
+ var inp=document.getElementById('gate-in');
+ document.getElementById('gate-show').onclick=function(){var p=inp.type==='password';inp.type=p?'text':'password';this.textContent=p?'ซ่อน':'แสดง'};
+ document.getElementById('gate-f').onsubmit=function(e){e.preventDefault();
+  var v=inp.value.toUpperCase().replace(/[\s-]/g,'');
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)).then(function(b){
+   var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+   if(h!==H){document.getElementById('gate-err').hidden=false;return}
+   try{(document.getElementById('gate-rem').checked?localStorage:sessionStorage).setItem(K,H)}catch(e){}
+   open()})};
+ inp.focus();
+})();
+</script>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>งบกระแสเงินสดวิธีทางตรง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Tokens and components follow Tool 1 (cash-test) */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8; --on-accent:#fff;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42; --on-accent:#0f141b;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42; --on-accent:#0f141b;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px;min-width:0}
+.brand img{max-width:60%;object-fit:contain}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+.lead{color:var(--muted);max-width:72ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted)}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet);max-width:100%}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"],.seg button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--muted);border-radius:8px;padding:7px 12px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn:focus-visible,.seg button:focus-visible,.tabs button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+@media (max-width:480px){.panel{padding:14px}}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.hint{font-size:.84rem;color:var(--muted)}
+.foot{font-size:.8rem;color:var(--muted);max-width:90ch}
+.verdict{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-soft);border-radius:0 8px 8px 0;margin-top:14px}
+.verdict.ok{border-color:var(--pass);background:var(--pass-soft)}
+.verdict.no{border-color:var(--fail);background:var(--fail-soft)}
+.verdict .v{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.status{font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;margin-left:4px;white-space:nowrap}
+.s-ok{background:var(--pass-soft);color:var(--pass)} .s-chk{background:var(--warn-soft);color:var(--warn)} .s-no{background:var(--fail-soft);color:var(--fail)}
+.chip{font-size:.78rem;border-radius:5px;padding:1px 8px;font-weight:500;border:1px solid transparent;white-space:nowrap}
+.c-acc{background:var(--accent-soft);color:var(--accent)}
+.c-warn{background:var(--warn-soft);color:var(--warn)}
+/* inputs */
+fieldset{border:0;margin:0 0 14px;padding:0;min-width:0}
+legend{font-family:var(--f-display);font-weight:600;font-size:.95rem;margin-bottom:6px;padding:0}
+.f-row{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:4px 10px;align-items:center;padding:5px 0;border-top:1px solid var(--rule-soft)}
+.f-row.two{grid-template-columns:minmax(0,1fr) 84px 84px}
+.f-row.head{border-top:0;font-size:.76rem;color:var(--muted);padding-bottom:0}
+.f-row.head span{text-align:right}
+.f-row label,.f-row .lb{font-size:.86rem;min-width:0}
+.f-row .sub{display:block;font-size:.74rem;color:var(--muted)}
+.f-row input{font:inherit;font-family:var(--f-mono);font-size:.88rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:4px 6px;width:100%;min-width:0;text-align:right}
+.f-row input.chg{border-color:var(--warn);background:var(--warn-soft)}
+.f-row .calc{font-family:var(--f-mono);font-size:.88rem;text-align:right;color:var(--muted)}
+@media (max-width:400px){.f-row{grid-template-columns:minmax(0,1fr) 84px}.f-row.two{grid-template-columns:minmax(0,1fr) 72px 72px}.f-row input{font-size:.82rem;padding:4px}}
+/* statement tables */
+.tw{overflow-x:auto;max-width:100%}
+table.st{width:100%;border-collapse:collapse;font-size:.9rem}
+table.st th,table.st td{padding:6px 8px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table.st th{font-weight:500;color:var(--muted);font-size:.8rem}
+table.st th.n{text-align:right}
+table.st td.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.st td.no{font-family:var(--f-mono);color:var(--muted);font-size:.8rem;white-space:nowrap;width:2.4em}
+table.st tr.sec td{font-weight:600;padding-top:12px;font-family:var(--f-display)}
+table.st tr.sub td{font-weight:600;border-top:1px solid var(--rule)}
+table.st tr.tot td{font-weight:600;border-top:1.5px solid var(--ink);border-bottom:3px double var(--ink)}
+table.st tr.chg td{background:var(--warn-soft)}
+table.st td.ind{padding-left:20px}
+table.st .f{display:block;font-size:.76rem;color:var(--muted);font-weight:400;font-family:var(--f-body)}
+@media (max-width:480px){table.st{font-size:.82rem}table.st th,table.st td{padding:6px 5px}table.st td.ind{padding-left:12px}}
+.cb{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;margin:6px 0}
+.cb input{margin-top:5px;flex:none}
+.cb input[type=number]{width:72px;font:inherit;font-family:var(--f-mono);font-size:.85rem;margin:0;padding:2px 4px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink)}
+.howto ol{margin:6px 0 0;padding-left:1.4em}
+.howto li{margin:4px 0}
+.ans{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:6px 10px;align-items:center;margin-top:10px}
+.ans input{font:inherit;font-family:var(--f-mono);text-align:right;border:1px solid var(--rule);border-radius:6px;padding:4px 6px;background:var(--paper);color:var(--ink);width:100%;min-width:0}
+.mark{font-weight:600;font-size:.82rem}
+.mark.ok{color:var(--pass)} .mark.no{color:var(--fail)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+footer{border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:4px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <a href="index.html" title="หน้าแรกของแอป"><img src="logo.png" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block"></a>
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร<br>อาจารย์พงษ์ธร ดวงปัญญา<br><a href="index.html" style="color:#1D3E9E">กลับหน้าแรกของแอป</a></span>
+</div>
+
+  <header>
+    <div class="eyebrow">เครื่องมือที่ 4 · บทที่ 5 · TAS 7 ย่อหน้า 14, 18.1, 19</div>
+    <h1>งบกระแสเงินสดวิธีทางตรง</h1>
+    <p class="lead">แปลงรายได้ ต้นทุนขาย และค่าใช้จ่าย เป็นเงินสดรับและเงินสดจ่าย ด้วยการเปลี่ยนแปลงของลูกหนี้ สินค้า เจ้าหนี้ ค่าใช้จ่ายค้างจ่าย และค่าใช้จ่ายจ่ายล่วงหน้า แล้วกระทบกับวิธีทางอ้อมในบทที่ 4 ค่าตั้งต้นเป็นตัวเลขของบริษัท สยามตัวอย่าง จำกัด (มหาชน) ปี 2569 ตามหัวข้อ 5.2 หน่วยพันบาท บริษัทนี้เป็นกิจการสมมติ</p>
+    <div class="los">
+      <span class="lo"><b>LO5.2</b> คำนวณเงินสดรับจากลูกค้าและเงินสดจ่ายผู้ขายและพนักงาน · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO5.3</b> กระทบยอดวิธีทางตรงกับวิธีทางอ้อมและอธิบายผลต่าง · วิเคราะห์</span>
+      <span class="lo"><b>LO5.4</b> คำนวณกระแสเงินสดเกี่ยวกับภาษีมูลค่าเพิ่มแบบรวมและไม่รวมภาษี · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO5.5</b> เปรียบเทียบบรรทัดวิธีทางตรงตามแบบ 2 กับแบบ 3 · วิเคราะห์</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="ส่วนของเครื่องมือ">
+    <button type="button" role="tab" id="t-calc" aria-controls="p-calc" data-tab="calc">คำนวณวิธีทางตรง</button>
+    <button type="button" role="tab" id="t-recon" aria-controls="p-recon" data-tab="recon">กระทบกับวิธีทางอ้อม</button>
+    <button type="button" role="tab" id="t-vat" aria-controls="p-vat" data-tab="vat">ภาษีมูลค่าเพิ่ม</button>
+    <button type="button" role="tab" id="t-ex" aria-controls="p-ex" data-tab="ex">แบบฝึกหัด 5.7</button>
+    <button type="button" role="tab" id="t-help" aria-controls="p-help" data-tab="help">วิธีใช้</button>
+  </nav>
+
+  <!-- ============ TAB 1: CALC ============ -->
+  <section id="p-calc" role="tabpanel" aria-labelledby="t-calc">
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-in">
+        <div class="panel-h"><h2 id="h-in">ข้อมูลนำเข้า (พันบาท)</h2><button type="button" class="btn" id="b-reset">คืนค่าตัวอย่าง 5.2</button></div>
+        <form id="f-in" autocomplete="off" onsubmit="return false">
+          <fieldset><legend>งบกำไรขาดทุน ปี 2569</legend><div id="in-is"></div></fieldset>
+          <fieldset><legend>งบฐานะการเงิน ณ 31 ธันวาคม</legend>
+            <div class="f-row two head"><span></span><span>2568</span><span>2569</span></div>
+            <div id="in-bs"></div>
+          </fieldset>
+          <fieldset><legend>ข้อมูลประกอบ</legend><div id="in-oth"></div></fieldset>
+        </form>
+        <p class="hint" id="chk-is"></p>
+        <p class="hint">ช่องสีเหลืองคือค่าที่ต่างจากตัวอย่างในหนังสือ ดอกเบี้ยรับและเงินปันผลรับจัดเป็นกิจกรรมลงทุน เงินปันผลจ่ายจัดเป็นกิจกรรมจัดหาเงิน ดอกเบี้ยจ่ายจัดเป็นกิจกรรมดำเนินงาน ตามนโยบายในหัวข้อ 4.2</p>
+      </section>
+
+      <section class="panel" aria-labelledby="h-out">
+        <div class="panel-h"><h2 id="h-out">กระแสเงินสดจากกิจกรรมดำเนินงาน</h2>
+          <div class="seg" role="group" aria-label="รูปแบบการแสดง">
+            <button type="button" id="v-book" aria-pressed="true">ตารางหัวข้อ 5.2</button>
+            <button type="button" id="v-f3" aria-pressed="false">แบบ 3 (4.1)</button>
+          </div>
+        </div>
+        <div class="tw"><table class="st" id="tbl-direct"></table></div>
+        <div id="out-verdict"></div>
+        <p class="hint" id="out-note"></p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ TAB 2: RECON ============ -->
+  <section id="p-recon" role="tabpanel" aria-labelledby="t-recon" hidden>
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-rc">
+        <div class="panel-h"><h2 id="h-rc">วิธีทางตรงเทียบวิธีทางอ้อม</h2><span class="hint">หน่วย: พันบาท</span></div>
+        <div class="tw"><table class="st" id="tbl-side"></table></div>
+        <div id="rc-verdict"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-rc2">
+        <div class="panel-h"><h2 id="h-rc2">ที่มาของผลต่างระหว่างกำไรกับเงินสด (หัวข้อ 5.3)</h2></div>
+        <div class="tw"><table class="st" id="tbl-bridge"></table></div>
+      </section>
+    </div>
+    <section class="panel" aria-labelledby="h-err" style="margin-top:20px">
+      <div class="panel-h"><h2 id="h-err">จำลองข้อผิดพลาดในวิธีทางตรง</h2><span class="hint">ติ๊กเพื่อดูว่ายอดสองวิธีต่างกันเท่าใดและเพราะอะไร</span></div>
+      <label class="cb"><input type="checkbox" id="e-cap"><span>ไม่แยกค่าซื้ออุปกรณ์ค้างจ่าย <input type="number" id="e-cap-amt" value="100" min="0" step="1" aria-label="จำนวนค่าซื้ออุปกรณ์ค้างจ่าย"> พันบาท ที่รวมอยู่ในเจ้าหนี้การค้าปลายปี (แบบฝึกหัด 5.4)</span></label>
+      <label class="cb"><input type="checkbox" id="e-net"><span>ใช้ลูกหนี้สุทธิหลังหักค่าเผื่อ แต่ไม่หักผลขาดทุนด้านเครดิต (ผสมสองทาง หัวข้อ 5.2)</span></label>
+      <label class="cb"><input type="checkbox" id="e-dep"><span>นับค่าเสื่อมราคาเป็นค่าใช้จ่ายที่จ่ายเป็นเงินสด</span></label>
+      <div id="err-out"></div>
+    </section>
+  </section>
+
+  <!-- ============ TAB 3: VAT ============ -->
+  <section id="p-vat" role="tabpanel" aria-labelledby="t-vat" hidden>
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-vi">
+        <div class="panel-h"><h2 id="h-vi">ข้อมูลเดือนธันวาคม 2569 (พันบาท)</h2></div>
+        <div class="toolbar" style="margin-bottom:10px">
+          <button type="button" class="btn" id="vp-54">ตัวอย่างหัวข้อ 5.4</button>
+          <button type="button" class="btn" id="vp-55">แบบฝึกหัด 5.5</button>
+        </div>
+        <form id="f-vat" autocomplete="off" onsubmit="return false"><div id="in-vat"></div></form>
+        <p class="hint">ตัวอย่างหลักในหัวข้อ 5.2 ไม่รวมภาษีมูลค่าเพิ่ม ส่วนนี้จึงใช้ตัวอย่างเดือนธันวาคมในหัวข้อ 5.4 ภาษีที่ต้องนำส่งตาม ภ.พ.30 ชำระภายในวันที่ 15 ของเดือนถัดไป (มาตรา 83 แห่งประมวลรัษฎากร) จึงยังไม่ออกจากบริษัทในเดือนธันวาคม</p>
+      </section>
+      <section class="panel" aria-labelledby="h-vo">
+        <div class="panel-h"><h2 id="h-vo">การแสดงในวิธีทางตรง</h2>
+          <div class="seg" role="group" aria-label="นโยบายการแสดงภาษีมูลค่าเพิ่ม">
+            <button type="button" id="vt-g" aria-pressed="true">แบบ ก รวมภาษี</button>
+            <button type="button" id="vt-n" aria-pressed="false">แบบ ข ไม่รวมภาษี</button>
+          </div>
+        </div>
+        <div class="tw"><table class="st" id="tbl-vat"></table></div>
+        <div id="vat-verdict"></div>
+        <h3 style="margin-top:16px">เทียบสองแบบ</h3>
+        <div class="tw"><table class="st" id="tbl-vat2"></table></div>
+        <p class="hint" id="vat-note"></p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ TAB 4: EXERCISE 5.7 ============ -->
+  <section id="p-ex" role="tabpanel" aria-labelledby="t-ex" hidden>
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-ex">
+        <div class="panel-h"><h2 id="h-ex">แบบฝึกหัด 5.7</h2><span class="chip c-acc">LO5.2 · ประยุกต์ใช้</span></div>
+        <p style="margin:0">ใช้ข้อมูลบริษัท สยามตัวอย่าง ตามหัวข้อ 5.2 แล้วเปลี่ยนให้ค่าใช้จ่ายค้างจ่าย<b>ลดลง 30 พันบาท</b> แทนการเพิ่มขึ้น (ต้นปี 100 ปลายปี 70) สังเกตว่าบรรทัดใดเปลี่ยน</p>
+        <p class="hint">ลองตอบก่อน ใส่ตัวเลขบวก ระบบเทียบกับเฉลยในหนังสือ</p>
+        <div class="ans">
+          <label for="a1">เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน</label><input id="a1" inputmode="numeric" placeholder="?">
+          <label for="a2">เงินสดได้มาจากการดำเนินงาน</label><input id="a2" inputmode="numeric" placeholder="?">
+          <label for="a3">เงินสดสุทธิได้มาจากกิจกรรมดำเนินงาน</label><input id="a3" inputmode="numeric" placeholder="?">
+        </div>
+        <div class="toolbar" style="margin-top:12px">
+          <button type="button" class="btn primary" id="b-check">ตรวจคำตอบ</button>
+          <button type="button" class="btn" id="b-reveal">ดูเฉลย</button>
+          <button type="button" class="btn" id="b-apply">ใส่สถานการณ์นี้ในแท็บคำนวณ</button>
+        </div>
+        <div id="ex-result" aria-live="polite"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-ex2" id="ex-panel" hidden>
+        <div class="panel-h"><h2 id="h-ex2">ผลของค่าใช้จ่ายค้างจ่ายลดลง 30</h2><span class="hint">หน่วย: พันบาท</span></div>
+        <div class="tw"><table class="st" id="tbl-ex"></table></div>
+        <div id="ex-book"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ TAB 5: HELP ============ -->
+  <section id="p-help" role="tabpanel" aria-labelledby="t-help" hidden>
+    <section class="panel howto" aria-labelledby="h-help">
+      <h2 id="h-help">วิธีใช้</h2>
+      <ol>
+        <li><b>คำนวณวิธีทางตรง</b> ค่าตั้งต้นคือตัวเลขในหัวข้อ 5.2 และ 4.2 แก้ตัวเลขได้ทุกช่อง ช่องที่ต่างจากหนังสือเป็นสีเหลือง กด "คืนค่าตัวอย่าง 5.2" เพื่อกลับไปค่าเดิม</li>
+        <li>เลือก <b>ตารางหัวข้อ 5.2</b> เพื่อดูสูตรและการคำนวณแต่ละบรรทัดแบบในหนังสือ หรือ <b>แบบ 3 (4.1)</b> เพื่อดูชื่อบรรทัดและเลขข้อตามแบบรายการย่อ แบบ 3 ของกรมพัฒนาธุรกิจการค้า</li>
+        <li><b>กระทบกับวิธีทางอ้อม</b> แสดงสองวิธีคู่กัน ยอดเงินสดได้มาจากการดำเนินงานและยอดกิจกรรมดำเนินงานต้องเท่ากัน ตารางขวาแสดงว่าผลต่างระหว่างกำไรกับเงินสดแต่ละส่วนไปอยู่ที่บรรทัดใดของวิธีทางตรง ส่วนล่างให้ติ๊กข้อผิดพลาดที่พบบ่อยเพื่อดูผลต่างและสาเหตุ</li>
+        <li><b>ภาษีมูลค่าเพิ่ม</b> สลับระหว่างแบบ ก รวมภาษี และแบบ ข ไม่รวมภาษี ตามหัวข้อ 5.4 เงินสดสุทธิต้องเท่ากันทั้งสองแบบ ปุ่ม "แบบฝึกหัด 5.5" ตั้งให้ลูกค้าชำระครึ่งหนึ่ง</li>
+        <li><b>แบบฝึกหัด 5.7</b> ลองตอบก่อนแล้วกดตรวจ หรือกดดูเฉลยเพื่อเห็นบรรทัดที่เปลี่ยน ปุ่ม "ใส่สถานการณ์นี้ในแท็บคำนวณ" เปลี่ยนค่าใช้จ่ายค้างจ่ายปลายปีเป็น 70</li>
+      </ol>
+      <h3 style="margin-top:14px">ข้อสังเกต</h3>
+      <ol>
+        <li>ตัวเลขในวงเล็บคือเงินสดจ่าย</li>
+        <li>หนังสือแสดงเงินเดือนและค่าใช้จ่ายอื่นรวมเป็นบรรทัดเดียว มุมมองแบบ 3 แยกเป็นสองบรรทัดตามแบบ โดยสมมติว่าค่าใช้จ่ายจ่ายล่วงหน้าและค่าใช้จ่ายค้างจ่ายเกี่ยวกับค่าใช้จ่ายอื่นทั้งหมด ในงานจริงควรแยกตามบัญชีย่อย</li>
+        <li>จ่ายผลประโยชน์พนักงานแสดงในบรรทัด 1.9 เงินสดรับ (จ่าย) อื่นจากกิจกรรมดำเนินงาน ตามหัวข้อ 4.4</li>
+        <li>เครื่องมือจำเฉพาะแท็บที่เปิดล่าสุด ตัวเลขที่แก้ไม่ถูกบันทึก เมื่อเปิดใหม่จะกลับเป็นค่าตามหนังสือ</li>
+      </ol>
+    </section>
+  </section>
+
+  <footer>
+    <p class="foot" style="margin:0">เครื่องมือนี้ประกอบบทที่ 5 วิธีทางตรงและภาษีมูลค่าเพิ่ม ของคู่มือการจัดทำงบกระแสเงินสด TAS 7 สำหรับบริษัทจดทะเบียนและบริษัทจำกัด ถ้อยคำเป็นการสรุปของผู้เขียน ไม่ใช่ตัวบทมาตรฐาน ชื่อบรรทัดตามแบบ 3 ของประกาศกรมพัฒนาธุรกิจการค้า เรื่อง กำหนดรายการย่อที่ต้องมีในงบการเงิน พ.ศ. 2566 ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ</p>
+    <p class="foot" style="margin:0">© ดร.วิทยา อรุณศิริเพ็ชร และ อาจารย์พงษ์ธร ดวงปัญญา · เนื้อหาเป็นการถอดความของคณะผู้เขียน ไม่ใช่ถ้อยคำของมาตรฐาน</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const r2=n=>Math.round(n*100)/100;
+const fmt=n=>{n=r2(n);if(Math.abs(n)<0.005)return '—';const s=Math.abs(n).toLocaleString('th-TH',{maximumFractionDigits:2});return n<0?'('+s+')':s};
+const fmtP=n=>{n=r2(n);const s=Math.abs(n).toLocaleString('th-TH',{maximumFractionDigits:2});return n<0?'('+s+')':s};
+const eq=(a,b)=>Math.abs(a-b)<0.005;
+
+/* ---------- Book data: ch5 §5.2 and ch4 §4.2 (thousand baht) ---------- */
+const IS_FIELDS=[
+  ['rev','รายได้จากการขาย',12000],
+  ['cogs','ต้นทุนขาย',8000],
+  ['sal','เงินเดือน',1400,'ในค่าใช้จ่ายในการขายและบริหาร'],
+  ['oth','ค่าใช้จ่ายอื่น',740,'ในค่าใช้จ่ายในการขายและบริหาร'],
+  ['dep','ค่าเสื่อมราคา',500,'ไม่ใช่เงินสด'],
+  ['ecl','ผลขาดทุนด้านเครดิต',20,'ไม่ใช่เงินสด'],
+  ['eb','ค่าใช้จ่ายผลประโยชน์พนักงาน',60],
+  ['intinc','ดอกเบี้ยรับ',30,'จัดเป็นกิจกรรมลงทุน'],
+  ['gain','กำไรจากการขายอุปกรณ์',40,'เงินรับอยู่ในกิจกรรมลงทุน'],
+  ['fin','ต้นทุนทางการเงิน',150],
+  ['tax','ภาษีเงินได้',240]
+];
+const BS_FIELDS=[
+  ['ar','ลูกหนี้การค้า (ก่อนหักค่าเผื่อ)',1600,1900],
+  ['inv','สินค้าคงเหลือ',1200,1400],
+  ['pre','ค่าใช้จ่ายจ่ายล่วงหน้า',60,50],
+  ['ap','เจ้าหนี้การค้า',800,1050,'ไม่รวมเจ้าหนี้ค่าซื้ออุปกรณ์'],
+  ['acc','ค่าใช้จ่ายค้างจ่าย',100,130],
+  ['ip','ดอกเบี้ยค้างจ่าย',0,0],
+  ['tp','ภาษีเงินได้ค้างจ่าย',80,100],
+  ['ebo','ภาระผูกพันผลประโยชน์พนักงาน',300,340]
+];
+const OTH_FIELDS=[['wo','หนี้สูญที่ตัดจำหน่ายในปี',0,'ค่าเผื่อต้นปี 100 ปลายปี 120 เพิ่มเท่าผลขาดทุนด้านเครดิต จึงไม่มีการตัดจำหน่าย']];
+const BOOK={recv:11700,sup:-7950,exp:-2100,cgo:1650,ebp:-20,intp:-150,taxp:-220,ocf:1260,profit:960,sga:2720,pbt:1200};
+const EX57={exp:-2160,cgo:1590,ocf:1200};
+
+function defaults(){const d={};IS_FIELDS.forEach(f=>d[f[0]]=f[2]);BS_FIELDS.forEach(f=>{d[f[0]+'0']=f[2];d[f[0]+'1']=f[3]});OTH_FIELDS.forEach(f=>d[f[0]]=f[2]);return d}
+let D=defaults();
+let view='book';
+
+/* ---------- Calculation ---------- */
+function compute(d,err){
+  err=err||{};
+  const ch=k=>d[k+'1']-d[k+'0'];
+  const sga=d.sal+d.oth+d.dep+d.ecl+d.eb;
+  const pbt=d.rev-d.cogs-sga+d.intinc+d.gain-d.fin;
+  const profit=pbt-d.tax;
+  // direct
+  let dAR=ch('ar'), dAP=ch('ap');
+  let recv=d.rev-dAR-d.wo;
+  if(err.net){recv=d.rev-(dAR-(d.ecl-d.wo));}          // net receivable change, credit loss not deducted
+  if(err.cap){dAP=dAP+err.capAmt;}                       // equipment payable left inside trade payables
+  const supCost=d.cogs+ch('inv')-dAP;
+  const empPay=d.sal;
+  let othPay=d.oth+ch('pre')-ch('acc');
+  if(err.dep){othPay+=d.dep;}
+  const expPay=empPay+othPay;
+  const cgo=recv-supCost-expPay;
+  const ebp=d.eb-ch('ebo'), intp=d.fin-ch('ip'), taxp=d.tax-ch('tp');
+  const ocf=cgo-ebp-intp-taxp;
+  // indirect (always correct)
+  const adj=[['ภาษีเงินได้',d.tax],['ต้นทุนทางการเงิน',d.fin],['ค่าเสื่อมราคา',d.dep],['ผลขาดทุนด้านเครดิตที่คาดว่าจะเกิดขึ้น',d.ecl],['ค่าใช้จ่ายผลประโยชน์พนักงาน',d.eb],['ดอกเบี้ยรับ',-d.intinc],['กำไรจากการขายอุปกรณ์',-d.gain]];
+  const pre=profit+adj.reduce((s,a)=>s+a[1],0);
+  const wc=[['ลูกหนี้การค้า',-ch('ar')],['สินค้าคงเหลือ',-ch('inv')],['ค่าใช้จ่ายจ่ายล่วงหน้า',-ch('pre')],['เจ้าหนี้การค้า',ch('ap')],['ค่าใช้จ่ายค้างจ่าย',ch('acc')]];
+  if(d.wo) wc.splice(1,0,['หนี้สูญที่ตัดจำหน่าย (ลดลูกหนี้โดยไม่มีเงินสด)',-d.wo]);
+  const icgo=pre+wc.reduce((s,a)=>s+a[1],0);
+  const iebp=d.eb-ch('ebo'), iintp=d.fin-ch('ip'), itaxp=d.tax-ch('tp');
+  const iocf=icgo-iebp-iintp-itaxp;
+  return {sga,pbt,profit,recv,sup:-supCost,emp:-empPay,oth:-othPay,exp:-expPay,cgo,ebp:-ebp,intp:-intp,taxp:-taxp,ocf,
+    adj,pre,wc,icgo,iocf,ch,dAR:ch('ar'),dInv:ch('inv'),dAP:ch('ap'),dPre:ch('pre'),dAcc:ch('acc'),dEbo:ch('ebo'),dIp:ch('ip'),dTp:ch('tp')};
+}
+
+/* ---------- Inputs ---------- */
+function rowIS(f){return `<div class="f-row"><label for="i-${f[0]}">${f[1]}${f[3]?`<span class="sub">${f[3]}</span>`:''}</label><input id="i-${f[0]}" data-k="${f[0]}" type="number" inputmode="decimal" step="any"></div>`}
+function rowBS(f){return `<div class="f-row two"><span class="lb" id="l-${f[0]}">${f[1]}<span class="sub" id="d-${f[0]}"></span></span><input aria-label="${f[1]} 2568" data-k="${f[0]}0" type="number" inputmode="decimal" step="any"><input aria-label="${f[1]} 2569" data-k="${f[0]}1" type="number" inputmode="decimal" step="any"></div>`}
+$('in-is').innerHTML=IS_FIELDS.map(rowIS).join('');
+$('in-bs').innerHTML=BS_FIELDS.map(rowBS).join('');
+$('in-oth').innerHTML=OTH_FIELDS.map(rowIS).join('');
+const DEF=defaults();
+function syncInputs(){
+  document.querySelectorAll('#f-in input[data-k]').forEach(el=>{const k=el.dataset.k;el.value=D[k];el.classList.toggle('chg',!eq(D[k],DEF[k]))});
+}
+$('f-in').addEventListener('input',e=>{
+  const el=e.target;if(!el.dataset.k)return;
+  const v=parseFloat(el.value);D[el.dataset.k]=isFinite(v)?v:0;
+  el.classList.toggle('chg',!eq(D[el.dataset.k],DEF[el.dataset.k]));
+  renderAll();
+});
+$('b-reset').onclick=()=>{D=defaults();syncInputs();renderAll()};
+
+/* ---------- Direct statement ---------- */
+function line(no,label,val,cls,formula){return `<tr${cls?` class="${cls}"`:''}><td class="no">${no||''}</td><td${cls==='ind'?' class="ind"':''}>${label}${formula?`<span class="f">${formula}</span>`:''}</td><td class="n">${fmt(val)}</td></tr>`}
+function renderDirect(){
+  const c=compute(D), d=D;
+  let h='';
+  if(view==='book'){
+    h+=`<thead><tr><th></th><th>บรรทัดวิธีทางตรง</th><th class="n">2569</th></tr></thead><tbody>`;
+    h+=line('','เงินสดรับจากลูกค้า',c.recv,'',`รายได้ − ลูกหนี้ก่อนหักค่าเผื่อที่เพิ่มขึ้น − หนี้สูญที่ตัดจำหน่าย = ${fmtP(d.rev)} − ${fmtP(c.dAR)} − ${fmtP(d.wo)}`);
+    h+=line('','เงินสดจ่ายผู้ขายสินค้า',c.sup,'',`ต้นทุนขาย + สินค้าที่เพิ่มขึ้น − เจ้าหนี้การค้าที่เพิ่มขึ้น = ${fmtP(d.cogs)} + ${fmtP(c.dInv)} − ${fmtP(c.dAP)}`);
+    h+=line('','เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน',c.exp,'',`ค่าใช้จ่ายที่เป็นเงินสด − ค่าใช้จ่ายจ่ายล่วงหน้าที่ลดลง − ค่าใช้จ่ายค้างจ่ายที่เพิ่มขึ้น = (${fmtP(d.sal)} + ${fmtP(d.oth)}) − ${fmtP(-c.dPre)} − ${fmtP(c.dAcc)}`);
+    h+=line('','เงินสดได้มาจากการดำเนินงาน',c.cgo,'sub','ตรงกับบรรทัดเดียวกันในวิธีทางอ้อม');
+    h+=line('','จ่ายผลประโยชน์พนักงาน',c.ebp,'',`ค่าใช้จ่าย − ภาระผูกพันที่เพิ่มขึ้น = ${fmtP(d.eb)} − ${fmtP(c.dEbo)}`);
+    h+=line('','จ่ายดอกเบี้ย',c.intp,'',`ต้นทุนทางการเงิน − ดอกเบี้ยค้างจ่ายที่เพิ่มขึ้น = ${fmtP(d.fin)} − ${fmtP(c.dIp)}`);
+    h+=line('','จ่ายภาษีเงินได้',c.taxp,'',`ภาษีเงินได้ − ภาษีค้างจ่ายที่เพิ่มขึ้น = ${fmtP(d.tax)} − ${fmtP(c.dTp)}`);
+    h+=line('','เงินสดสุทธิได้มาจากกิจกรรมดำเนินงาน',c.ocf,'tot');
+    h+='</tbody>';
+    $('out-note').innerHTML='ค่าเสื่อมราคา ผลขาดทุนด้านเครดิต และกำไรจากการขายอุปกรณ์ไม่ปรากฏในวิธีทางตรง เพราะไม่มีเงินสดเคลื่อนไหว ดอกเบี้ยรับ '+fmtP(d.intinc)+' แสดงในกิจกรรมลงทุน';
+  }else{
+    h+=`<thead><tr><th></th><th>4.1 งบกระแสเงินสด : วิธีทางตรง</th><th class="n">2569</th></tr></thead><tbody>`;
+    h+=`<tr class="sec"><td></td><td colspan="2">1. กระแสเงินสดจากกิจกรรมดำเนินงาน</td></tr>`;
+    h+=`<tr><td class="no">1.1</td><td colspan="2">กระแสเงินสดรับจากกิจกรรมดำเนินงาน</td></tr>`;
+    h+=line('','เงินสดรับจากการขาย หรือการให้บริการ',c.recv,'ind');
+    h+=`<tr><td class="no">1.2</td><td colspan="2">กระแสเงินสดจ่ายจากกิจกรรมดำเนินงาน</td></tr>`;
+    h+=line('','เงินสดจ่ายผู้ขายสำหรับสินค้า หรือบริการ',c.sup,'ind');
+    h+=line('','เงินสดจ่ายแก่พนักงานและจ่ายแทนพนักงาน',c.emp,'ind','เงินเดือน (สมมติไม่มีเงินเดือนค้างจ่าย)');
+    h+=line('','เงินสดจ่ายอื่นจากกิจกรรมดำเนินงาน',c.oth,'ind',`ค่าใช้จ่ายอื่น ${fmtP(d.oth)} ปรับค่าใช้จ่ายจ่ายล่วงหน้าและค้างจ่าย`);
+    h+=line('1.3','กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) การดำเนินงาน (รวม 1.1 - 1.2)',c.cgo,'sub');
+    h+=line('1.4','เงินปันผลจ่าย',0,'','จัดเป็นกิจกรรมจัดหาเงิน');
+    h+=line('1.5','เงินปันผลรับ',0,'','ไม่มีในตัวอย่าง');
+    h+=line('1.6','ดอกเบี้ยจ่าย',c.intp,'');
+    h+=line('1.7','ดอกเบี้ยรับ',0,'',`${fmtP(d.intinc)} จัดเป็นกิจกรรมลงทุน`);
+    h+=line('1.8','ภาษีเงินได้รับคืน (จ่ายออก)',c.taxp,'');
+    h+=line('1.9','เงินสดรับ (จ่าย) อื่นจากกิจกรรมดำเนินงาน',c.ebp,'','จ่ายผลประโยชน์พนักงาน (หัวข้อ 4.4)');
+    h+=line('','กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมดำเนินงาน',c.ocf,'tot');
+    h+='</tbody>';
+    $('out-note').innerHTML='ชื่อบรรทัดตามแบบ 3 หน้า 3-26 บรรทัดที่ไม่มีรายการในตัวอย่าง (สัญญาที่ถือไว้เพื่อค้า เบี้ยประกัน ค่าเช่าและการขายสินทรัพย์ที่ถือไว้ให้เช่า) ไม่แสดง หนังสือหัวข้อ 5.2 รวมเงินเดือนกับค่าใช้จ่ายอื่นเป็น '+fmt(c.exp)+' การแยกสองบรรทัดเป็นข้อสมมติของเครื่องมือ <span class="status s-chk">ข้อสมมติ</span>';
+  }
+  $('tbl-direct').innerHTML=h;
+  const isBook=Object.keys(DEF).every(k=>eq(D[k],DEF[k]));
+  const okBook=['recv','sup','exp','cgo','ebp','intp','taxp','ocf'].every(k=>eq(c[k],BOOK[k]));
+  const same=eq(c.ocf,c.iocf);
+  let v;
+  if(isBook) v=`<div class="verdict ${okBook?'ok':'no'}"><div class="eyebrow">ตรวจกับหนังสือ</div><div class="v">${okBook?'ตรงกับหัวข้อ 5.2 ทุกบรรทัด':'ไม่ตรงกับหัวข้อ 5.2'}</div><div class="hint">เงินสดรับจากลูกค้า 11,700 · จ่ายผู้ขาย (7,950) · จ่ายพนักงานและค่าใช้จ่าย (2,100) · ได้มาจากการดำเนินงาน 1,650 · กิจกรรมดำเนินงาน 1,260 เท่ากับวิธีทางอ้อมในหัวข้อ 4.4</div></div>`;
+  else v=`<div class="verdict ${same?'ok':'no'}"><div class="eyebrow">เทียบวิธีทางอ้อม</div><div class="v">${same?'เท่ากับวิธีทางอ้อม '+fmt(c.iocf):'ต่างจากวิธีทางอ้อม'}</div><div class="hint">ข้อมูลต่างจากตัวอย่างในหนังสือ ยอดตามหนังสือคือ 1,260 ดูรายละเอียดในแท็บกระทบกับวิธีทางอ้อม</div></div>`;
+  $('out-verdict').innerHTML=v;
+  $('chk-is').innerHTML=`ค่าใช้จ่ายในการขายและบริหาร ${fmtP(c.sga)} · กำไรก่อนภาษี ${fmtP(c.pbt)} · กำไรสำหรับปี ${fmtP(c.profit)}`+(isBook?' <span class="status s-ok">ตรงกับหัวข้อ 5.2</span>':'');
+  BS_FIELDS.forEach(f=>{const x=c.ch(f[0]);$('d-'+f[0]).textContent='เปลี่ยนแปลง '+(eq(x,0)?'0':(x>0?'+':'−')+fmtP(Math.abs(x)))});
+}
+
+/* ---------- Reconciliation ---------- */
+function getErr(){return {cap:$('e-cap').checked,capAmt:parseFloat($('e-cap-amt').value)||0,net:$('e-net').checked,dep:$('e-dep').checked}}
+function renderRecon(){
+  const err=getErr(), c=compute(D,err), ok=compute(D), d=D;
+  const anyErr=err.cap||err.net||err.dep;
+  let h=`<thead><tr><th>วิธีทางตรง</th><th class="n">จำนวน</th><th>วิธีทางอ้อม</th><th class="n">จำนวน</th></tr></thead><tbody>`;
+  const L=[['เงินสดรับจากลูกค้า',c.recv,'กำไรสำหรับปี',ok.profit],['เงินสดจ่ายผู้ขายสินค้า',c.sup,'รายการปรับปรุง',ok.pre-ok.profit],['เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน',c.exp,'การเปลี่ยนแปลงสินทรัพย์และหนี้สินดำเนินงาน',ok.icgo-ok.pre]];
+  L.forEach(r=>h+=`<tr${anyErr&&!eq(r[1],[ok.recv,ok.sup,ok.exp][L.indexOf(r)])?' class="chg"':''}><td>${r[0]}</td><td class="n">${fmt(r[1])}</td><td>${r[2]}</td><td class="n">${fmt(r[3])}</td></tr>`);
+  h+=`<tr class="sub"><td>เงินสดได้มาจากการดำเนินงาน</td><td class="n">${fmt(c.cgo)}</td><td>เงินสดได้มาจากการดำเนินงาน</td><td class="n">${fmt(ok.icgo)}</td></tr>`;
+  h+=`<tr><td colspan="2">จ่ายผลประโยชน์พนักงาน ดอกเบี้ย และภาษีเงินได้</td><td></td><td class="n">${fmt(c.ebp+c.intp+c.taxp)}</td></tr>`;
+  h+=`<tr class="tot"><td>กิจกรรมดำเนินงาน</td><td class="n">${fmt(c.ocf)}</td><td>กิจกรรมดำเนินงาน</td><td class="n">${fmt(ok.iocf)}</td></tr></tbody>`;
+  $('tbl-side').innerHTML=h;
+  const diff=c.cgo-ok.icgo;
+  $('rc-verdict').innerHTML=eq(diff,0)
+    ?`<div class="verdict ok"><div class="eyebrow">ผลการกระทบ</div><div class="v">ทางตรง = ทางอ้อม = ${fmt(c.ocf)}</div><div class="hint">เงินสดได้มาจากการดำเนินงาน ${fmt(c.cgo)} เท่ากันทั้งสองวิธี เพราะทั้งสองวิธีใช้รายได้ ค่าใช้จ่าย และการเปลี่ยนแปลงของบัญชีดำเนินงานชุดเดียวกัน ต่างกันเพียงการจัดเรียง</div></div>`
+    :`<div class="verdict no"><div class="eyebrow">ผลการกระทบ</div><div class="v">ทางตรงต่างจากทางอ้อม ${fmt(diff)}</div><div class="hint">ตามหัวข้อ 5.3 ยอดที่ไม่เท่ากันแสดงว่ามีรายการจัดผิดกิจกรรม หรือมีรายการที่ไม่ใช่เงินสดหลงเหลืออยู่ ดูคำอธิบายด้านล่าง</div></div>`;
+  // bridge §5.3
+  const b=[
+    ['กำไรสำหรับปี',ok.profit,'—'],
+    ['ลูกหนี้'+(ok.dAR>=0?'เพิ่มขึ้น':'ลดลง')+(d.wo?' และหนี้สูญที่ตัดจำหน่าย':''),-ok.dAR-d.wo,'เงินสดรับจากลูกค้า'],
+    ['สินค้า'+(ok.dInv>=0?'เพิ่มขึ้น':'ลดลง')+' และเจ้าหนี้การค้า'+(ok.dAP>=0?'เพิ่มขึ้น':'ลดลง'),-ok.dInv+ok.dAP,'เงินสดจ่ายผู้ขาย'],
+    ['ค่าใช้จ่ายจ่ายล่วงหน้า'+(ok.dPre<=0?'ลดลง':'เพิ่มขึ้น')+' และค่าใช้จ่ายค้างจ่าย'+(ok.dAcc>=0?'เพิ่มขึ้น':'ลดลง'),-ok.dPre+ok.dAcc,'เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน'],
+    [`รายการที่ไม่ใช่เงินสด (${fmtP(d.dep)} + ${fmtP(d.ecl)} + ${fmtP(d.eb+ok.ebp)} ส่วนสุทธิผลประโยชน์พนักงาน)`,d.dep+d.ecl+d.eb+ok.ebp,'ไม่ปรากฏ (ส่วนที่จ่ายจริงอยู่ที่จ่ายผลประโยชน์พนักงาน)'],
+    ['ภาษีเงินได้ค้างจ่าย'+(ok.dTp>=0?'เพิ่มขึ้น':'ลดลง'),ok.dTp,'จ่ายภาษีเงินได้']
+  ];
+  if(!eq(ok.dIp,0)) b.push(['ดอกเบี้ยค้างจ่าย'+(ok.dIp>=0?'เพิ่มขึ้น':'ลดลง'),ok.dIp,'จ่ายดอกเบี้ย']);
+  b.push(['ดอกเบี้ยรับและกำไรจากการขายที่ย้ายไปกิจกรรมลงทุน',-(d.intinc+d.gain),'ไม่อยู่ในกิจกรรมดำเนินงาน']);
+  const tot=b.reduce((s,r)=>s+r[1],0);
+  let g=`<thead><tr><th>ที่มาของผลต่าง</th><th class="n">จำนวน</th><th>ปรากฏในวิธีทางตรงที่บรรทัด</th></tr></thead><tbody>`;
+  b.forEach(r=>g+=`<tr><td>${r[0]}</td><td class="n">${fmt(r[1])}</td><td>${r[2]}</td></tr>`);
+  g+=`<tr class="tot"><td>เงินสดสุทธิได้มาจากกิจกรรมดำเนินงาน</td><td class="n">${fmt(tot)}</td><td>${eq(tot,ok.ocf)?'<span class="status s-ok">เท่ากับวิธีทางตรง</span>':'<span class="status s-no">ไม่เท่า</span>'}</td></tr></tbody>`;
+  $('tbl-bridge').innerHTML=g;
+  // error explanations
+  const ex=[];
+  if(err.cap) ex.push(`<li><b>เงินสดจ่ายผู้ขาย</b> ต่ำไป ${fmtP(err.capAmt)}: การเพิ่มขึ้นของเจ้าหนี้ที่นำไปหักรวมค่าซื้ออุปกรณ์ค้างจ่าย ซึ่งไม่ใช่หนี้สินดำเนินงาน ทำให้กิจกรรมดำเนินงานสูงเกินจริง ต้องแยกออก ลดยอดจ่ายซื้ออุปกรณ์ในกิจกรรมลงทุน และเปิดเผยเป็นรายการที่ไม่ใช่เงินสด (หัวข้อ 4.4.1 แบบฝึกหัด 5.4)</li>`);
+  if(err.net) ex.push(`<li><b>เงินสดรับจากลูกค้า</b> สูงไป ${fmtP(d.ecl)}: ใช้การเปลี่ยนแปลงลูกหนี้สุทธิ ${fmtP(ok.dAR-(d.ecl-d.wo))} แต่ไม่หักผลขาดทุนด้านเครดิต ${fmtP(d.ecl)} ต้องเลือกทางเดียว คือใช้ลูกหนี้ก่อนหักค่าเผื่อและหักหนี้สูญที่ตัดจำหน่าย หรือใช้ลูกหนี้สุทธิและหักผลขาดทุนด้านเครดิตทั้งจำนวน (หัวข้อ 5.2)</li>`);
+  if(err.dep) ex.push(`<li><b>เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน</b> สูงไป ${fmtP(d.dep)}: ค่าเสื่อมราคาไม่มีเงินสดเคลื่อนไหว จึงไม่ปรากฏในวิธีทางตรง</li>`);
+  $('err-out').innerHTML=ex.length?`<div class="verdict no"><div class="eyebrow">ผลต่าง ${fmt(diff)} อธิบายได้ดังนี้</div><ul style="margin:6px 0 0;padding-left:1.2em">${ex.join('')}</ul></div>`:'<p class="hint">ยังไม่ได้เลือกข้อผิดพลาด ยอดสองวิธีจึงเท่ากัน</p>';
+}
+['e-cap','e-net','e-dep','e-cap-amt'].forEach(id=>$(id).addEventListener('input',renderRecon));
+
+/* ---------- VAT (§5.4, exercise 5.5) ---------- */
+const VAT_FIELDS=[['s','ขายสินค้า (ไม่รวมภาษี)',1000],['p','ซื้อสินค้า (ไม่รวมภาษี)',600],['rate','อัตราภาษีมูลค่าเพิ่ม (%)',7],['rc','ส่วนที่ได้รับเงินจากลูกค้าในเดือน (%)',100],['pc','ส่วนที่จ่ายเงินผู้ขายในเดือน (%)',100],['rem','นำส่งภาษีตาม ภ.พ.30 ในเดือน',0,'ภาษีเดือนธันวาคมนำส่งในเดือนมกราคม']];
+let V={}; const VDEF={};VAT_FIELDS.forEach(f=>VDEF[f[0]]=f[2]);
+let vatMode='g';
+$('in-vat').innerHTML=VAT_FIELDS.map(f=>`<div class="f-row"><label for="v-${f[0]}">${f[1]}${f[3]?`<span class="sub">${f[3]}</span>`:''}</label><input id="v-${f[0]}" data-k="${f[0]}" type="number" inputmode="decimal" step="any"></div>`).join('');
+function setVat(o){V=Object.assign({},VDEF,o);document.querySelectorAll('#f-vat input').forEach(el=>el.value=V[el.dataset.k])}
+$('f-vat').addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;const v=parseFloat(e.target.value);V[k]=isFinite(v)?v:0;renderVat()});
+$('vp-54').onclick=()=>{setVat({});renderVat()};
+$('vp-55').onclick=()=>{setVat({rc:50});renderVat()};
+function vatCalc(){
+  const t=V.rate/100, rc=V.rc/100, pc=V.pc/100;
+  const outT=V.s*t, inT=V.p*t;
+  const g={recv:V.s*(1+t)*rc, pay:-V.p*(1+t)*pc, vatLine:-V.rem};
+  g.net=g.recv+g.pay+g.vatLine;
+  const n={recv:V.s*rc, pay:-V.p*pc, vatNet:outT*rc-inT*pc, rem:-V.rem};
+  n.net=n.recv+n.pay+n.vatNet+n.rem;
+  return {g,n,outT,inT,payable:outT-inT-V.rem};
+}
+function renderVat(){
+  const c=vatCalc();
+  $('vt-g').setAttribute('aria-pressed',vatMode==='g');$('vt-n').setAttribute('aria-pressed',vatMode==='n');
+  let h=`<thead><tr><th>บรรทัด (พันบาท)</th><th class="n">ธ.ค. 2569</th></tr></thead><tbody>`;
+  const L=(lb,v,f,cls)=>`<tr${cls?` class="${cls}"`:''}><td>${lb}${f?`<span class="f">${f}</span>`:''}</td><td class="n">${fmt(v)}</td></tr>`;
+  if(vatMode==='g'){
+    h+=L('เงินสดรับจากการขาย หรือการให้บริการ',c.g.recv,'รวมภาษีขาย');
+    h+=L('เงินสดจ่ายผู้ขายสำหรับสินค้า หรือบริการ',c.g.pay,'รวมภาษีซื้อ');
+    h+=L('ภาษีมูลค่าเพิ่มจ่ายสุทธิ',c.g.vatLine,'แสดงในบรรทัด เงินสดจ่ายอื่นจากกิจกรรมดำเนินงาน ภายใต้ 1.2 ก่อนยอดรวม 1.3 (ถ้าได้รับคืนสุทธิ ใช้ เงินสดรับอื่นจากกิจกรรมดำเนินงาน ภายใต้ 1.1) ไม่ใช่บรรทัด 1.9: เงินที่นำส่งหรือได้รับคืนตาม ภ.พ.30');
+    h+=L('เงินสดสุทธิ',c.g.net,'','tot');
+  }else{
+    h+=L('เงินสดรับจากการขาย หรือการให้บริการ',c.n.recv,'ไม่รวมภาษีขาย');
+    h+=L('เงินสดจ่ายผู้ขายสำหรับสินค้า หรือบริการ',c.n.pay,'ไม่รวมภาษีซื้อ');
+    h+=L('ภาษีมูลค่าเพิ่มรับ (จ่าย) สุทธิ',c.n.vatNet,`ภาษีขายที่ได้รับ ${fmtP(c.outT*V.rc/100)} − ภาษีซื้อที่จ่าย ${fmtP(c.inT*V.pc/100)}`);
+    h+=L('นำส่งภาษีมูลค่าเพิ่ม',c.n.rem,'ตาม ภ.พ.30');
+    h+=L('เงินสดสุทธิ',c.n.net,'','tot');
+  }
+  $('tbl-vat').innerHTML=h+'</tbody>';
+  const same=eq(c.g.net,c.n.net);
+  $('vat-verdict').innerHTML=`<div class="verdict ${same?'ok':'no'}"><div class="eyebrow">${vatMode==='g'?'แบบ ก: แนวที่ผู้เขียนแนะนำเมื่อระบบบันทึกลูกหนี้และเจ้าหนี้รวมภาษี':'แบบ ข: เหมาะเมื่อผู้ใช้งบต้องการเทียบเงินรับกับรายได้'}</div><div class="v">เงินสดสุทธิ ${fmt(vatMode==='g'?c.g.net:c.n.net)} ${same?'เท่ากันทั้งสองแบบ':''}</div><div class="hint">นโยบายตัวอย่าง: "เงินสดรับจากลูกค้าและเงินสดจ่ายผู้ขายแสดงรวมภาษีมูลค่าเพิ่ม การนำส่งหรือการได้รับคืนภาษีมูลค่าเพิ่มสุทธิแสดงเป็นรายการแยกในกิจกรรมดำเนินงาน" ต้องเปิดเผยนโยบายทุกครั้งที่ใช้วิธีทางตรง</div></div>`;
+  let t=`<thead><tr><th>บรรทัด</th><th class="n">แบบ ก รวมภาษี</th><th class="n">แบบ ข ไม่รวมภาษี</th></tr></thead><tbody>`;
+  t+=`<tr><td>เงินสดรับจากลูกค้า</td><td class="n">${fmt(c.g.recv)}</td><td class="n">${fmt(c.n.recv)}</td></tr>`;
+  t+=`<tr><td>เงินสดจ่ายผู้ขาย</td><td class="n">${fmt(c.g.pay)}</td><td class="n">${fmt(c.n.pay)}</td></tr>`;
+  t+=`<tr><td>ภาษีมูลค่าเพิ่มรับ (จ่าย) สุทธิ</td><td class="n">—</td><td class="n">${fmt(c.n.vatNet)}</td></tr>`;
+  t+=`<tr><td>นำส่งภาษีมูลค่าเพิ่ม</td><td class="n">${V.rem?fmt(-V.rem):'— (ชำระเดือนมกราคม)'}</td><td class="n">${V.rem?fmt(-V.rem):'— (ชำระเดือนมกราคม)'}</td></tr>`;
+  t+=`<tr class="tot"><td>เงินสดสุทธิ</td><td class="n">${fmt(c.g.net)}</td><td class="n">${fmt(c.n.net)}</td></tr></tbody>`;
+  $('tbl-vat2').innerHTML=t;
+  const is54=VAT_FIELDS.every(f=>eq(V[f[0]],VDEF[f[0]])), is55=VAT_FIELDS.every(f=>eq(V[f[0]],f[0]==='rc'?50:VDEF[f[0]]));
+  let note=`ภาษีมูลค่าเพิ่มค้างจ่าย ณ สิ้นเดือน ${fmtP(c.payable)} (ภาษีขาย ${fmtP(c.outT)} − ภาษีซื้อ ${fmtP(c.inT)}${V.rem?' − นำส่ง '+fmtP(V.rem):''}) เป็นเงินที่บริษัทถืออยู่แต่ต้องนำส่ง ผู้ใช้งบที่ไม่รู้นโยบายอาจเข้าใจว่าเงินสดปลายปีพร้อมใช้ทั้งหมด ในวิธีทางอ้อมยอดนี้อยู่ในบรรทัดเจ้าหนี้อื่นหรือภาษีมูลค่าเพิ่มค้างจ่ายที่เพิ่มขึ้น ไม่ว่าแบบใด เงินที่นำส่งตาม ภ.พ.30 และเงินคืนภาษีซื้อส่วนเกินเป็นกิจกรรมดำเนินงาน`;
+  if(is54) note+=' <span class="status s-ok">ตรงกับตารางหัวข้อ 5.4: 1,070 / (642) และ 1,000 / (600) / 28 = 428</span>';
+  if(is55) note+=' <span class="status s-ok">ตรงกับเฉลย 5.5: แบบ ก 535 แบบ ข 500 ภาษีสุทธิ (7) เงินสดสุทธิ (107)</span>';
+  $('vat-note').innerHTML=note;
+}
+$('vt-g').onclick=()=>{vatMode='g';renderVat()};
+$('vt-n').onclick=()=>{vatMode='n';renderVat()};
+
+/* ---------- Exercise 5.7 ---------- */
+function scen(){const d=defaults();d.acc1=d.acc0-30;return d}
+function renderEx(){
+  const a=compute(defaults()), b=compute(scen());
+  const rows=[['เงินสดรับจากลูกค้า','recv'],['เงินสดจ่ายผู้ขายสินค้า','sup'],['เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน','exp'],['เงินสดได้มาจากการดำเนินงาน','cgo','sub'],['จ่ายผลประโยชน์พนักงาน','ebp'],['จ่ายดอกเบี้ย','intp'],['จ่ายภาษีเงินได้','taxp'],['เงินสดสุทธิได้มาจากกิจกรรมดำเนินงาน','ocf','tot']];
+  let h=`<thead><tr><th>วิธีทางตรง</th><th class="n">หัวข้อ 5.2</th><th class="n">ข้อ 5.7</th><th class="n">ผลต่าง</th></tr></thead><tbody>`;
+  rows.forEach(r=>{const x=a[r[1]],y=b[r[1]];const cls=[r[2],eq(x,y)?'':'chg'].filter(Boolean).join(' ');h+=`<tr${cls?` class="${cls}"`:''}><td>${r[0]}</td><td class="n">${fmt(x)}</td><td class="n">${fmt(y)}</td><td class="n">${fmt(y-x)}</td></tr>`});
+  h+=`<tr class="sec"><td colspan="4">วิธีทางอ้อม</td></tr>`;
+  h+=`<tr class="chg"><td>ค่าใช้จ่ายค้างจ่าย เพิ่มขึ้น (ลดลง)</td><td class="n">${fmt(a.dAcc)}</td><td class="n">${fmt(b.dAcc)}</td><td class="n">${fmt(b.dAcc-a.dAcc)}</td></tr>`;
+  h+=`<tr class="chg sub"><td>เงินสดได้มาจากการดำเนินงาน</td><td class="n">${fmt(a.icgo)}</td><td class="n">${fmt(b.icgo)}</td><td class="n">${fmt(b.icgo-a.icgo)}</td></tr>`;
+  h+=`<tr class="chg tot"><td>เงินสดสุทธิได้มาจากกิจกรรมดำเนินงาน</td><td class="n">${fmt(a.iocf)}</td><td class="n">${fmt(b.iocf)}</td><td class="n">${fmt(b.iocf-a.iocf)}</td></tr></tbody>`;
+  $('tbl-ex').innerHTML=h;
+  const m=eq(b.exp,EX57.exp)&&eq(b.cgo,EX57.cgo)&&eq(b.ocf,EX57.ocf)&&eq(b.iocf,EX57.ocf);
+  $('ex-book').innerHTML=`<div class="verdict ${m?'ok':'no'}"><div class="eyebrow">เฉลยในหนังสือ</div><div class="v">เงินสดจ่ายพนักงานและค่าใช้จ่ายดำเนินงาน (2,160) · เงินสดได้มาจากการดำเนินงาน 1,590 · กิจกรรมดำเนินงาน 1,200</div><div class="hint">${m?'ผลของเครื่องมือตรงกับเฉลย':'ผลของเครื่องมือไม่ตรงกับเฉลย'} วิธีทางอ้อมเปลี่ยนยอดเท่ากัน: บรรทัดค่าใช้จ่ายค้างจ่ายเปลี่ยนจาก 30 เป็น (30) ผลต่าง 60 ไปลดเงินสดได้มาจากการดำเนินงานและกิจกรรมดำเนินงาน บรรทัดอื่นไม่เปลี่ยน คำนวณ: (1,400 + 740) − 10 + 30 = 2,160</div></div>`;
+  return b;
+}
+function parseAns(s){s=String(s).replace(/[,\s]/g,'').replace(/[()]/g,'');const n=parseFloat(s);return isFinite(n)?Math.abs(n):NaN}
+$('b-check').onclick=()=>{
+  const want=[2160,1590,1200], got=['a1','a2','a3'].map(id=>parseAns($(id).value));
+  const res=got.map((g,i)=>eq(g,want[i]));
+  const n=res.filter(Boolean).length;
+  $('ex-result').innerHTML=`<div class="verdict ${n===3?'ok':'no'}"><div class="v">ถูก ${n} จาก 3 ข้อ</div><div class="hint">${['ค่าใช้จ่ายดำเนินงาน','ได้มาจากการดำเนินงาน','กิจกรรมดำเนินงาน'].map((t,i)=>`${t}: <span class="mark ${res[i]?'ok':'no'}">${res[i]?'ถูก':'ยังไม่ถูก'}</span>`).join(' · ')}${n<3?' · คำใบ้: ค่าใช้จ่ายค้างจ่ายที่ลดลงแปลว่าจ่ายเงินมากกว่าค่าใช้จ่ายที่รับรู้':''}</div></div>`;
+  if(n===3){$('ex-panel').hidden=false}
+};
+$('b-reveal').onclick=()=>{$('ex-panel').hidden=false;$('ex-panel').scrollIntoView({block:'nearest'})};
+$('b-apply').onclick=()=>{D=scen();syncInputs();renderAll();showTab('calc')};
+
+/* ---------- Tabs (only the tab is stored) ---------- */
+const TABS=['calc','recon','vat','ex','help'];
+function showTab(t){
+  if(!TABS.includes(t))t='calc';
+  TABS.forEach(x=>{$('p-'+x).hidden=x!==t;const b=$('t-'+x);b.setAttribute('aria-selected',x===t);b.tabIndex=x===t?0:-1});
+  try{localStorage.setItem('tool4-tab',t)}catch(e){}
+}
+TABS.forEach(x=>$('t-'+x).addEventListener('click',()=>showTab(x)));
+document.querySelector('.tabs').addEventListener('keydown',e=>{
+  const i=TABS.findIndex(x=>$('t-'+x)===document.activeElement);if(i<0)return;
+  let j=null;if(e.key==='ArrowRight')j=(i+1)%TABS.length;if(e.key==='ArrowLeft')j=(i-1+TABS.length)%TABS.length;
+  if(j!==null){e.preventDefault();showTab(TABS[j]);$('t-'+TABS[j]).focus()}
+});
+$('v-book').onclick=()=>{view='book';$('v-book').setAttribute('aria-pressed','true');$('v-f3').setAttribute('aria-pressed','false');renderDirect()};
+$('v-f3').onclick=()=>{view='f3';$('v-f3').setAttribute('aria-pressed','true');$('v-book').setAttribute('aria-pressed','false');renderDirect()};
+
+function renderAll(){renderDirect();renderRecon();renderEx()}
+let saved='calc';try{saved=localStorage.getItem('tool4-tab')||'calc'}catch(e){}
+syncInputs();setVat({});renderAll();renderVat();showTab(saved);
+window.__tool4={compute,defaults,scen,vatCalc};
+})();
+</script>
+</body>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h" style="position:fixed;inset:0;z-index:99999;background:#f5f7fa;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#18212e">
+ <form id="gate-f" style="background:#fff;border:1px solid #d9dfe7;border-top:6px solid #E8731B;border-radius:12px;padding:22px 20px;max-width:420px;width:100%;display:grid;gap:12px">
+  <img src="logo.png" alt="Dr.VIT &amp; PD" style="height:44px;width:auto;justify-self:start">
+  <h2 id="gate-h" style="margin:0;font-size:1.1rem;line-height:1.4;color:#1D3E9E">แอปประกอบคู่มือการจัดทำงบกระแสเงินสด TAS 7</h2>
+  <p style="margin:0;font-size:.92rem;color:#5a6676">สำหรับผู้ซื้อคู่มือ ใส่รหัสเข้าแอปที่พิมพ์ไว้ใต้ QR code ในเล่ม</p>
+  <label style="display:grid;gap:4px;font-size:.88rem">รหัสเข้าแอป
+   <span style="display:flex;gap:6px"><input id="gate-in" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:0;font:inherit;font-size:1rem;padding:8px 10px;border:1px solid #d9dfe7;border-radius:8px">
+   <button type="button" id="gate-show" style="font:inherit;font-size:.85rem;border:1px solid #d9dfe7;background:#fff;border-radius:8px;padding:0 10px;cursor:pointer">แสดง</button></span></label>
+  <label style="display:flex;gap:8px;align-items:center;font-size:.88rem"><input type="checkbox" id="gate-rem" checked> จำรหัสในเครื่องนี้</label>
+  <p id="gate-err" role="alert" style="margin:0;color:#b3362b;font-size:.88rem" hidden>รหัสไม่ถูกต้อง โปรดดูรหัสที่พิมพ์ไว้ในคู่มือ</p>
+  <button type="submit" style="font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px;background:#1D3E9E;color:#fff;cursor:pointer">เปิดแอป</button>
+  <p style="margin:0;font-size:.78rem;color:#5a6676">ดร.วิทยา อรุณศิริเพ็ชร · อาจารย์พงษ์ธร ดวงปัญญา</p>
+ </form>
+</div>
+<script>
+(function(){
+ var H='30bbac4ed235952c14f284ee9df8f6ae0fcabe8beca6b4fb70cf67bf128dd116',K='tas7cf-ok',g=document.getElementById('gate');
+ function ok(){try{if(localStorage.getItem(K)===H||sessionStorage.getItem(K)===H)return true}catch(e){}return false}
+ function open(){g.remove();document.documentElement.style.overflow=''}
+ if(ok()){open();return}
+ document.documentElement.style.overflow='hidden';
+ var inp=document.getElementById('gate-in');
+ document.getElementById('gate-show').onclick=function(){var p=inp.type==='password';inp.type=p?'text':'password';this.textContent=p?'ซ่อน':'แสดง'};
+ document.getElementById('gate-f').onsubmit=function(e){e.preventDefault();
+  var v=inp.value.toUpperCase().replace(/[\s-]/g,'');
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)).then(function(b){
+   var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+   if(h!==H){document.getElementById('gate-err').hidden=false;return}
+   try{(document.getElementById('gate-rem').checked?localStorage:sessionStorage).setItem(K,H)}catch(e){}
+   open()})};
+ inp.focus();
+})();
+</script>
+</html>

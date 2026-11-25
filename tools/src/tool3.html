@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>กระดาษทำการวิธีทางอ้อม</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Tokens and components follow Tool 1 (cash-test) */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;overflow-wrap:break-word}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px;min-width:0}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase;margin-top:16px}
+.lead{color:var(--muted);max-width:72ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted)}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet);max-width:100%}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"],.seg button[aria-selected="true"]{background:var(--accent);color:#fff}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.stepnav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.hint{font-size:.84rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+/* how-to */
+details.howto{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:0 18px}
+details.howto summary{cursor:pointer;padding:12px 0;font-family:var(--f-display);font-weight:600}
+details.howto[open] summary{border-bottom:1px solid var(--rule-soft)}
+details.howto ol,details.howto ul{margin:10px 0 14px;padding-left:1.4em}
+details.howto li{margin:4px 0}
+/* tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--rule)}
+.tabs button{font:inherit;font-size:.92rem;border:1px solid transparent;border-bottom:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:8px 8px 0 0;cursor:pointer;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{background:var(--sheet);border-color:var(--rule);color:var(--ink);font-weight:600}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+[role="tabpanel"]{display:grid;gap:20px;min-width:0}
+[role="tabpanel"][hidden]{display:none}
+/* status strip */
+.status-strip{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;border-left:3px solid var(--pass);background:var(--pass-soft);padding:10px 14px;border-radius:0 8px 8px 0}
+.status-strip.bad{border-left-color:var(--fail);background:var(--fail-soft)}
+.status-strip .v{font-family:var(--f-display);font-weight:600}
+.kpis{display:flex;flex-wrap:wrap;gap:6px 14px;font-family:var(--f-mono);font-size:.84rem}
+.kpis span{white-space:nowrap}
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{width:100%;border-collapse:collapse;font-size:.9rem}
+table.t th,table.t td{overflow-wrap:normal;padding:7px 9px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+table.t thead th{font-weight:500;color:var(--muted);font-size:.8rem;vertical-align:bottom}
+table.t td.n,table.t th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr.tot td{font-weight:600;border-top:1.5px solid var(--ink)}
+table.t tr.sub td{font-weight:600}
+table.t tr.hd td{font-family:var(--f-display);font-weight:600;padding-top:14px;color:var(--accent)}
+table.t tr.cap td{font-weight:600;background:var(--paper)}
+table.t tr.grand td{font-weight:700;border-top:1.5px solid var(--ink);border-bottom:3px double var(--ink)}
+table.t td.ind{padding-left:24px}
+table.t td.omit{color:var(--muted);font-family:var(--f-body);font-style:italic}
+table.t td.note{font-size:.8rem;color:var(--muted);min-width:180px}
+table.bs{min-width:430px}
+table.bs input{font:inherit;font-family:var(--f-mono);font-size:.9rem;width:88px;text-align:right;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:4px 6px}
+table.bs input.chg{border-color:var(--warn);background:var(--warn-soft)}
+table.ws{min-width:820px}
+table.ws td:nth-child(2){min-width:170px}
+table.stmt td:first-child{min-width:200px}
+table.bridge td:first-child{min-width:190px}
+table.ws tr.cur td{background:var(--accent-soft)}
+table.ws tr.later td{color:var(--muted);opacity:.55}
+table.ws tr.bad td{background:var(--fail-soft)}
+table.stmt{min-width:340px}
+table.stmt.two{min-width:520px}
+.badge{display:inline-block;font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;white-space:nowrap}
+.b-step{background:var(--accent-soft);color:var(--accent)}
+.b-ok{background:var(--pass-soft);color:var(--pass)}
+.b-bad{background:var(--fail-soft);color:var(--fail)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+/* supplementary form */
+form.edit{display:grid;gap:16px}
+fieldset{border:1px solid var(--rule-soft);border-radius:8px;padding:10px 12px 12px;margin:0;min-width:0}
+legend{font-family:var(--f-display);font-weight:600;font-size:.92rem;padding:0 6px}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+@media (max-width:560px){.fgrid{grid-template-columns:1fr}}
+.fgrid label{display:grid;gap:3px;font-size:.84rem;color:var(--muted);min-width:0}
+.fgrid input{font:inherit;font-family:var(--f-mono);font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;width:100%;min-width:0;text-align:right}
+.fgrid input.chg{border-color:var(--warn);background:var(--warn-soft)}
+.derived{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;font-size:.88rem;margin:0}
+.derived dt{color:var(--muted)} .derived dd{margin:0;font-family:var(--f-mono);text-align:right}
+.policy{font-size:.86rem;border-left:3px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 8px 8px 0}
+/* stepper */
+.stepnav{display:flex;flex-wrap:wrap;gap:6px}
+.stepnav button{font:inherit;font-family:var(--f-mono);font-size:.9rem;width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);background:var(--sheet);color:var(--muted);cursor:pointer}
+.stepnav button[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.stepnav button.done{background:var(--pass-soft);color:var(--pass);border-color:transparent}
+.stepcard{display:grid;gap:10px}
+.stepcard .book{border-left:3px solid var(--accent);padding:8px 12px;background:var(--accent-soft);border-radius:0 8px 8px 0}
+.stepcard .book .ref{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);display:block}
+.calc{font-family:var(--f-mono);font-size:.86rem;background:var(--paper);border:1px solid var(--rule-soft);border-radius:8px;padding:10px 12px;display:grid;gap:4px}
+.calc .ln{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.calc .ln b{font-weight:500}
+.navrow{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+/* checks */
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.checks li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;font-size:.9rem}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700;font-family:var(--f-mono)}
+.dot.p{background:var(--pass-soft);color:var(--pass)}
+.dot.f{background:var(--fail-soft);color:var(--fail)}
+.dot.w{background:var(--warn-soft);color:var(--warn)}
+.checks .ref{font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.alert{border-left:3px solid var(--fail);background:var(--fail-soft);color:var(--ink);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.9rem}
+.alert[hidden]{display:none}
+.alert b{color:var(--fail)}
+.fmtnote{font-size:.84rem;color:var(--muted);display:grid;gap:6px}
+.subopt[hidden]{display:none}
+.subopt{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.86rem}
+.foot{font-size:.8rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:480px){
+  body{font-size:14.5px}
+  .panel{padding:14px}
+  .tabs button{padding:7px 10px;font-size:.86rem}
+  .seg button{padding:7px 10px;font-size:.84rem}
+}
+@media (prefers-reduced-motion:no-preference){.tabs button,.seg button{transition:background .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <img src="data:image/jpeg;base64,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" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block">
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร</span>
+</div>
+    <div class="eyebrow">เครื่องมือที่ 3 · บทที่ 4 และบทที่ 6 · TAS 7 ย่อหน้า 18.2, 20, 43</div>
+    <h1>กระดาษทำการวิธีทางอ้อม</h1>
+    <p class="lead">เริ่มจากงบฐานะการเงินสองปีและข้อมูลประกอบของบริษัท สยามตัวอย่าง จำกัด (มหาชน) ตามหัวข้อ 4.2 วิเคราะห์ทีละขั้นตามกระดาษทำการ 7 ขั้นในหัวข้อ 4.3 แล้วได้งบกระแสเงินสดวิธีทางอ้อมในรูปแบบการสอน แบบ 3 หรือแบบ 2 แก้ตัวเลขได้ทุกช่อง ตัวเลขที่คำนวณจะเปลี่ยนตามทันที หน่วยพันบาท บริษัทนี้เป็นกิจการสมมติ</p>
+    <div class="los">
+      <span class="lo"><b>LO4.2</b> คำนวณกระแสเงินสดจากกิจกรรมดำเนินงานด้วยรายการปรับปรุงสามกลุ่ม · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO4.3</b> จัดทำกระดาษทำการจากงบฐานะการเงินสองปีจนได้งบกระแสเงินสดที่ลงตัว · ประยุกต์ใช้</span>
+      <span class="lo"><b>LO4.4</b> แยกแยะเจ้าหนี้ค่าซื้อสินทรัพย์ ดอกเบี้ยค้างจ่าย และเงินปันผลค้างจ่าย ออกจากหนี้สินดำเนินงาน · วิเคราะห์</span>
+      <span class="lo"><b>LO4.5</b> เปรียบเทียบบรรทัดรายการปรับปรุงตามแบบ 2 กับแบบ 3 · วิเคราะห์</span>
+      <span class="lo"><b>LO6.4</b> จัดทำงบกระแสเงินสดวิธีทางอ้อมตามแบบ 2 · ประยุกต์ใช้</span>
+    </div>
+  </header>
+
+  <details class="howto" id="howto">
+    <summary>วิธีใช้</summary>
+    <ol>
+      <li>แท็บ <b>ข้อมูลตั้งต้น</b> แสดงงบฐานะการเงิน ณ 31 ธันวาคม 2568 และ 2569 กับข้อมูลประกอบปี 2569 ตามหัวข้อ 4.2 ช่องที่แก้แล้วจะเป็นสีเหลือง ปุ่ม "คืนค่าตามเล่ม" คืนตัวเลขทุกช่อง</li>
+      <li>แท็บ <b>กระดาษทำการ 7 ขั้น</b> เดินตามขั้นในหัวข้อ 4.3 กดเลขขั้นหรือปุ่มถัดไป แถวที่วิเคราะห์ในขั้นนั้นเป็นแถบสีฟ้า แถวที่ยังไม่ถึงเป็นสีจาง แถวที่ยอดไม่ลงตัวเป็นสีแดง</li>
+      <li>แท็บ <b>งบกระแสเงินสด</b> เลือกรูปแบบการนำเสนอ รูปแบบการสอน (บทที่ 4) แบบ 3 (บทที่ 7) หรือแบบ 2 (บทที่ 6) แบบ 2 ใช้ข้อสมมติตาม NPAEs ในหัวข้อ 6.4 และเลือกกรณีสัญญาเช่าเงินทุนตามแบบฝึกหัด 6.5 ได้ ข้อมูลรายการที่ไม่ใช่เงินสดอยู่ท้ายงบ</li>
+      <li>แถบสถานะใต้แท็บบอกว่ากระดาษทำการลงตัวหรือไม่ ถ้าไม่ลงตัว เครื่องมือจะบอกบรรทัดและจำนวนผลต่าง รายการตรวจสอบครบชุดอยู่ท้ายแท็บงบกระแสเงินสด</li>
+      <li>แบบฝึกหัด 4.3: ทำกระดาษทำการเองก่อน แล้วเทียบกับขั้นที่ 7 แบบฝึกหัด 4.4: ลองลดเจ้าหนี้การค้าปลายปีลง 100 และลดค่าซื้ออุปกรณ์ลง 100 เพื่อดูว่าบรรทัดใดเปลี่ยน (เจ้าหนี้ค่าซื้ออุปกรณ์ 100 ต้องเปิดเผยเป็นรายการที่ไม่ใช่เงินสด ซึ่งเครื่องมือนี้ไม่ได้คำนวณให้)</li>
+    </ol>
+  </details>
+
+  <div class="toolbar">
+    <div class="tabs" role="tablist" aria-label="ส่วนของเครื่องมือ">
+      <button type="button" role="tab" id="tab-input" aria-controls="p-input" aria-selected="true">1 ข้อมูลตั้งต้น (4.2)</button>
+      <button type="button" role="tab" id="tab-ws" aria-controls="p-ws" aria-selected="false" tabindex="-1">2 กระดาษทำการ 7 ขั้น (4.3)</button>
+      <button type="button" role="tab" id="tab-stmt" aria-controls="p-stmt" aria-selected="false" tabindex="-1">3 งบกระแสเงินสด</button>
+    </div>
+    <button type="button" class="btn" id="b-reset">คืนค่าตามเล่ม</button>
+  </div>
+
+  <div class="status-strip" id="status" role="status" aria-live="polite"></div>
+  <div class="alert" id="alert" role="alert" hidden></div>
+
+  <!-- TAB 1 -->
+  <section role="tabpanel" id="p-input" aria-labelledby="tab-input">
+    <div class="grid">
+      <section class="panel" aria-labelledby="h-bs">
+        <div class="panel-h"><h2 id="h-bs">งบฐานะการเงิน ณ 31 ธันวาคม (พันบาท)</h2><span class="hint">หัวข้อ 4.2</span></div>
+        <div class="tw"><table class="t bs" id="bs"></table></div>
+        <p class="hint" style="margin-top:8px">ค่าเผื่อผลขาดทุนด้านเครดิตกรอกเป็นจำนวนบวก เครื่องมือแสดงในวงเล็บเพราะเป็นรายการหัก ช่องเปลี่ยนแปลงคำนวณให้</p>
+      </section>
+      <section class="panel" aria-labelledby="h-sup">
+        <div class="panel-h"><h2 id="h-sup">ข้อมูลประกอบปี 2569 (พันบาท)</h2><span class="hint">หัวข้อ 4.2 · 6.4</span></div>
+        <form class="edit" id="sup" autocomplete="off" onsubmit="return false"></form>
+      </section>
+    </div>
+    <section class="panel" aria-labelledby="h-der">
+      <div class="panel-h"><h2 id="h-der">ตัวเลขที่เครื่องมือคำนวณจากข้อมูลตั้งต้น</h2></div>
+      <dl class="derived" id="derived"></dl>
+      <p class="policy" style="margin-top:12px">นโยบาย: ดอกเบี้ยจ่ายจัดเป็นกิจกรรมดำเนินงาน ดอกเบี้ยรับและเงินปันผลรับจัดเป็นกิจกรรมลงทุน เงินปันผลจ่ายจัดเป็นกิจกรรมจัดหาเงิน</p>
+    </section>
+  </section>
+
+  <!-- TAB 2 -->
+  <section role="tabpanel" id="p-ws" aria-labelledby="tab-ws" hidden>
+    <section class="panel" aria-labelledby="h-step">
+      <div class="panel-h"><h2 id="h-step">กระดาษทำการ 7 ขั้น</h2><span class="hint">หัวข้อ 4.3</span></div>
+      <div class="stepnav" id="stepnav" role="group" aria-label="เลือกขั้น"></div>
+      <div class="stepcard" id="stepcard" style="margin-top:14px"></div>
+    </section>
+    <section class="panel" aria-labelledby="h-ws">
+      <div class="panel-h"><h2 id="h-ws">กระดาษทำการ (พันบาท)</h2><span class="hint" id="ws-hint"></span></div>
+      <div class="tw"><table class="t ws" id="ws"></table></div>
+      <p class="hint" style="margin-top:8px">ลำดับแถวตามตารางในหัวข้อ 4.3 ป้าย "ขั้น" บอกว่าแถวนั้นวิเคราะห์ในขั้นใด การจัดแถวเข้าขั้นเป็นการจัดของเครื่องมือตามคำอธิบายแต่ละขั้นในเล่ม</p>
+    </section>
+  </section>
+
+  <!-- TAB 3 -->
+  <section role="tabpanel" id="p-stmt" aria-labelledby="tab-stmt" hidden>
+    <section class="panel" aria-labelledby="h-stmt">
+      <div class="panel-h" style="align-items:center">
+        <h2 id="h-stmt">งบกระแสเงินสดวิธีทางอ้อม</h2>
+        <div class="seg" role="group" aria-label="รูปแบบการนำเสนอ" id="fmtseg">
+          <button type="button" data-fmt="teach" aria-pressed="true">รูปแบบการสอน (บทที่ 4)</button>
+          <button type="button" data-fmt="f3" aria-pressed="false">แบบ 3 (บทที่ 7)</button>
+          <button type="button" data-fmt="f2" aria-pressed="false">แบบ 2 (บทที่ 6)</button>
+        </div>
+      </div>
+      <div class="subopt" id="f2opt" hidden style="margin-bottom:12px">
+        <span>สัญญาเช่าโกดังตาม NPAEs:</span>
+        <div class="seg" role="group" aria-label="การจัดประเภทสัญญาเช่าตาม NPAEs" id="leaseseg">
+          <button type="button" data-lease="op" aria-pressed="true">สัญญาเช่าดำเนินงาน (หัวข้อ 6.4)</button>
+          <button type="button" data-lease="fin" aria-pressed="false">สัญญาเช่าเงินทุน (แบบฝึกหัด 6.5)</button>
+        </div>
+      </div>
+      <div id="f2is"></div>
+      <div class="tw"><table class="t stmt" id="stmt"></table></div>
+      <div class="fmtnote" id="fmtnote" style="margin-top:12px"></div>
+    </section>
+    <section class="panel" aria-labelledby="h-chk">
+      <div class="panel-h"><h2 id="h-chk">รายการตรวจสอบ</h2></div>
+      <ul class="checks" id="checks"></ul>
+    </section>
+  </section>
+
+  <footer class="foot">
+    <p>เครื่องมือนี้ประกอบบทที่ 4 วิธีทางอ้อมและกระดาษทำการ และบทที่ 6 งบกระแสเงินสดของบริษัทจำกัดตามแบบ 2 ของคู่มือการจัดทำงบกระแสเงินสด TAS 7 สำหรับบริษัทจดทะเบียนและบริษัทจำกัด ชื่อบรรทัดตามแบบ 2 และแบบ 3 คัดจากหัวข้อ 6.4 และ 7.2.1 ซึ่งใช้ชื่อตามประกาศกรมพัฒนาธุรกิจการค้า เรื่อง กำหนดรายการย่อที่ต้องมีในงบการเงิน พ.ศ. 2566 ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ</p>
+    <p>© ดร.วิทยา อรุณศิริเพ็ชร</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- default data: §4.2 and §6.4 ---------- */
+var BS_ROWS=[
+  {k:"cash", l:"เงินสดและรายการเทียบเท่าเงินสด", side:"A"},
+  {k:"ar",   l:"ลูกหนี้การค้า (ก่อนหักค่าเผื่อ)", side:"A"},
+  {k:"allow",l:"หัก ค่าเผื่อผลขาดทุนด้านเครดิต", side:"C"},
+  {k:"inv",  l:"สินค้าคงเหลือ", side:"A"},
+  {k:"prep", l:"ค่าใช้จ่ายจ่ายล่วงหน้า", side:"A"},
+  {k:"dep",  l:"เงินฝากที่มีภาระค้ำประกัน", side:"A"},
+  {k:"ppe",  l:"ที่ดิน อาคารและอุปกรณ์ สุทธิ", side:"A"},
+  {k:"rou",  l:"สินทรัพย์สิทธิการใช้ สุทธิ", side:"A"},
+  {k:"_ta",  l:"รวมสินทรัพย์", tot:"A"},
+  {k:"ap",   l:"เจ้าหนี้การค้า", side:"L"},
+  {k:"accr", l:"ค่าใช้จ่ายค้างจ่าย", side:"L"},
+  {k:"taxp", l:"ภาษีเงินได้ค้างจ่าย", side:"L"},
+  {k:"emp",  l:"ภาระผูกพันผลประโยชน์พนักงาน", side:"L"},
+  {k:"loan", l:"เงินกู้ยืมระยะยาว", side:"L"},
+  {k:"lease",l:"หนี้สินตามสัญญาเช่า", side:"L"},
+  {k:"cap",  l:"ทุนเรือนหุ้น", side:"L"},
+  {k:"re",   l:"กำไรสะสม", side:"L"},
+  {k:"_tl",  l:"รวมหนี้สินและส่วนของเจ้าของ", tot:"L"}
+];
+var DEF_BS={cash:[900,790],ar:[1600,1900],allow:[100,120],inv:[1200,1400],prep:[60,50],dep:[0,200],ppe:[5000,6000],rou:[0,320],
+  ap:[800,1050],accr:[100,130],taxp:[80,100],emp:[300,340],loan:[2000,2500],lease:[0,280],cap:[3000,3000],re:[2380,3140]};
+var SUP_GROUPS=[
+  {g:"กำไรและรายการในงบกำไรขาดทุน",f:[
+    ["profit","กำไรสำหรับปี",960],
+    ["tax","ภาษีเงินได้",240],
+    ["fin","ต้นทุนทางการเงิน (จ่ายเป็นเงินสดทั้งจำนวน)",150],
+    ["intInc","ดอกเบี้ยรับ (รับเป็นเงินสด)",30],
+    ["ecl","ตั้งค่าเผื่อผลขาดทุนด้านเครดิตเพิ่ม (ไม่มีการตัดจำหน่ายหนี้สูญ)",20],
+    ["empExp","รับรู้ค่าใช้จ่ายผลประโยชน์พนักงาน",60],
+    ["empPaid","จ่ายผลประโยชน์พนักงาน",20]]},
+  {g:"ที่ดิน อาคารและอุปกรณ์",f:[
+    ["depPPE","ค่าเสื่อมราคาอุปกรณ์",420],
+    ["buy","ซื้ออุปกรณ์ด้วยเงินสด",1500],
+    ["saleBV","ขายอุปกรณ์ ราคาตามบัญชี",80],
+    ["saleProc","ขายอุปกรณ์ ได้เงิน",120]]},
+  {g:"สัญญาเช่า",f:[
+    ["newLease","สัญญาเช่าใหม่: รับรู้สินทรัพย์สิทธิการใช้และหนี้สินตามสัญญาเช่า",400],
+    ["depROU","ค่าเสื่อมราคาสินทรัพย์สิทธิการใช้",80],
+    ["leasePay","จ่ายเงินต้นตามสัญญาเช่า",120],
+    ["leaseInt","ดอกเบี้ยตามสัญญาเช่า ซึ่งรวมอยู่ในต้นทุนทางการเงิน (หัวข้อ 6.4 ใช้ในแบบ 2)",30],
+    ["rentSL","ค่าเช่าตามวิธีเส้นตรงตาม NPAEs (150 + 150 + 58 × 3) ÷ 5 ≈ 95 (หัวข้อ 6.4 ใช้ในแบบ 2)",95]]},
+  {g:"เงินกู้ยืมและเงินปันผล",f:[
+    ["loanNew","กู้ยืมระยะยาวเพิ่ม",800],
+    ["loanRepay","ชำระคืนเงินกู้ยืมระยะยาว",300],
+    ["div","จ่ายเงินปันผล",200]]}
+];
+var DEF_S={}; SUP_GROUPS.forEach(function(g){g.f.forEach(function(f){DEF_S[f[0]]=f[2];});});
+var BOOK={op:1260,inv:-1550,fin:180,net:-110,close:790, f2op:1140,f2fin:300, f2profit:975, f2prep:55, f2finLeaseOp:1260,f2finLeaseFin:180};
+
+var state={bs:clone(DEF_BS), s:clone(DEF_S), step:1, fmt:"teach", lease:"op"};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+
+/* ---------- formatting ---------- */
+function fmt(v){
+  if(v===null||v===undefined) return "";
+  v=Math.round(v*100)/100;
+  if(Math.abs(v)<1e-9) return "—";
+  var a=Math.abs(v).toLocaleString("en-US",{maximumFractionDigits:2});
+  return v<0?"("+a+")":a;
+}
+function fmtz(v){ // zero shown as 0 in formulas
+  v=Math.round(v*100)/100;
+  var a=Math.abs(v).toLocaleString("en-US",{maximumFractionDigits:2});
+  return v<0?"("+a+")":a;
+}
+function plain(v){v=Math.round(v*100)/100;return Math.abs(v).toLocaleString("en-US",{maximumFractionDigits:2});}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function num(x){var n=parseFloat(String(x).replace(/,/g,""));return isFinite(n)?n:0;}
+function z(v){return Math.abs(v)<0.005;}
+
+/* ---------- model ---------- */
+function compute(){
+  var b=state.bs, s=state.s, d={};
+  function D(k){return b[k][1]-b[k][0];}
+  ["cash","ar","allow","inv","prep","dep","ppe","rou","ap","accr","taxp","emp","loan","lease","cap","re"].forEach(function(k){d[k]=D(k);});
+  var m={d:d};
+  m.ta0=b.cash[0]+b.ar[0]-b.allow[0]+b.inv[0]+b.prep[0]+b.dep[0]+b.ppe[0]+b.rou[0];
+  m.ta1=b.cash[1]+b.ar[1]-b.allow[1]+b.inv[1]+b.prep[1]+b.dep[1]+b.ppe[1]+b.rou[1];
+  m.tl0=b.ap[0]+b.accr[0]+b.taxp[0]+b.emp[0]+b.loan[0]+b.lease[0]+b.cap[0]+b.re[0];
+  m.tl1=b.ap[1]+b.accr[1]+b.taxp[1]+b.emp[1]+b.loan[1]+b.lease[1]+b.cap[1]+b.re[1];
+  m.gain=s.saleProc-s.saleBV;
+  m.taxPaid=s.tax-d.taxp;
+  m.intPaid=s.fin;
+  m.dep=s.depPPE+s.depROU;
+  m.adjNonCash=s.tax+s.fin+m.dep+s.ecl+s.empExp-s.intInc-m.gain;
+  m.pre=s.profit+m.adjNonCash;
+  m.wc=-d.ar-d.inv-d.prep+d.ap+d.accr;
+  m.cashOps=m.pre+m.wc;
+  m.op=m.cashOps-s.empPaid-m.intPaid-m.taxPaid;
+  m.inv=-s.buy+s.saleProc+s.intInc-d.dep;
+  m.fin=s.loanNew-s.loanRepay-s.leasePay-s.div+d.cap;
+  m.net=m.op+m.inv+m.fin;
+  m.close=b.cash[0]+m.net;
+  m.nonCashLease=s.newLease;
+  // roll-forward reconciliations (§4.3 notes column)
+  m.rec={
+    ppe:{exp:b.ppe[0]+s.buy-s.depPPE-s.saleBV, act:b.ppe[1]},
+    rou:{exp:b.rou[0]+s.newLease-s.depROU, act:b.rou[1]},
+    lease:{exp:b.lease[0]+s.newLease-s.leasePay, act:b.lease[1]},
+    loan:{exp:b.loan[0]+s.loanNew-s.loanRepay, act:b.loan[1]},
+    re:{exp:b.re[0]+s.profit-s.div, act:b.re[1]},
+    allow:{exp:b.allow[0]+s.ecl, act:b.allow[1]},
+    emp:{exp:b.emp[0]+s.empExp-s.empPaid, act:b.emp[1]}
+  };
+  m.recBad=[]; Object.keys(m.rec).forEach(function(k){var r=m.rec[k];r.diff=r.act-r.exp;if(!z(r.diff))m.recBad.push(k);});
+  m.bsBal0=z(m.ta0-m.tl0); m.bsBal1=z(m.ta1-m.tl1);
+  m.tie=z(m.net-d.cash);
+  m.wsDiff=m.net-d.cash;
+  // Form 2 under NPAEs (§6.4): operating lease, rent paid = principal + interest,
+  // expense = straight-line rent (NPAEs 14.38), the difference is prepaid rent (other assets line of Form 2)
+  var finLease=(state.lease==="fin");
+  var n={};
+  if(finLease){
+    n.profit=s.profit; n.finCost=s.fin; n.depAmort=m.dep; n.intPaid=m.intPaid; n.leaseFin=-s.leasePay; n.nonCash=s.newLease; n.prepRent=0;
+  } else {
+    n.rentPaid=s.leasePay+s.leaseInt;
+    n.rent=s.rentSL;
+    n.prepRent=n.rentPaid-n.rent;
+    n.profit=s.profit+s.depROU+s.leaseInt-n.rent;
+    n.finCost=s.fin-s.leaseInt; n.depAmort=s.depPPE; n.intPaid=m.intPaid-s.leaseInt; n.leaseFin=0; n.nonCash=0;
+  }
+  n.adj=s.tax+n.finCost+n.depAmort+s.empExp+s.ecl-m.gain-s.intInc+m.wc-n.prepRent;
+  n.cashOps=n.profit+n.adj;
+  n.op=n.cashOps-n.intPaid-m.taxPaid-s.empPaid;
+  n.inv=m.inv;
+  n.fin=s.loanNew-s.loanRepay+n.leaseFin-s.div+d.cap;
+  n.net=n.op+n.inv+n.fin;
+  n.close=b.cash[0]+n.net;
+  m.n=n;
+  m.isDefault=JSON.stringify(state.bs)===JSON.stringify(DEF_BS)&&JSON.stringify(state.s)===JSON.stringify(DEF_S);
+  return m;
+}
+
+/* ---------- tab 1: inputs ---------- */
+function buildInputs(){
+  var h='<thead><tr><th>รายการ</th><th class="n">2568</th><th class="n">2569</th><th class="n">เปลี่ยนแปลง</th></tr></thead><tbody>';
+  BS_ROWS.forEach(function(r){
+    if(r.tot){h+='<tr class="tot"><td>'+esc(r.l)+'</td><td class="n" id="t-'+r.k+'-0"></td><td class="n" id="t-'+r.k+'-1"></td><td class="n" id="t-'+r.k+'-d"></td></tr>';return;}
+    h+='<tr><td>'+esc(r.l)+'</td>';
+    for(var y=0;y<2;y++){h+='<td class="n"><input type="number" inputmode="decimal" step="any" data-bs="'+r.k+'" data-y="'+y+'" aria-label="'+esc(r.l)+' '+(y?2569:2568)+'"></td>';}
+    h+='<td class="n" id="d-'+r.k+'"></td></tr>';
+  });
+  h+='</tbody>';
+  document.getElementById("bs").innerHTML=h;
+  var f='';
+  SUP_GROUPS.forEach(function(g){
+    f+='<fieldset><legend>'+esc(g.g)+'</legend><div class="fgrid">';
+    g.f.forEach(function(x){f+='<label>'+esc(x[1])+'<input type="number" inputmode="decimal" step="any" data-s="'+x[0]+'"></label>';});
+    f+='</div></fieldset>';
+  });
+  document.getElementById("sup").innerHTML=f;
+  fillInputs();
+}
+function fillInputs(){
+  document.querySelectorAll("input[data-bs]").forEach(function(i){i.value=state.bs[i.dataset.bs][+i.dataset.y];});
+  document.querySelectorAll("input[data-s]").forEach(function(i){i.value=state.s[i.dataset.s];});
+  markChanged();
+}
+function markChanged(){
+  document.querySelectorAll("input[data-bs]").forEach(function(i){i.classList.toggle("chg",state.bs[i.dataset.bs][+i.dataset.y]!==DEF_BS[i.dataset.bs][+i.dataset.y]);});
+  document.querySelectorAll("input[data-s]").forEach(function(i){i.classList.toggle("chg",state.s[i.dataset.s]!==DEF_S[i.dataset.s]);});
+}
+function renderInputs(m){
+  BS_ROWS.forEach(function(r){
+    if(r.tot){
+      var a=r.tot==="A"?[m.ta0,m.ta1]:[m.tl0,m.tl1];
+      document.getElementById("t-"+r.k+"-0").textContent=fmt(a[0]);
+      document.getElementById("t-"+r.k+"-1").textContent=fmt(a[1]);
+      document.getElementById("t-"+r.k+"-d").textContent=fmt(a[1]-a[0]);
+      return;}
+    var dv=r.side==="C"?-m.d[r.k]:m.d[r.k];
+    document.getElementById("d-"+r.k).textContent=fmt(dv);
+  });
+  var s=state.s;
+  var rows=[
+    ["กำไรจากการขายอุปกรณ์ = เงินที่ได้ "+plain(s.saleProc)+" − ราคาตามบัญชี "+plain(s.saleBV), m.gain],
+    ["ภาษีเงินได้จ่าย = ภาษีเงินได้ "+plain(s.tax)+" − ภาษีเงินได้ค้างจ่ายเพิ่มขึ้น "+fmtz(m.d.taxp), m.taxPaid],
+    ["ดอกเบี้ยจ่าย = ต้นทุนทางการเงิน (ไม่มีดอกเบี้ยค้างจ่าย)", m.intPaid],
+    ["ค่าเสื่อมราคารวม = อุปกรณ์ "+plain(s.depPPE)+" + สินทรัพย์สิทธิการใช้ "+plain(s.depROU), m.dep],
+    ["การเปลี่ยนแปลงของทุนเรือนหุ้น (ถ้ามี จัดเป็นกิจกรรมจัดหาเงิน)", m.d.cap],
+    ["ค่าเช่าที่จ่ายทั้งปีตาม NPAEs = เงินต้น "+plain(s.leasePay)+" + ดอกเบี้ย "+plain(s.leaseInt)+" (หัวข้อ 6.4)", s.leasePay+s.leaseInt],
+    ["ค่าเช่าจ่ายล่วงหน้า ณ สิ้นปีตาม NPAEs = ค่าเช่าที่จ่าย "+plain(s.leasePay+s.leaseInt)+" − ค่าเช่าตามวิธีเส้นตรง "+plain(s.rentSL)+" (หัวข้อ 6.4)", s.leasePay+s.leaseInt-s.rentSL]
+  ];
+  document.getElementById("derived").innerHTML=rows.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+fmt(r[1])+'</dd>';}).join("");
+}
+
+/* ---------- tab 2: worksheet ---------- */
+var STEPS=[
+  {t:"คำนวณการเปลี่ยนแปลงของทุกบรรทัดในงบฐานะการเงิน และตรวจว่าผลรวมการเปลี่ยนแปลงของรายการที่ไม่ใช่เงินสดเท่ากับการเปลี่ยนแปลงของเงินสดฯ"},
+  {t:"วิเคราะห์บัญชีสินทรัพย์ระยะยาวด้วยบัญชีแยกประเภท แยกยอดซื้อ ยอดขาย ค่าเสื่อมราคา และรายการที่ไม่ใช่เงินสด"},
+  {t:"วิเคราะห์บัญชีหนี้สินที่ไม่ใช่ดำเนินงาน คือ เงินกู้ยืม หนี้สินตามสัญญาเช่า ดอกเบี้ยค้างจ่าย และเงินปันผลค้างจ่าย"},
+  {t:"วิเคราะห์ส่วนของเจ้าของ แยกกำไรสำหรับปี เงินปันผล และการออกหรือซื้อคืนหุ้น"},
+  {t:"บันทึกรายการที่ไม่ใช่เงินสดจากงบกำไรขาดทุน และย้ายภาษีกับดอกเบี้ยไปบรรทัดเงินจ่ายจริง"},
+  {t:"บันทึกการเปลี่ยนแปลงของสินทรัพย์และหนี้สินดำเนินงานที่เหลือ"},
+  {t:"รวมแต่ละคอลัมน์ ผลรวมทุกกิจกรรมต้องเท่ากับการเปลี่ยนแปลงของเงินสดฯ ในขั้นที่ 1"}
+];
+function cell(arr){ // arr of numbers -> "a / b"
+  var f=arr.filter(function(v){return v!==null&&v!==undefined;});
+  if(!f.length) return "";
+  return f.map(fmt).join(" / ");
+}
+function recNote(k,m,base){
+  var r=m.rec[k]; if(z(r.diff)) return base;
+  return base+' <span class="badge b-bad">ยอดในงบ '+plain(r.act)+' ผลต่าง '+fmtz(r.diff)+'</span>';
+}
+function wsRows(m){
+  var s=state.s,d=m.d,b=state.bs,R=[];
+  function sum(a){return a.reduce(function(x,y){return x+(y||0);},0);}
+  R.push({step:4,l:"กำไรสะสม",ch:d.re,op:[s.profit],iv:[],fi:[-s.div],note:recNote("re",m,"กำไร "+plain(s.profit)+" − เงินปันผล "+plain(s.div)),bad:!z(m.rec.re.diff)});
+  if(!z(d.cap)) R.push({step:4,l:"ทุนเรือนหุ้น",ch:d.cap,op:[],iv:[],fi:[d.cap],note:d.cap>0?"ออกหุ้นเพิ่มทุน":"ซื้อคืนหรือไถ่ถอนหุ้น"});
+  R.push({step:5,l:"ภาษีเงินได้ (บวกกลับและจ่ายจริง)",ch:d.taxp,op:[s.tax,-m.taxPaid],iv:[],fi:[],note:"ค่าใช้จ่าย "+plain(s.tax)+(d.taxp>=0?" − ค้างจ่ายเพิ่ม "+plain(d.taxp):" + ค้างจ่ายลดลง "+plain(d.taxp))});
+  R.push({step:5,l:"ต้นทุนทางการเงิน (บวกกลับและจ่ายจริง)",ch:0,op:[s.fin,-m.intPaid],iv:[],fi:[],note:"ไม่มีดอกเบี้ยค้างจ่าย"});
+  R.push({step:5,l:"ดอกเบี้ยรับ",ch:0,op:[-s.intInc],iv:[s.intInc],fi:[],note:"ย้ายไปกิจกรรมลงทุน"});
+  R.push({step:2,l:"อุปกรณ์ สุทธิ",ch:d.ppe,op:[s.depPPE,-m.gain],iv:[-s.buy,s.saleProc],fi:[],note:recNote("ppe",m,plain(b.ppe[0])+" + "+plain(s.buy)+" − "+plain(s.depPPE)+" − "+plain(s.saleBV)+" = "+plain(m.rec.ppe.exp)),bad:!z(m.rec.ppe.diff)});
+  R.push({step:2,l:"สินทรัพย์สิทธิการใช้",ch:d.rou,op:[s.depROU],iv:[],fi:[],note:recNote("rou",m,"ได้มา "+plain(s.newLease)+" ไม่ใช่เงินสด"),bad:!z(m.rec.rou.diff),nc:true});
+  R.push({step:3,l:"หนี้สินตามสัญญาเช่า",ch:d.lease,op:[],iv:[],fi:[-s.leasePay],note:recNote("lease",m,"เพิ่ม "+plain(s.newLease)+" ไม่ใช่เงินสด"),bad:!z(m.rec.lease.diff),nc:true});
+  R.push({step:3,l:"เงินกู้ยืมระยะยาว",ch:d.loan,op:[],iv:[],fi:[s.loanNew,-s.loanRepay],note:recNote("loan",m,"แสดงยอดรวม"),bad:!z(m.rec.loan.diff)});
+  R.push({step:2,l:"เงินฝากที่มีภาระค้ำประกัน",ch:d.dep,op:[],iv:[-d.dep],fi:[],note:"บทที่ 2"});
+  R.push({step:5,l:"ค่าเผื่อผลขาดทุนด้านเครดิต",ch:-d.allow,op:[s.ecl],iv:[],fi:[],note:recNote("allow",m,"ไม่ใช่เงินสด"),bad:!z(m.rec.allow.diff)});
+  R.push({step:5,l:"ภาระผูกพันผลประโยชน์พนักงาน",ch:d.emp,op:[s.empExp,-s.empPaid],iv:[],fi:[],note:recNote("emp",m,"ตั้งเพิ่ม "+plain(s.empExp)+" จ่าย "+plain(s.empPaid)),bad:!z(m.rec.emp.diff)});
+  R.push({step:6,l:"ลูกหนี้การค้า (ก่อนหักค่าเผื่อ)",ch:d.ar,op:[-d.ar],iv:[],fi:[],note:""});
+  R.push({step:6,l:"สินค้าคงเหลือ",ch:d.inv,op:[-d.inv],iv:[],fi:[],note:""});
+  R.push({step:6,l:"ค่าใช้จ่ายจ่ายล่วงหน้า",ch:d.prep,op:[-d.prep],iv:[],fi:[],note:""});
+  R.push({step:6,l:"เจ้าหนี้การค้า",ch:d.ap,op:[d.ap],iv:[],fi:[],note:"ตรวจแล้วไม่มีค่าซื้ออุปกรณ์ค้างจ่าย"});
+  R.push({step:6,l:"ค่าใช้จ่ายค้างจ่าย",ch:d.accr,op:[d.accr],iv:[],fi:[],note:""});
+  R.forEach(function(r){r.sop=sum(r.op);r.siv=sum(r.iv);r.sfi=sum(r.fi);});
+  return R;
+}
+function renderWS(m){
+  var st=state.step,R=wsRows(m);
+  var h='<thead><tr><th>ขั้น</th><th>บรรทัด (พันบาท)</th><th class="n">เปลี่ยนแปลง</th><th class="n">ดำเนินงาน</th><th class="n">ลงทุน</th><th class="n">จัดหาเงิน</th><th>ไม่ใช่เงินสดหรือหมายเหตุ</th></tr></thead><tbody>';
+  var op=0,iv=0,fi=0;
+  R.forEach(function(r){
+    var show=(st>=r.step)||st===1;
+    var cls=r.bad&&st>=r.step?"bad":(r.step===st?"cur":(st===1||r.step>st?"later":""));
+    if(st>=r.step&&st>1){op+=r.sop;iv+=r.siv;fi+=r.sfi;}
+    var reveal=st>=r.step&&st>1;
+    h+='<tr class="'+cls+'"><td><span class="badge b-step">ขั้น '+r.step+'</span></td><td>'+esc(r.l)+'</td><td class="n">'+fmt(r.ch)+'</td>'+
+      '<td class="n">'+(reveal?cell(r.op):"")+'</td><td class="n">'+(reveal?cell(r.iv):"")+'</td><td class="n">'+(reveal?cell(r.fi):"")+'</td>'+
+      '<td class="note">'+(reveal?r.note:"")+'</td></tr>';
+  });
+  if(st===7){
+    var ok=m.tie&&m.recBad.length===0&&m.bsBal0&&m.bsBal1;
+    h+='<tr class="tot"><td><span class="badge b-step">ขั้น 7</span></td><td>รวม</td><td class="n">'+fmt(m.d.cash)+'</td><td class="n">'+fmt(m.op)+'</td><td class="n">'+fmt(m.inv)+'</td><td class="n">'+fmt(m.fin)+'</td><td class="note">'+
+      plain(m.op)+(m.inv<0?" − ":" + ")+plain(m.inv)+(m.fin<0?" − ":" + ")+plain(m.fin)+" = "+fmtz(m.net)+(ok?' ลงตัว':' <span class="badge b-bad">ไม่ลงตัว ผลต่าง '+fmtz(m.wsDiff)+'</span>')+'</td></tr>';
+  } else if(st>1){
+    h+='<tr class="sub"><td></td><td>ยอดสะสมถึงขั้นที่ '+st+'</td><td class="n"></td><td class="n">'+fmt(op)+'</td><td class="n">'+fmt(iv)+'</td><td class="n">'+fmt(fi)+'</td><td class="note">ยังไม่ครบทุกแถว</td></tr>';
+  }
+  h+='</tbody>';
+  document.getElementById("ws").innerHTML=h;
+  document.getElementById("ws-hint").textContent=st===1?"ขั้นที่ 1 แสดงเฉพาะคอลัมน์เปลี่ยนแปลง":"แสดงผลถึงขั้นที่ "+st;
+  // step nav
+  var nav="";
+  for(var i=1;i<=7;i++){nav+='<button type="button" data-step="'+i+'"'+(i===st?' aria-current="step"':'')+(i<st?' class="done"':'')+' aria-label="ขั้นที่ '+i+'">'+i+'</button>';}
+  document.getElementById("stepnav").innerHTML=nav;
+  document.getElementById("stepcard").innerHTML=stepCard(st,m,R);
+}
+function stepCard(st,m,R){
+  var s=state.s,d=m.d,b=state.bs,c="";
+  c+='<div class="book"><span class="ref">ขั้นที่ '+st+' จาก 7 · หัวข้อ 4.3</span>'+esc(STEPS[st-1].t)+'</div>';
+  var L=function(a,v){return '<div class="ln"><span>'+a+'</span><b>'+v+'</b></div>';};
+  if(st===1){
+    var dNonCashAssets=d.ar-d.allow+d.inv+d.prep+d.dep+d.ppe+d.rou;
+    var dLE=m.tl1-m.tl0;
+    var implied=dLE-dNonCashAssets;
+    c+='<div class="calc">'+L("หนี้สินและส่วนของเจ้าของเปลี่ยนแปลง",fmtz(dLE))+L("หัก สินทรัพย์ที่ไม่ใช่เงินสดเปลี่ยนแปลง",fmtz(dNonCashAssets))+
+      L("ผลรวมการเปลี่ยนแปลงของรายการที่ไม่ใช่เงินสด",fmtz(implied))+L("เงินสดและรายการเทียบเท่าเงินสดเปลี่ยนแปลง ("+plain(b.cash[0])+" → "+plain(b.cash[1])+")",fmtz(d.cash))+'</div>';
+    c+=z(implied-d.cash)?'<p><span class="badge b-ok">ลงตัว</span> งบฐานะการเงินทั้งสองปีลงตัว ผลรวมเท่ากับการเปลี่ยนแปลงของเงินสดฯ</p>':
+      '<p><span class="badge b-bad">ไม่ลงตัว</span> งบฐานะการเงินไม่ลงตัว ผลต่าง '+fmtz(implied-d.cash)+' ตรวจตัวเลขในแท็บข้อมูลตั้งต้นก่อนทำขั้นต่อไป</p>';
+  } else if(st===2){
+    c+='<div class="calc">'+L("อุปกรณ์ ต้นปี",plain(b.ppe[0]))+L("บวก ซื้อ (กิจกรรมลงทุน)",plain(s.buy))+L("หัก ค่าเสื่อมราคา (บวกกลับในกิจกรรมดำเนินงาน)",fmtz(-s.depPPE))+L("หัก ราคาตามบัญชีของที่ขาย",fmtz(-s.saleBV))+L("อุปกรณ์ ปลายปีที่คำนวณได้ / ในงบ",plain(m.rec.ppe.exp)+" / "+plain(b.ppe[1]))+
+      L("เงินที่ได้จากการขาย "+plain(s.saleProc)+" − ราคาตามบัญชี "+plain(s.saleBV)+" = กำไรจากการขาย (หักออกจากกำไร)",fmtz(m.gain))+'</div>';
+    c+='<div class="calc">'+L("สินทรัพย์สิทธิการใช้ ต้นปี",plain(b.rou[0]))+L("บวก ได้มาภายใต้สัญญาเช่าใหม่ (ไม่ใช่เงินสด)",plain(s.newLease))+L("หัก ค่าเสื่อมราคา",fmtz(-s.depROU))+L("ปลายปีที่คำนวณได้ / ในงบ",plain(m.rec.rou.exp)+" / "+plain(b.rou[1]))+'</div>';
+    c+='<p class="hint">เงินฝากที่มีภาระค้ำประกันไม่เข้านิยามเงินสดและรายการเทียบเท่าเงินสด (บทที่ 2) ส่วนที่เพิ่มขึ้น '+plain(d.dep)+' จึงอยู่ในกิจกรรมลงทุน</p>';
+  } else if(st===3){
+    c+='<div class="calc">'+L("หนี้สินตามสัญญาเช่า ต้นปี",plain(b.lease[0]))+L("บวก สัญญาเช่าใหม่ (ไม่ใช่เงินสด)",plain(s.newLease))+L("หัก จ่ายเงินต้น (กิจกรรมจัดหาเงิน)",fmtz(-s.leasePay))+L("ปลายปีที่คำนวณได้ / ในงบ",plain(m.rec.lease.exp)+" / "+plain(b.lease[1]))+'</div>';
+    c+='<div class="calc">'+L("เงินกู้ยืมระยะยาว ต้นปี",plain(b.loan[0]))+L("บวก กู้เพิ่ม",plain(s.loanNew))+L("หัก ชำระคืน",fmtz(-s.loanRepay))+L("ปลายปีที่คำนวณได้ / ในงบ",plain(m.rec.loan.exp)+" / "+plain(b.loan[1]))+'</div>';
+    c+='<p class="hint">ตัวอย่างนี้ไม่มีดอกเบี้ยค้างจ่ายและเงินปันผลค้างจ่าย ถ้ามี ให้แยกออกจากหนี้สินดำเนินงานตามหัวข้อ 4.4.1 แสดงเงินกู้รับและจ่ายเป็นยอดรวม ไม่หักกลบ</p>';
+  } else if(st===4){
+    c+='<div class="calc">'+L("กำไรสะสม ต้นปี",plain(b.re[0]))+L("บวก กำไรสำหรับปี (จุดเริ่มของกิจกรรมดำเนินงาน)",plain(s.profit))+L("หัก เงินปันผล (กิจกรรมจัดหาเงิน)",fmtz(-s.div))+L("ปลายปีที่คำนวณได้ / ในงบ",plain(m.rec.re.exp)+" / "+plain(b.re[1]))+
+      L("ทุนเรือนหุ้นเปลี่ยนแปลง",fmtz(d.cap))+'</div>';
+  } else if(st===5){
+    c+='<div class="calc">'+L("ภาษีเงินได้ บวกกลับ / จ่ายจริง ("+plain(s.tax)+" − ค้างจ่ายเพิ่มขึ้น "+fmtz(d.taxp)+")",plain(s.tax)+" / "+fmtz(-m.taxPaid))+
+      L("ต้นทุนทางการเงิน บวกกลับ / ดอกเบี้ยจ่าย",plain(s.fin)+" / "+fmtz(-m.intPaid))+L("ดอกเบี้ยรับ หักออก / ย้ายไปกิจกรรมลงทุน",fmtz(-s.intInc)+" / "+plain(s.intInc))+
+      L("ค่าเผื่อผลขาดทุนด้านเครดิต "+plain(b.allow[0])+" + "+plain(s.ecl)+" = "+plain(m.rec.allow.exp),plain(s.ecl))+
+      L("ผลประโยชน์พนักงาน ตั้งเพิ่ม / จ่าย",plain(s.empExp)+" / "+fmtz(-s.empPaid))+'</div>';
+    c+='<p class="hint">ลูกหนี้ใช้ยอดก่อนหักค่าเผื่อแล้วบวกกลับผลขาดทุนด้านเครดิต จึงไม่นับซ้ำ (หัวข้อ 4.6 จุดที่มักพลาด)</p>';
+  } else if(st===6){
+    c+='<div class="calc">'+L("ลูกหนี้การค้า",fmtz(-d.ar))+L("สินค้าคงเหลือ",fmtz(-d.inv))+L("ค่าใช้จ่ายจ่ายล่วงหน้า",fmtz(-d.prep))+L("เจ้าหนี้การค้า",fmtz(d.ap))+L("ค่าใช้จ่ายค้างจ่าย",fmtz(d.accr))+L("รวมการเปลี่ยนแปลงเงินทุนหมุนเวียน",fmtz(m.wc))+'</div>';
+    c+='<p class="hint">สินทรัพย์ดำเนินงานเพิ่มขึ้นหักออก หนี้สินดำเนินงานเพิ่มขึ้นบวกกลับ (หัวข้อ 4.1) ถ้าเจ้าหนี้การค้ารวมค่าซื้ออุปกรณ์ค้างจ่าย ต้องแยกออกก่อน (หัวข้อ 4.4.1 และแบบฝึกหัด 4.4)</p>';
+  } else {
+    c+='<div class="calc">'+L("ดำเนินงาน",fmtz(m.op))+L("ลงทุน",fmtz(m.inv))+L("จัดหาเงิน",fmtz(m.fin))+L("รวมทุกกิจกรรม",fmtz(m.net))+L("เงินสดฯ เปลี่ยนแปลงตามขั้นที่ 1",fmtz(d.cash))+'</div>';
+    c+=m.tie&&!m.recBad.length?'<p><span class="badge b-ok">ลงตัว</span> ผลรวมทุกกิจกรรมเท่ากับการเปลี่ยนแปลงของเงินสดฯ</p>':'<p><span class="badge b-bad">ไม่ลงตัว</span> ผลต่าง '+fmtz(m.wsDiff)+' ดูแถวสีแดงในกระดาษทำการ</p>';
+  }
+  c+='<div class="navrow"><button type="button" class="btn" data-go="-1"'+(st===1?' disabled':'')+'>ขั้นก่อนหน้า</button><button type="button" class="btn primary" data-go="1"'+(st===7?' disabled':'')+'>ขั้นถัดไป</button></div>';
+  return c;
+}
+
+/* ---------- tab 3: statements ---------- */
+// row: [type,label,value,(value2)]; types h=heading r=row ri=indented row s=subtotal t=total g=grand c=caption o=omitted
+function incDec(v,inc,dec){return v>0?inc:(v<0?dec:inc);} // label by sign
+function stTeach(m){
+  var s=state.s,d=m.d,b=state.bs,R=[];
+  R.push(["c","บริษัท สยามตัวอย่าง จำกัด (มหาชน) · สำหรับปีสิ้นสุดวันที่ 31 ธันวาคม 2569 (พันบาท)","2569"]);
+  R.push(["h","กระแสเงินสดจากกิจกรรมดำเนินงาน"]);
+  R.push(["r","กำไรสำหรับปี",s.profit]);
+  R.push(["r","ปรับรายการที่กระทบกำไรเป็นเงินสดรับ (จ่าย)",null]);
+  R.push(["ri","ภาษีเงินได้",s.tax]);
+  R.push(["ri","ต้นทุนทางการเงิน",s.fin]);
+  R.push(["ri",z(s.depROU)?"ค่าเสื่อมราคา":"ค่าเสื่อมราคา (รวมสินทรัพย์สิทธิการใช้ "+plain(s.depROU)+")",m.dep]);
+  R.push(["ri","ผลขาดทุนด้านเครดิตที่คาดว่าจะเกิดขึ้น",s.ecl]);
+  R.push(["ri","ค่าใช้จ่ายผลประโยชน์พนักงาน",s.empExp]);
+  R.push(["ri","ดอกเบี้ยรับ",-s.intInc]);
+  R.push(["ri",m.gain<0?"ขาดทุนจากการขายอุปกรณ์":"กำไรจากการขายอุปกรณ์",-m.gain]);
+  R.push(["s","กำไรจากการดำเนินงานก่อนการเปลี่ยนแปลงในสินทรัพย์และหนี้สินดำเนินงาน",m.pre]);
+  R.push(["ri",incDec(d.ar,"ลูกหนี้การค้า (เพิ่มขึ้น)","ลูกหนี้การค้า ลดลง"),-d.ar]);
+  R.push(["ri",incDec(d.inv,"สินค้าคงเหลือ (เพิ่มขึ้น)","สินค้าคงเหลือ ลดลง"),-d.inv]);
+  R.push(["ri",d.prep>0?"ค่าใช้จ่ายจ่ายล่วงหน้า (เพิ่มขึ้น)":"ค่าใช้จ่ายจ่ายล่วงหน้า ลดลง",-d.prep]);
+  R.push(["ri",d.ap<0?"เจ้าหนี้การค้า (ลดลง)":"เจ้าหนี้การค้า เพิ่มขึ้น",d.ap]);
+  R.push(["ri",d.accr<0?"ค่าใช้จ่ายค้างจ่าย (ลดลง)":"ค่าใช้จ่ายค้างจ่าย เพิ่มขึ้น",d.accr]);
+  R.push(["s",m.cashOps<0?"เงินสดใช้ไปในการดำเนินงาน":"เงินสดได้มาจากการดำเนินงาน",m.cashOps]);
+  R.push(["ri","จ่ายผลประโยชน์พนักงาน",-s.empPaid]);
+  R.push(["ri","จ่ายดอกเบี้ย",-m.intPaid]);
+  R.push(["ri","จ่ายภาษีเงินได้",-m.taxPaid]);
+  R.push(["t",m.op<0?"เงินสดสุทธิใช้ไปในกิจกรรมดำเนินงาน":"เงินสดสุทธิได้มาจากกิจกรรมดำเนินงาน",m.op]);
+  R.push(["h","กระแสเงินสดจากกิจกรรมลงทุน"]);
+  R.push(["ri","จ่ายซื้ออุปกรณ์",-s.buy]);
+  R.push(["ri","รับจากการขายอุปกรณ์",s.saleProc]);
+  R.push(["ri","รับดอกเบี้ย",s.intInc]);
+  R.push(["ri",d.dep<0?"เงินฝากที่มีภาระค้ำประกัน ลดลง":"เงินฝากที่มีภาระค้ำประกัน (เพิ่มขึ้น)",-d.dep]);
+  R.push(["t",m.inv>0?"เงินสดสุทธิได้มาจากกิจกรรมลงทุน":"เงินสดสุทธิใช้ไปในกิจกรรมลงทุน",m.inv]);
+  R.push(["h","กระแสเงินสดจากกิจกรรมจัดหาเงิน"]);
+  R.push(["ri","รับเงินกู้ยืมระยะยาว",s.loanNew]);
+  R.push(["ri","ชำระคืนเงินกู้ยืมระยะยาว",-s.loanRepay]);
+  capLine(R,d.cap,"f3");
+  R.push(["ri","ชำระหนี้สินตามสัญญาเช่า",-s.leasePay]);
+  R.push(["ri","จ่ายเงินปันผล",-s.div]);
+  R.push(["t",m.fin<0?"เงินสดสุทธิใช้ไปในกิจกรรมจัดหาเงิน":"เงินสดสุทธิได้มาจากกิจกรรมจัดหาเงิน",m.fin]);
+  R.push(["g",m.net>0?"เงินสดและรายการเทียบเท่าเงินสด เพิ่มขึ้นสุทธิ":"เงินสดและรายการเทียบเท่าเงินสด ลดลงสุทธิ",m.net]);
+  R.push(["r","เงินสดและรายการเทียบเท่าเงินสด ณ วันต้นปี",b.cash[0]]);
+  R.push(["g","เงินสดและรายการเทียบเท่าเงินสด ณ วันสิ้นปี",m.close]);
+  R.push(["h","ข้อมูลกระแสเงินสดเปิดเผยเพิ่มเติม · รายการที่ไม่ใช่เงินสด"]);
+  R.push(["ri","ได้มาซึ่งสินทรัพย์สิทธิการใช้ภายใต้สัญญาเช่าใหม่",m.nonCashLease]);
+  return R;
+}
+function capLine(R,v,form,v2){
+  if(z(v)) return;
+  if(v>0) R.push(["ri","เงินสดรับจากการออกหุ้นทุน",v,v2]);
+  else R.push(["ri",form==="f2"?"เงินสดที่จ่ายให้กับผู้เป็นเจ้าของ":"เงินสดที่จ่ายให้กับผู้เป็นเจ้าของเพื่อซื้อหรือไถ่ถอนหุ้นของกิจการ",v,v2]);
+}
+function stF3(m){
+  var s=state.s,d=m.d,b=state.bs,R=[];
+  R.push(["c","บริษัท สยามตัวอย่าง จำกัด (มหาชน) · งบกระแสเงินสด (วิธีทางอ้อม) งบการเงินเฉพาะกิจการ สำหรับปีสิ้นสุดวันที่ 31 ธันวาคม (พันบาท)","2569"]);
+  R.push(["h","1. กระแสเงินสดจากกิจกรรมดำเนินงาน"]);
+  R.push(["r","1.1 กำไร (ขาดทุน) สำหรับปี",s.profit]);
+  R.push(["r","1.2 ปรับรายการที่กระทบกำไร (ขาดทุน) เป็นเงินสดรับ (จ่าย)",null]);
+  R.push(["ri","การปรับปรุงด้วยค่าใช้จ่ายภาษีเงินได้",s.tax]);
+  R.push(["ri","การปรับปรุงต้นทุนทางการเงิน",s.fin]);
+  R.push(["ri","ค่าเสื่อมราคา ค่าสูญสิ้นและค่าตัดจำหน่าย",m.dep]);
+  R.push(["ri","การปรับปรุงด้วยผลขาดทุนจากการด้อยค่าที่รับรู้ในกำไรหรือขาดทุน (กลับรายการ) (ผลขาดทุนด้านเครดิต)",s.ecl]);
+  R.push(["ri","การปรับปรุงด้วยประมาณการหนี้สินผลประโยชน์พนักงาน (กลับรายการ)",s.empExp]);
+  R.push(["ri","การปรับปรุงด้วยขาดทุน (กำไร) จากการจำหน่ายสินทรัพย์ไม่หมุนเวียน",-m.gain]);
+  R.push(["ri","การปรับปรุงอื่นด้วยเงินสดที่เกิดจากการลงทุนหรือการกู้ยืม (ดอกเบี้ยรับ)",-s.intInc]);
+  R.push(["ri","การปรับปรุงด้วยลูกหนี้การค้า (เพิ่มขึ้น) ลดลง",-d.ar]);
+  R.push(["ri","การปรับปรุงด้วยสินค้าคงเหลือ (เพิ่มขึ้น) ลดลง",-d.inv]);
+  R.push(["ri","การปรับปรุงด้วยสินทรัพย์อื่น (เพิ่มขึ้น) ลดลง (ค่าใช้จ่ายจ่ายล่วงหน้า)",-d.prep]);
+  R.push(["ri","การปรับปรุงด้วยเจ้าหนี้การค้าเพิ่มขึ้น (ลดลง)",d.ap]);
+  R.push(["ri","การปรับปรุงด้วยเจ้าหนี้จากการดำเนินงานอื่นเพิ่มขึ้น (ลดลง) (ค่าใช้จ่ายค้างจ่าย)",d.accr]);
+  R.push(["s","รวมการปรับปรุงจากการกระทบยอดกำไร (ขาดทุน)",m.adjNonCash+m.wc]);
+  R.push(["s","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) การดำเนินงาน",m.cashOps]);
+  R.push(["o","1.3 เงินปันผลจ่าย"]);
+  R.push(["o","1.4 เงินปันผลรับ"]);
+  R.push(["r","1.5 ดอกเบี้ยจ่าย",-m.intPaid]);
+  R.push(["o","1.6 ดอกเบี้ยรับ"]);
+  R.push(["r","1.7 ภาษีเงินได้รับคืน (จ่ายออก)",-m.taxPaid]);
+  R.push(["r","1.8 เงินสดรับ (จ่าย) อื่นจากกิจกรรมดำเนินงาน (จ่ายผลประโยชน์พนักงาน)",-s.empPaid]);
+  R.push(["t","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมดำเนินงาน",m.op]);
+  R.push(["h","2. กระแสเงินสดจากกิจกรรมลงทุน"]);
+  R.push(["ri","เงินสดรับจากการขายที่ดิน อาคารและอุปกรณ์",s.saleProc]);
+  R.push(["ri","เงินสดจ่ายเพื่อซื้อที่ดิน อาคารและอุปกรณ์",-s.buy]);
+  R.push(["ri","ดอกเบี้ยรับ",s.intInc]);
+  R.push(["ri",d.dep<0?"เงินสดรับ (จ่าย) อื่นจากกิจกรรมลงทุน (เงินฝากที่มีภาระค้ำประกันลดลง)":"เงินสดรับ (จ่าย) อื่นจากกิจกรรมลงทุน (เงินฝากที่มีภาระค้ำประกันเพิ่มขึ้น)",-d.dep]);
+  R.push(["t","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมลงทุน",m.inv]);
+  R.push(["h","3. กระแสเงินสดจากกิจกรรมจัดหาเงิน"]);
+  R.push(["ri","เงินสดรับจากเงินกู้ยืม",s.loanNew]);
+  R.push(["ri","เงินสดจ่ายเพื่อชำระเงินกู้ยืม",-s.loanRepay]);
+  capLine(R,d.cap,"f3");
+  R.push(["ri","เงินสดจ่ายชำระหนี้สินตามสัญญาเช่า",-s.leasePay]);
+  R.push(["ri","เงินปันผลจ่าย",-s.div]);
+  R.push(["t","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมจัดหาเงิน",m.fin]);
+  R.push(["s","4. เงินสดและรายการเทียบเท่าเงินสดเพิ่มขึ้น (ลดลง) สุทธิก่อนผลกระทบของอัตราแลกเปลี่ยน",m.net]);
+  R.push(["o","5. ผลกระทบของอัตราแลกเปลี่ยนที่มีต่อเงินสดและรายการเทียบเท่าเงินสด"]);
+  R.push(["g","6. เงินสดและรายการเทียบเท่าเงินสดเพิ่มขึ้น (ลดลง) สุทธิ",m.net]);
+  R.push(["r","7. เงินสดและรายการเทียบเท่าเงินสดต้นงวด",b.cash[0]]);
+  R.push(["g","8. เงินสดและรายการเทียบเท่าเงินสดปลายงวด",m.close]);
+  R.push(["h","ข้อมูลกระแสเงินสดเปิดเผยเพิ่มเติม · รายการที่ไม่ใช่เงินสด"]);
+  R.push(["ri","ได้มาซึ่งสินทรัพย์สิทธิการใช้ภายใต้สัญญาเช่าใหม่",m.nonCashLease]);
+  return R;
+}
+function stF2(m){
+  var s=state.s,d=m.d,b=state.bs,n=m.n,R=[];
+  R.push(["c","บริษัท สยามตัวอย่าง จำกัด · งบกระแสเงินสด (วิธีทางอ้อม) สำหรับปีสิ้นสุดวันที่ 31 ธันวาคม (พันบาท)","2569","เทียบ: กรณีใช้ TFRS 16 (ตัวเลขบทที่ 4)"]);
+  R.push(["h","กระแสเงินสดจากกิจกรรมดำเนินงาน"]);
+  R.push(["r","กำไร (ขาดทุน) สำหรับปี",n.profit,s.profit]);
+  R.push(["r","ปรับรายการที่กระทบกำไร (ขาดทุน) เป็นเงินสดรับ (จ่าย)",null,null]);
+  R.push(["ri","การปรับปรุงด้วยภาษีเงินได้",s.tax,s.tax]);
+  R.push(["ri","การปรับปรุงต้นทุนทางการเงิน",n.finCost,s.fin]);
+  R.push(["ri","ค่าเสื่อมราคา ค่าสูญสิ้นและค่าตัดจำหน่าย",n.depAmort,m.dep]);
+  R.push(["ri","การปรับปรุงด้วยประมาณการหนี้สิน (กลับรายการ)",s.empExp,s.empExp]);
+  R.push(["ri","การปรับปรุงด้วยหนี้สูญ และหนี้สงสัยจะสูญ (กลับรายการ)",s.ecl,s.ecl]);
+  R.push(["ri","การปรับปรุงด้วยขาดทุน (กำไร) จากการจำหน่ายสินทรัพย์ไม่หมุนเวียน",-m.gain,-m.gain]);
+  R.push(["ri","การปรับปรุงอื่นด้วยเงินสดที่เกิดจากการลงทุนหรือการกู้ยืม (ดอกเบี้ยรับ)",-s.intInc,-s.intInc]);
+  R.push(["ri","การปรับปรุงด้วยลูกหนี้การค้า (เพิ่มขึ้น) ลดลง",-d.ar,-d.ar]);
+  R.push(["ri","การปรับปรุงด้วยสินค้าคงเหลือ (เพิ่มขึ้น) ลดลง",-d.inv,-d.inv]);
+  R.push(["ri","การปรับปรุงด้วยสินทรัพย์อื่น (เพิ่มขึ้น) ลดลง (ค่าใช้จ่ายจ่ายล่วงหน้า)",-d.prep,-d.prep]);
+  if(state.lease==="op") R.push(["ri","การปรับปรุงด้วยสินทรัพย์อื่น (เพิ่มขึ้น) ลดลง (ค่าเช่าจ่ายล่วงหน้า (เพิ่มขึ้น))",-n.prepRent,0]);
+  R.push(["ri","การปรับปรุงด้วยเจ้าหนี้การค้าเพิ่มขึ้น (ลดลง)",d.ap,d.ap]);
+  R.push(["ri","การปรับปรุงด้วยเจ้าหนี้จากการดำเนินงานอื่นเพิ่มขึ้น (ลดลง) (ค่าใช้จ่ายค้างจ่าย)",d.accr,d.accr]);
+  R.push(["s","รวมการปรับปรุงจากการกระทบยอดกำไร (ขาดทุน)",n.adj,m.adjNonCash+m.wc]);
+  R.push(["s","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) การดำเนินงาน",n.cashOps,m.cashOps]);
+  R.push(["ri","ดอกเบี้ยจ่าย",-n.intPaid,-m.intPaid]);
+  R.push(["ri","ภาษีเงินได้รับคืน (จ่ายออก)",-m.taxPaid,-m.taxPaid]);
+  R.push(["ri","เงินสดรับ (จ่าย) อื่นจากกิจกรรมดำเนินงาน (จ่ายผลประโยชน์พนักงาน)",-s.empPaid,-s.empPaid]);
+  R.push(["t","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมดำเนินงาน",n.op,m.op]);
+  R.push(["h","กระแสเงินสดจากกิจกรรมลงทุน"]);
+  R.push(["ri","เงินสดรับจากการขายที่ดิน อาคารและอุปกรณ์",s.saleProc,s.saleProc]);
+  R.push(["ri","เงินสดจ่ายเพื่อซื้อที่ดิน อาคารและอุปกรณ์",-s.buy,-s.buy]);
+  R.push(["ri","ดอกเบี้ยรับ",s.intInc,s.intInc]);
+  R.push(["ri",d.dep<0?"เงินสดรับ (จ่าย) อื่นจากกิจกรรมลงทุน (เงินฝากที่มีภาระค้ำประกันลดลง)":"เงินสดรับ (จ่าย) อื่นจากกิจกรรมลงทุน (เงินฝากที่มีภาระค้ำประกันเพิ่มขึ้น)",-d.dep,-d.dep]);
+  R.push(["t","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมลงทุน",n.inv,m.inv]);
+  R.push(["h","กระแสเงินสดจากกิจกรรมจัดหาเงิน"]);
+  R.push(["ri","เงินสดรับจากเงินกู้ยืม",s.loanNew,s.loanNew]);
+  R.push(["ri","เงินสดจ่ายเพื่อชำระเงินกู้ยืม",-s.loanRepay,-s.loanRepay]);
+  capLine(R,d.cap,"f2",d.cap);
+  R.push(["ri","เงินสดที่ผู้เช่าจ่ายเพื่อลดจำนวนหนี้สินซึ่งเกิดขึ้นจากสัญญาเช่าเงินทุน",n.leaseFin,-s.leasePay]);
+  R.push(["ri","เงินปันผลจ่าย",-s.div,-s.div]);
+  R.push(["t","กระแสเงินสดสุทธิได้มาจาก (ใช้ไปใน) กิจกรรมจัดหาเงิน",n.fin,m.fin]);
+  R.push(["g","เงินสดและรายการเทียบเท่าเงินสดเพิ่มขึ้น (ลดลง) สุทธิ",n.net,m.net]);
+  R.push(["r","เงินสดและรายการเทียบเท่าเงินสดต้นงวด",b.cash[0],b.cash[0]]);
+  R.push(["g","เงินสดและรายการเทียบเท่าเงินสดปลายงวด",n.close,m.close]);
+  R.push(["h","ข้อมูลกระแสเงินสดเปิดเผยเพิ่มเติม · รายการที่ไม่ใช่เงินสด"]);
+  R.push(["ri",state.lease==="op"?"ได้มาซึ่งสินทรัพย์สิทธิการใช้ภายใต้สัญญาเช่าใหม่ (เฉพาะกรณีใช้ TFRS 16 ตาม NPAEs เป็นสัญญาเช่าดำเนินงาน)":"ได้มาซึ่งสินทรัพย์ภายใต้สัญญาเช่าเงินทุน",n.nonCash,m.nonCashLease]);
+  return R;
+}
+function renderRows(R,two){
+  var h="";
+  R.forEach(function(r){
+    var t=r[0],lab=esc(r[1]);
+    if(t==="c"){h+='<thead><tr class="cap"><th>'+lab+'</th><th class="n">'+esc(r[2])+'</th>'+(two?'<th class="n" style="white-space:normal;min-width:110px">'+esc(r[3])+'</th>':'')+'</tr></thead><tbody>';return;}
+    if(t==="h"){h+='<tr class="hd"><td colspan="'+(two?3:2)+'">'+lab+'</td></tr>';return;}
+    if(t==="o"){h+='<tr><td>'+lab+'</td><td class="n omit">ละไว้</td>'+(two?'<td class="n omit">ละไว้</td>':'')+'</tr>';return;}
+    var cls={s:"sub",t:"tot",g:"grand"}[t]||"";
+    var ind=t==="ri"?' class="ind"':'';
+    var v1=r[2]===null?"":fmt(r[2]);
+    h+='<tr class="'+cls+'"><td'+ind+'>'+lab+'</td><td class="n">'+v1+'</td>'+(two?'<td class="n">'+(r[3]===null||r[3]===undefined?"":fmt(r[3]))+'</td>':'')+'</tr>';
+  });
+  return h+'</tbody>';
+}
+function renderStmt(m){
+  var f=state.fmt,R,two=false,note="",is="";
+  document.querySelectorAll("#fmtseg button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.fmt===f?"true":"false");});
+  document.querySelectorAll("#leaseseg button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.lease===state.lease?"true":"false");});
+  document.getElementById("f2opt").hidden=(f!=="f2");
+  if(f==="teach"){
+    R=stTeach(m);
+    note='<p>รูปแบบเพื่อการสอนตามหัวข้อ 4.4 (TAS 7 ย่อหน้า 18.2 และ 20) แยกรายการปรับปรุงสามกลุ่มให้เห็น งบที่ยื่นต่อกรมพัฒนาธุรกิจการค้าต้องใช้ชื่อบรรทัดและลำดับตามแบบ 3 (เลือก "แบบ 3 (บทที่ 7)")</p><p>ผลประโยชน์พนักงาน: บวกกลับเฉพาะค่าใช้จ่ายที่รับรู้ในกำไรหรือขาดทุน และแสดงเงินที่จ่ายจริงเป็นบรรทัดแยก</p>';
+  } else if(f==="f3"){
+    R=stF3(m);
+    note='<p>ชื่อบรรทัดและลำดับตามแบบ 3 วิธีทางอ้อม ตามหัวข้อ 7.2.1 จำนวนเงินทุกบรรทัดเท่ากับรูปแบบการสอน "ละไว้" หมายถึงบริษัทไม่มีรายการในบรรทัดนั้น ไม่ใช่จำนวนศูนย์ งบที่ยื่นจริงไม่ต้องแสดงบรรทัดที่ไม่มีรายการ (คำชี้แจงข้อ 2.3(3.1)) และไม่ต้องแสดงเลขกำกับรายการ (ข้อ 2.3(3.4))</p><p>แบบ 3 มีหัวข้อรายการที่ไม่ใช่เงินสดเฉพาะท้ายวิธีทางตรง แต่หน้าที่เปิดเผยตามย่อหน้า 43 ใช้กับทั้งสองวิธี ตัวอย่างในเล่มจึงแสดงหัวข้อนี้ท้ายงบ (คำชี้แจงข้อ 2.3(3.2))</p>';
+  } else {
+    R=stF2(m); two=true;
+    var n=m.n,s=state.s;
+    if(state.lease==="op"){
+      is='<div class="tw" style="margin-bottom:14px"><table class="t bridge" style="min-width:520px"><thead><tr><th>งบกำไรขาดทุนที่ต่างกัน (พันบาท)</th><th class="n">บริษัทมหาชน (TFRS 16)</th><th class="n">บริษัทจำกัด (NPAEs)</th><th class="n">ผลต่าง</th></tr></thead><tbody>'+
+        '<tr><td>ค่าเสื่อมราคาสินทรัพย์สิทธิการใช้</td><td class="n">'+fmt(s.depROU)+'</td><td class="n">—</td><td class="n">'+fmt(-s.depROU)+'</td></tr>'+
+        '<tr><td>ดอกเบี้ยตามสัญญาเช่า (ในต้นทุนทางการเงิน)</td><td class="n">'+fmt(s.leaseInt)+'</td><td class="n">—</td><td class="n">'+fmt(-s.leaseInt)+'</td></tr>'+
+        '<tr><td>ค่าเช่า (วิธีเส้นตรง ย่อหน้า 14.38)</td><td class="n">—</td><td class="n">'+fmt(n.rent)+'</td><td class="n">'+fmt(n.rent)+'</td></tr>'+
+        '<tr class="tot"><td>กำไรสำหรับปี</td><td class="n">'+fmt(s.profit)+'</td><td class="n">'+fmt(n.profit)+'</td><td class="n">'+fmt(n.profit-s.profit)+'</td></tr></tbody></table></div>';
+      note='<p>ข้อสมมติตามหัวข้อ 6.4: สัญญาเช่าโกดัง 5 ปีไม่มีสิทธิเลือกซื้อ บริษัทใช้ NPAEs และจัดเป็นสัญญาเช่าดำเนินงาน ค่าเช่าที่จ่ายปี 2569 '+plain(n.rentPaid)+' พันบาท ตาม TFRS 16 จำนวนนี้แบ่งเป็นเงินต้น '+plain(s.leasePay)+' และดอกเบี้ย '+plain(s.leaseInt)+' ซึ่งรวมอยู่ในต้นทุนทางการเงิน '+plain(s.fin)+' ของบทที่ 4 ตาม NPAEs ค่าใช้จ่ายรับรู้ตามวิธีเส้นตรง '+plain(n.rent)+' พันบาท (ย่อหน้า 14.38) ส่วนที่จ่ายเกิน '+plain(n.prepRent)+' พันบาท เป็นค่าเช่าจ่ายล่วงหน้า ซึ่งแสดงในบรรทัดการปรับปรุงด้วยสินทรัพย์อื่น ภาษีเงินได้ของงวดเท่ากัน '+plain(s.tax)+' พันบาท เพราะไม่มีภาษีรอการตัดบัญชี ตัวอย่างจึงไม่คำนวณผลทางภาษีของค่าเช่าจ่ายล่วงหน้า ตาม NPAEs ไม่มีสินทรัพย์สิทธิการใช้และหนี้สินตามสัญญาเช่าในงบฐานะการเงิน จึงไม่มีรายการที่ไม่ใช่เงินสดในปีนี้</p>'+
+        '<p>กำไรตาม NPAEs '+fmtz(n.profit)+' ต่างจากกรณีใช้ TFRS 16 อยู่ '+fmtz(n.profit-s.profit)+' พันบาท แต่กระแสเงินสดจากกิจกรรมดำเนินงานตาม NPAEs ต่ำกว่ากรณีใช้ TFRS 16 อยู่ '+plain(m.op-n.op)+' พันบาท ซึ่งเท่ากับเงินต้นของค่าเช่า เงินสดปลายงวดเท่ากันทุกบาท (แบบฝึกหัด 6.4)</p>';
+    } else {
+      note='<p>แบบฝึกหัด 6.5: ถ้าสัญญามีสิทธิเลือกซื้อในราคาต่ำมากที่ค่อนข้างแน่นอนว่าจะใช้ จะจัดเป็นสัญญาเช่าเงินทุนตาม NPAEs ย่อหน้า 14.23.2 กำไรเท่ากับกรณี TFRS 16 และไม่มีค่าเช่าจ่ายล่วงหน้า ถ้าตัวเลขสินทรัพย์ หนี้สิน ค่าเสื่อมราคา และดอกเบี้ยเท่ากับกรณี TFRS 16 ตัวเลขจะเท่ากับคอลัมน์เทียบ ใช้บรรทัด "เงินสดที่ผู้เช่าจ่ายเพื่อลดจำนวนหนี้สินซึ่งเกิดขึ้นจากสัญญาเช่าเงินทุน" และเปิดเผยการได้มาซึ่งสินทรัพย์ภายใต้หัวข้อ "ข้อมูลกระแสเงินสดเปิดเผยเพิ่มเติม · รายการที่ไม่ใช่เงินสด"</p>';
+    }
+    note+='<p>ชื่อบรรทัดตามแบบ 2 วิธีทางอ้อม ตามหัวข้อ 6.4 บรรทัดที่บริษัทไม่มีรายการไม่ต้องแสดง (คำชี้แจงข้อ 2.3(3.1)) และไม่แสดงเลขกำกับรายการ (ข้อ 2.3(3.4)) คอลัมน์เทียบใช้เพื่อดูผลต่างของจำนวนเงินเท่านั้น โดยวางจำนวนเงินกรณีใช้ TFRS 16 ไว้ในบรรทัดของแบบ 2</p>';
+  }
+  document.getElementById("f2is").innerHTML=is;
+  var t=document.getElementById("stmt");
+  t.className="t stmt"+(two?" two":"");
+  t.innerHTML=renderRows(R,two);
+  document.getElementById("fmtnote").innerHTML=note;
+}
+
+/* ---------- checks ---------- */
+var REC_LABEL={ppe:"ที่ดิน อาคารและอุปกรณ์ สุทธิ",rou:"สินทรัพย์สิทธิการใช้ สุทธิ",lease:"หนี้สินตามสัญญาเช่า",loan:"เงินกู้ยืมระยะยาว",re:"กำไรสะสม",allow:"ค่าเผื่อผลขาดทุนด้านเครดิต",emp:"ภาระผูกพันผลประโยชน์พนักงาน"};
+function renderChecks(m){
+  var L=[],b=state.bs;
+  function add(st,txt,ref){L.push('<li><span class="dot '+st+'">'+(st==="p"?"✓":(st==="f"?"!":"–"))+'</span><span>'+txt+(ref?' <span class="ref">'+ref+'</span>':'')+'</span></li>');}
+  add(m.bsBal0&&m.bsBal1?"p":"f","งบฐานะการเงินลงตัวทั้งสองปี: 2568 สินทรัพย์ "+plain(m.ta0)+" / หนี้สินและส่วนของเจ้าของ "+plain(m.tl0)+" · 2569 "+plain(m.ta1)+" / "+plain(m.tl1),"หัวข้อ 4.2");
+  add(m.recBad.length?"f":"p",m.recBad.length?"บัญชีที่ยอดยกไปไม่ตรงกับข้อมูลประกอบ: "+m.recBad.map(function(k){return REC_LABEL[k]+" ผลต่าง "+fmtz(m.rec[k].diff);}).join(" · "):"ยอดยกไปของบัญชีที่วิเคราะห์ (อุปกรณ์ สินทรัพย์สิทธิการใช้ หนี้สินตามสัญญาเช่า เงินกู้ยืม กำไรสะสม ค่าเผื่อ ผลประโยชน์พนักงาน) ตรงกับงบฐานะการเงิน","หัวข้อ 4.3 ขั้นที่ 2–5");
+  add(m.tie?"p":"f","การเปลี่ยนแปลงของเงินสดฯ กระทบกับงบฐานะการเงิน: ผลรวมสามกิจกรรม "+fmtz(m.net)+" เทียบกับ "+plain(b.cash[1])+" − "+plain(b.cash[0])+" = "+fmtz(m.d.cash)+(m.tie?"":" ผลต่าง "+fmtz(m.wsDiff)),"หัวข้อ 4.3 ขั้นที่ 7");
+  add(z(m.close-b.cash[1])?"p":"f","เงินสดปลายงวดในงบกระแสเงินสด "+plain(m.close)+" เท่ากับยอดในงบฐานะการเงิน "+plain(b.cash[1]),"ย่อหน้า 45");
+  var bk=z(m.op-BOOK.op)&&z(m.inv-BOOK.inv)&&z(m.fin-BOOK.fin)&&z(m.close-BOOK.close);
+  add(bk?"p":"w","ยอดตามเล่ม: ดำเนินงาน 1,260 ลงทุน (1,550) จัดหาเงิน 180 เงินสดปลายงวด 790 · ผลของเครื่องมือ: "+fmtz(m.op)+" / "+fmtz(m.inv)+" / "+fmtz(m.fin)+" / "+fmtz(m.close)+(bk?" ตรงกับเล่ม":" ต่างจากเล่มเพราะข้อมูลถูกแก้"),"หัวข้อ 4.3 · 4.4 · 7.2.1");
+  var n=m.n;
+  if(state.lease==="op"){
+    var b2=z(n.op-BOOK.f2op)&&z(n.inv-BOOK.inv)&&z(n.fin-BOOK.f2fin)&&z(n.close-BOOK.close);
+    add(b2?"p":"w","แบบ 2 ตาม NPAEs (สัญญาเช่าดำเนินงาน): ดำเนินงาน 1,140 ลงทุน (1,550) จัดหาเงิน 300 เงินสดปลายงวด 790 · ผลของเครื่องมือ: "+fmtz(n.op)+" / "+fmtz(n.inv)+" / "+fmtz(n.fin)+" / "+fmtz(n.close)+(b2?" ตรงกับเล่ม":" ต่างจากเล่ม"),"หัวข้อ 6.4");
+    var b4=z(n.profit-BOOK.f2profit)&&z(n.prepRent-BOOK.f2prep);
+    add(b4?"p":"w","แบบ 2 ตาม NPAEs: กำไร 975 ค่าเช่าจ่ายล่วงหน้า (55) · ผลของเครื่องมือ: กำไร "+fmtz(n.profit)+" ค่าเช่าจ่ายล่วงหน้า "+fmtz(-n.prepRent)+(b4?" ตรงกับเล่ม":" ต่างจากเล่ม"),"หัวข้อ 6.4");
+  } else {
+    var b3=z(n.op-BOOK.op)&&z(n.fin-BOOK.fin);
+    add(b3?"p":"w","แบบ 2 กรณีสัญญาเช่าเงินทุน: ดำเนินงาน 1,260 จัดหาเงิน 180 · ผลของเครื่องมือ: "+fmtz(n.op)+" / "+fmtz(n.fin)+(b3?" ตรงกับเล่ม":" ต่างจากเล่ม"),"แบบฝึกหัด 6.5");
+  }
+  add(z(n.close-m.close)?"p":"f","เงินสดปลายงวดตามแบบ 2 เท่ากับกรณี TFRS 16 ("+plain(n.close)+") การจัดประเภทสัญญาเช่าเปลี่ยนเฉพาะการแบ่งกิจกรรม","หัวข้อ 6.3");
+  if(state.s.leaseInt>state.s.fin) add("f","ดอกเบี้ยตามสัญญาเช่ามากกว่าต้นทุนทางการเงินทั้งหมด ตรวจข้อมูลประกอบ","หัวข้อ 6.4");
+  document.getElementById("checks").innerHTML=L.join("");
+}
+function renderStatus(m){
+  var ok=m.tie&&!m.recBad.length&&m.bsBal0&&m.bsBal1;
+  var el=document.getElementById("status");
+  el.className="status-strip"+(ok?"":" bad");
+  el.innerHTML='<span class="v">'+(ok?"กระดาษทำการลงตัว":"กระดาษทำการไม่ลงตัว")+'</span><span class="kpis"><span>ดำเนินงาน '+fmtz(m.op)+'</span><span>ลงทุน '+fmtz(m.inv)+'</span><span>จัดหาเงิน '+fmtz(m.fin)+'</span><span>สุทธิ '+fmtz(m.net)+'</span><span>ปลายงวด '+fmtz(m.close)+'</span></span>'+
+    (m.isDefault?'<span class="badge b-ok">ค่าตามเล่ม</span>':'<span class="badge b-warn">ข้อมูลถูกแก้</span>');
+  var al=document.getElementById("alert");
+  if(ok){al.hidden=true;al.innerHTML="";return;}
+  var why=[];
+  if(!m.bsBal0) why.push("งบฐานะการเงินปี 2568 ไม่ลงตัว ผลต่าง "+fmtz(m.ta0-m.tl0));
+  if(!m.bsBal1) why.push("งบฐานะการเงินปี 2569 ไม่ลงตัว ผลต่าง "+fmtz(m.ta1-m.tl1));
+  m.recBad.forEach(function(k){why.push(REC_LABEL[k]+": ยอดยกไปตามข้อมูลประกอบ "+plain(m.rec[k].exp)+" แต่ในงบ "+plain(m.rec[k].act));});
+  if(!m.tie) why.push("ผลรวมสามกิจกรรม "+fmtz(m.net)+" ไม่เท่ากับการเปลี่ยนแปลงของเงินสดฯ "+fmtz(m.d.cash)+" ผลต่าง "+fmtz(m.wsDiff));
+  al.hidden=false;
+  al.innerHTML='<b>คำเตือน: กระดาษทำการไม่ลงตัว</b><br>'+why.map(esc).join("<br>");
+}
+
+/* ---------- orchestration ---------- */
+function renderAll(){
+  var m=compute();
+  renderInputs(m); renderWS(m); renderStmt(m); renderChecks(m); renderStatus(m);
+}
+var TABS=["input","ws","stmt"];
+function setTab(id,focus){
+  if(TABS.indexOf(id)<0) id="input";
+  TABS.forEach(function(t){
+    var b=document.getElementById("tab-"+t),p=document.getElementById("p-"+t),on=(t===id);
+    b.setAttribute("aria-selected",on?"true":"false"); b.tabIndex=on?0:-1; p.hidden=!on;
+    if(on&&focus) b.focus();
+  });
+  try{localStorage.setItem("tool3.tab",id);}catch(e){}
+}
+document.querySelector(".tabs").addEventListener("click",function(e){var b=e.target.closest("[role=tab]");if(b)setTab(b.id.slice(4));});
+document.querySelector(".tabs").addEventListener("keydown",function(e){
+  var cur=TABS.indexOf(document.activeElement.id.slice(4)); if(cur<0) return;
+  if(e.key==="ArrowRight"){setTab(TABS[(cur+1)%3],true);e.preventDefault();}
+  else if(e.key==="ArrowLeft"){setTab(TABS[(cur+2)%3],true);e.preventDefault();}
+});
+document.addEventListener("input",function(e){
+  var i=e.target;
+  if(i.dataset&&i.dataset.bs){state.bs[i.dataset.bs][+i.dataset.y]=num(i.value);}
+  else if(i.dataset&&i.dataset.s){state.s[i.dataset.s]=num(i.value);}
+  else return;
+  markChanged(); renderAll();
+});
+document.getElementById("stepnav").addEventListener("click",function(e){var b=e.target.closest("button[data-step]");if(b){state.step=+b.dataset.step;renderAll();}});
+document.getElementById("stepcard").addEventListener("click",function(e){var b=e.target.closest("button[data-go]");if(b&&!b.disabled){state.step=Math.min(7,Math.max(1,state.step+(+b.dataset.go)));renderAll();var c=document.querySelector('#stepnav [aria-current="step"]');if(c)c.focus();}});
+document.getElementById("fmtseg").addEventListener("click",function(e){var b=e.target.closest("button[data-fmt]");if(b){state.fmt=b.dataset.fmt;renderAll();}});
+document.getElementById("leaseseg").addEventListener("click",function(e){var b=e.target.closest("button[data-lease]");if(b){state.lease=b.dataset.lease;renderAll();}});
+document.getElementById("b-reset").addEventListener("click",function(){state.bs=clone(DEF_BS);state.s=clone(DEF_S);fillInputs();renderAll();});
+
+buildInputs();
+var saved=null; try{saved=localStorage.getItem("tool3.tab");}catch(e){}
+setTab(saved||"input");
+renderAll();
+window.__tool3={state:state,compute:compute};
+})();
+</script>
+</body>
+</html>

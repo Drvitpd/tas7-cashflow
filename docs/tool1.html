@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ทดสอบเงินสดและรายการเทียบเท่าเงินสด</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ledger list (left) + test trace (right), reconciliation band below; stacks on phone */
+:root{
+  --paper:#f5f7fa; --sheet:#ffffff; --ink:#18212e; --muted:#5a6676; --rule:#d9dfe7; --rule-soft:#e9edf2;
+  --accent:#1f4e8c; --accent-soft:#e3ecf8;
+  --pass:#1d7a4f; --pass-soft:#e2f2ea; --fail:#b3362b; --fail-soft:#f8e5e2; --warn:#9a6a08; --warn-soft:#f8efd9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --sheet:#161d27; --ink:#e4e9f0; --muted:#97a3b3; --rule:#2a3442; --rule-soft:#212a36;
+  --accent:#7fa9e6; --accent-soft:#1c2b42;
+  --pass:#5cc493; --pass-soft:#153024; --fail:#ef8378; --fail-soft:#3a1d1a; --warn:#e2b456; --warn-soft:#332810; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:700}
+h2{font-size:1.15rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+.lead{color:var(--muted);max-width:68ch;margin:6px 0 0}
+.los{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lo{font-size:.8rem;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;background:var(--sheet);color:var(--muted)}
+.lo b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet)}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.date-pill{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.date-pill input{font:inherit;border:1px solid var(--rule);border-radius:6px;padding:2px 6px;background:var(--paper);color:var(--ink)}
+.date-pill .rep-th{font-family:var(--f-head,inherit);color:var(--ink);white-space:nowrap}
+#rep-date::-webkit-datetime-edit{display:none} #rep-date:focus-visible::-webkit-datetime-edit{display:inline-flex}
+#rep-date{cursor:pointer;color-scheme:light dark}
+.ledger{display:grid;gap:0}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:12px 10px;border-top:1px solid var(--rule-soft);cursor:pointer;border-radius:6px}
+.row:first-child{border-top:0}
+.row:hover{background:var(--paper)}
+.row[aria-current="true"]{background:var(--accent-soft)}
+.row .nm{font-weight:500;min-width:0}
+.row .amt{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.row .meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:.82rem;color:var(--muted)}
+.chip{font-size:.78rem;border-radius:5px;padding:1px 8px;font-weight:500;border:1px solid transparent}
+.c-ce{background:var(--pass-soft);color:var(--pass)}
+.c-oth{background:var(--accent-soft);color:var(--accent)}
+.c-res{background:var(--warn-soft);color:var(--warn)}
+.c-liab{background:var(--fail-soft);color:var(--fail)}
+.c-hide{background:var(--paper);color:var(--muted);border-color:var(--rule)}
+.row select{font:inherit;font-size:.82rem;border:1px solid var(--rule);border-radius:6px;padding:3px 6px;background:var(--sheet);color:var(--ink);max-width:100%}
+.mark{font-weight:600;font-size:.82rem}
+.mark.ok{color:var(--pass)} .mark.no{color:var(--fail)}
+.trace{display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.step{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700;font-family:var(--f-mono)}
+.dot.p{background:var(--pass-soft);color:var(--pass)}
+.dot.f{background:var(--fail-soft);color:var(--fail)}
+.dot.n{background:var(--paper);color:var(--muted);border:1px solid var(--rule)}
+.step .ref{font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.verdict{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-soft);border-radius:0 8px 8px 0;margin-top:14px}
+.verdict .v{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:.88rem;margin-top:12px}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.status{font-family:var(--f-mono);font-size:.72rem;border-radius:4px;padding:0 6px;margin-left:4px}
+.s-ok{background:var(--pass-soft);color:var(--pass)} .s-chk{background:var(--warn-soft);color:var(--warn)}
+.npaes{font-size:.84rem;color:var(--muted);border-top:1px dashed var(--rule);margin-top:14px;padding-top:10px}
+form.edit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;margin-top:4px}
+@media (max-width:520px){form.edit{grid-template-columns:1fr}}
+form.edit label{display:grid;gap:3px;font-size:.84rem;color:var(--muted);min-width:0}
+form.edit input[type=text],form.edit input[type=number],form.edit input[type=date],form.edit select{font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+form.edit .cb{grid-column:1/-1;display:flex;gap:8px;align-items:flex-start;color:var(--ink)}
+form.edit .cb input{margin-top:5px}
+form.edit .full{grid-column:1/-1}
+.actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.recon-wrap{overflow-x:auto}
+table.recon{width:100%;border-collapse:collapse;font-size:.92rem;min-width:520px}
+table.recon th,table.recon td{padding:8px 10px;border-bottom:1px solid var(--rule-soft);text-align:left}
+table.recon th{font-weight:500;color:var(--muted);font-size:.82rem}
+table.recon td.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.recon tr.tot td{font-weight:600;border-top:1.5px solid var(--ink);border-bottom:0}
+.foot{font-size:.8rem;color:var(--muted);max-width:90ch}
+.score{font-family:var(--f-display);font-weight:600}
+.hint{font-size:.84rem;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.row{transition:background .12s}}
+</style>
+
+<div class="wrap">
+<!-- Dr.VIT & PD brand band: logo always on white -->
+<div class="brand" style="background:#fff;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3e7ee">
+  <a href="index.html" title="หน้าแรกของแอป"><img src="logo.png" alt="Dr.VIT &amp; PD" style="height:40px;width:auto;display:block"></a>
+  <span style="font-family:'IBM Plex Sans Thai',sans-serif;font-size:.8rem;color:#5a6676;text-align:right">คู่มือการจัดทำงบกระแสเงินสด TAS 7<br>ดร.วิทยา อรุณศิริเพ็ชร<br>อาจารย์พงษ์ธร ดวงปัญญา<br><a href="index.html" style="color:#1D3E9E">กลับหน้าแรกของแอป</a></span>
+</div>
+  <header>
+    <div class="eyebrow">เครื่องมือที่ 1 · บทที่ 2 · TAS 7 ย่อหน้า 6–9, 45–48</div>
+    <h1>ทดสอบเงินสดและรายการเทียบเท่าเงินสด</h1>
+    <p class="lead">เลือกรายการทางซ้ายเพื่อดูว่าผ่านเกณฑ์ข้อใดบ้าง และจัดประเภทเป็นอะไรทั้งในงบฐานะการเงินและงบกระแสเงินสด ข้อมูลตั้งต้นเป็นตัวอย่างของบริษัท สยามเทรด จำกัด (มหาชน) ซึ่งเป็นตัวอย่างสมมติชุดเดียวกับในหนังสือ</p>
+    <div class="los">
+      <span class="lo"><b>LO2.1</b> อธิบายเกณฑ์รายการเทียบเท่าเงินสด · เข้าใจ</span>
+      <span class="lo"><b>LO2.2</b> จัดประเภทรายการ ณ วันสิ้นงวด · ประยุกต์</span>
+      <span class="lo"><b>LO2.3</b> แยกเงินฝากที่มีข้อจำกัดออกจากเงินสด · วิเคราะห์</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="โหมด">
+      <button type="button" id="m-learn" aria-pressed="true">โหมดเรียน: เห็นเฉลย</button>
+      <button type="button" id="m-quiz" aria-pressed="false">โหมดฝึก: ตอบก่อน</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn" id="b-add">เพิ่มรายการ</button>
+      <button type="button" class="btn" id="b-reset">คืนค่าตัวอย่าง</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-list">
+      <div class="panel-h">
+        <h2 id="h-list">รายการ ณ วันสิ้นงวด</h2>
+        <label class="date-pill">วันที่ในงบ <span class="rep-th" id="rep-th">31 ธันวาคม 2569</span> <input type="date" id="rep-date" aria-label="เปลี่ยนวันที่ในงบ" title="เปลี่ยนวันที่ในงบ"></label>
+      </div>
+      <div class="ledger" id="ledger"></div>
+      <div id="quiz-bar" hidden style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button type="button" class="btn primary" id="b-check">ตรวจคำตอบ</button>
+        <span class="score" id="score"></span>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-detail" id="detail"></section>
+  </div>
+
+  <section class="panel" aria-labelledby="h-recon">
+    <div class="panel-h"><h2 id="h-recon">กระทบยอดเงินสดและรายการเทียบเท่าเงินสด (ย่อหน้า 45)</h2><span class="hint">หน่วย: บาท</span></div>
+    <div class="recon-wrap"><table class="recon" id="recon"></table></div>
+  </section>
+
+  <p class="foot">เลขย่อหน้าอ้างอิง IAS 7 และ TAS 7 ฉบับปัจจุบัน ป้าย <span class="status s-ok">ยืนยันแล้ว</span> หมายถึงตรวจกับตัวบทแล้ว ป้าย <span class="status s-chk">ตรวจซ้ำ</span> หมายถึงต้องตรวจกับ TAS 7 ฉบับภาษาไทยก่อนอ้างในงาน ถ้อยคำทั้งหมดเป็นการสรุปของผู้เขียน ไม่ใช่ตัวบทมาตรฐาน เครื่องมือนี้ใช้เพื่อการเรียนรู้ ไม่ใช่ความเห็นทางวิชาชีพสำหรับกรณีเฉพาะ</p>
+  <p class="foot">© ดร.วิทยา อรุณศิริเพ็ชร และ อาจารย์พงษ์ธร ดวงปัญญา · เนื้อหาเป็นการถอดความของคณะผู้เขียน ไม่ใช่ถ้อยคำของมาตรฐาน</p>
+</div>
+
+<script>
+(function(){
+const TYPES={
+  cash:'เงินสดในมือ',
+  demand:'เงินฝากออมทรัพย์ / กระแสรายวัน',
+  fixed:'เงินฝากประจำ',
+  bill:'ตั๋วเงิน / ตั๋วเงินคลัง / ตราสารหนี้ระยะสั้น',
+  mmf:'หน่วยลงทุนกองทุนรวมตลาดเงิน',
+  equity:'หุ้นสามัญ / ตราสารทุนอื่น',
+  pref:'หุ้นบุริมสิทธิที่มีวันไถ่ถอนแน่นอน',
+  od:'เงินเบิกเกินบัญชีธนาคาร'
+};
+const RESTR={none:'ไม่มีข้อจำกัด',use:'ถอนได้ทันที แต่ใช้ได้เฉพาะวัตถุประสงค์ตามสัญญา',pledge:'วางเป็นหลักประกัน ถอนไม่ได้จนกว่าภาระสิ้นสุด'};
+const HAS_MAT=t=>['fixed','bill','pref'].includes(t);
+const IS_INV=t=>['fixed','bill','mmf','equity','pref'].includes(t);
+const CAN_RES=t=>['demand','fixed','bill'].includes(t);
+
+const GROUPS={
+  ce:{label:'เงินสดและรายการเทียบเท่าเงินสด',cls:'c-ce'},
+  oth:{label:'สินทรัพย์ทางการเงินอื่น / เงินลงทุน',cls:'c-oth'},
+  res:{label:'เงินฝากที่มีภาระค้ำประกัน',cls:'c-res'},
+  odc:{label:'เงินเบิกเกินบัญชี: องค์ประกอบของเงินสดฯ ในงบกระแสเงินสด',cls:'c-liab'},
+  odf:{label:'เงินเบิกเกินบัญชี: กิจกรรมจัดหาเงิน',cls:'c-liab'}
+};
+
+const SAMPLE=()=>({rep:'2026-12-31',items:[
+  {id:1,name:'เงินสดในมือ',amount:80000,type:'cash'},
+  {id:2,name:'เงินฝากออมทรัพย์ ธนาคาร ก',amount:2420000,type:'demand',restr:'none'},
+  {id:3,name:'ตั๋วแลกเงินสถาบันการเงิน อายุ 60 วัน',amount:3000000,type:'bill',acq:'2026-11-15',mat:'2027-01-14',purpose:true,restr:'none'},
+  {id:4,name:'เงินฝากประจำ 6 เดือน ธนาคาร ข',amount:4000000,type:'fixed',acq:'2026-09-01',mat:'2027-03-01',purpose:true,restr:'none'},
+  {id:5,name:'กองทุนรวมตลาดเงิน (ขายคืน T+1)',amount:5000000,type:'mmf',mmfTest:true,purpose:true},
+  {id:6,name:'เงินฝากประจำค้ำประกันเงินกู้ยืมระยะยาว',amount:2000000,type:'fixed',acq:'2026-06-30',mat:'2027-06-30',purpose:true,restr:'pledge',release:'2029-12-31'},
+  {id:7,name:'เงินฝากบัญชีเงินทุนโครงการ (ใช้ได้เฉพาะโครงการ)',amount:300000,type:'demand',restr:'use'},
+  {id:8,name:'เงินเบิกเกินบัญชี ธนาคาร ก (ยอดสลับบวก–ลบ)',amount:800000,type:'od',odFluct:true}
+]});
+
+let state=load()||SAMPLE();
+let selected=state.items[0]?.id;
+let mode='learn';
+let answers={}; let checked=false;
+let editing=null;
+
+function load(){try{const s=localStorage.getItem('cash-test-v1');return s?JSON.parse(s):null}catch(e){return null}}
+function save(){try{localStorage.setItem('cash-test-v1',JSON.stringify(state))}catch(e){}}
+
+const parse=d=>{if(!d)return null;const[y,m,dd]=d.split('-').map(Number);return new Date(Date.UTC(y,m-1,dd))};
+const addMonths=(dt,n)=>{const d=new Date(dt);const day=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()+n);const last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();d.setUTCDate(Math.min(day,last));return d};
+const fmtD=d=>d?parse(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):'—';
+const fmtLong=d=>d?parse(d).toLocaleDateString('th-TH-u-ca-buddhist',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}):'—';
+const fmtN=n=>Math.round(n).toLocaleString('th-TH');
+const days=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+
+function classify(it,rep){
+  const steps=[]; const S=(label,pass,ref,status='chk')=>steps.push({label,pass,ref,status});
+  const r=parse(rep), in12=d=>parse(d)<=addMonths(r,12);
+  if(it.type==='od'){
+    S('ต้องจ่ายคืนเมื่อทวงถาม',true,'ย่อหน้า 8','ok');
+    S('ยอดคงเหลือสลับระหว่างยอดบวกและเบิกเกินบัญชี เป็นส่วนหนึ่งของการบริหารเงินสด',!!it.odFluct,'ย่อหน้า 8','ok');
+    if(it.odFluct) return {g:'odc',v:'หนี้สินหมุนเวียนในงบฐานะการเงิน และเป็นองค์ประกอบของเงินสดฯ ในงบกระแสเงินสด',steps,
+      sfp:'แสดงเป็นหนี้สินหมุนเวียน หักกลบกับเงินฝากได้เฉพาะเมื่อเข้าเงื่อนไข TAS 32 ย่อหน้า 42 (กิจการที่ใช้ NPAEs ห้ามหักกลบ)',scf:'นำไปหักจากเงินสดและรายการเทียบเท่าเงินสด ณ วันสิ้นงวด และเปิดเผยการกระทบยอดตามย่อหน้า 45',sign:-1};
+    return {g:'odf',v:'หนี้สินหมุนเวียน กระแสเงินสดจัดเป็นกิจกรรมจัดหาเงิน',steps,
+      sfp:'แสดงเป็นหนี้สินหมุนเวียน',scf:'เงินรับและเงินจ่ายแสดงในกิจกรรมจัดหาเงิน (ย่อหน้า 17)',sign:0};
+  }
+  if(it.restr==='pledge'&&CAN_RES(it.type)){
+    S('ไม่มีข้อจำกัดที่ทำให้ถอนไม่ได้เมื่อทวงถาม',false,'ย่อหน้า 6, 48');
+    const cur=it.release&&in12(it.release);
+    S('ภาระสิ้นสุดภายใน 12 เดือนนับจากวันที่ในงบ',!!cur,'TAS 1 ย่อหน้า 66');
+    return {g:'res',v:'เงินฝากที่มีภาระค้ำประกัน: '+(cur?'สินทรัพย์หมุนเวียนอื่น':'สินทรัพย์ไม่หมุนเวียนอื่น'),steps,
+      sfp:'แยกจากเงินสดและรายการเทียบเท่าเงินสด แสดงเป็น'+(cur?'สินทรัพย์หมุนเวียน':'สินทรัพย์ไม่หมุนเวียน')+' และเปิดเผยเงื่อนไขในหมายเหตุ',
+      scf:'ไม่รวมในเงินสดปลายงวด เงินที่นำไปวางหรือได้คืนโดยทั่วไปแสดงในกิจกรรมลงทุน และต้องใช้อย่างสม่ำเสมอ',sign:0};
+  }
+  if(it.type==='cash'){S('เป็นเงินสดในมือ',true,'ย่อหน้า 6','ok');return ceRes('เงินสด',steps,false)}
+  if(it.type==='demand'){
+    S('ถอนได้เมื่อทวงถาม',true,'ย่อหน้า 6','ok');
+    if(it.restr==='use'){S('มีข้อจำกัดการใช้ตามสัญญากับบุคคลที่สาม แต่ยังถอนได้ทันที',true,'มติ IFRIC เม.ย. 2565','ok');return ceRes('เงินสด (มีข้อจำกัดการใช้ ต้องเปิดเผย)',steps,true)}
+    return ceRes('เงินสด',steps,false);
+  }
+  if(it.type==='equity'){
+    S('ความเสี่ยงต่อการเปลี่ยนแปลงมูลค่าน้อยมาก',false,'ย่อหน้า 7');
+    return {g:'oth',v:'เงินลงทุนในตราสารทุน ไม่ใช่รายการเทียบเท่าเงินสด',steps,sfp:'แสดงเป็นเงินลงทุนตาม TFRS 9',scf:'ซื้อและขายแสดงในกิจกรรมลงทุน (ย่อหน้า 16.3–16.4)',sign:0};
+  }
+  // investments: fixed, bill, mmf, pref
+  S('ถือไว้เพื่อบริหารเงินสดระยะสั้น ไม่ใช่เพื่อลงทุน',!!it.purpose,'ย่อหน้า 7');
+  let ok=!!it.purpose;
+  if(it.type==='mmf'){
+    S('ทดสอบรายกองแล้ว: แปลงเป็นเงินสดในจำนวนที่ทราบ และความเสี่ยงต่อมูลค่าน้อยมาก',!!it.mmfTest,'ย่อหน้า 6; มติ IFRIC ก.ค. 2552');
+    ok=ok&&!!it.mmfTest;
+  } else {
+    const a=parse(it.acq),m=parse(it.mat);
+    if(!a||!m){S('ระบุวันที่ได้มาและวันครบกำหนด',false,'ย่อหน้า 7');ok=false}
+    else{
+      const short=m<=addMonths(a,3);
+      S(`ครบกำหนดภายใน 3 เดือนนับจากวันที่ได้มา (อายุเมื่อได้มา ${days(it.acq,it.mat)} วัน)`,short,'ย่อหน้า 7');
+      ok=ok&&short;
+      if(!short&&parse(it.mat)>r&&days(rep,it.mat)<=92) steps.push({label:`หมายเหตุ: ณ วันที่ในงบเหลืออีก ${days(rep,it.mat)} วัน แต่มาตรฐานนับจากวันที่ได้มา ไม่ใช่วันสิ้นงวด`,pass:null,ref:'ย่อหน้า 7',status:'chk'});
+    }
+    if(it.type==='pref') S('หุ้นบุริมสิทธิที่ได้มาใกล้วันไถ่ถอนที่กำหนดแน่นอน',true,'ย่อหน้า 7');
+  }
+  if(ok) return ceRes('รายการเทียบเท่าเงินสด',steps,false);
+  const nonCur=HAS_MAT(it.type)&&it.mat&&!in12(it.mat);
+  return {g:'oth',v:nonCur?'สินทรัพย์ทางการเงินไม่หมุนเวียน':'สินทรัพย์ทางการเงินหมุนเวียนอื่น (เงินลงทุนระยะสั้น)',steps,
+    sfp:nonCur?'แสดงเป็นสินทรัพย์ไม่หมุนเวียน':'แสดงแยกจากเงินสดและรายการเทียบเท่าเงินสด เป็นสินทรัพย์หมุนเวียน',
+    scf:'เงินจ่ายเมื่อได้มาและเงินรับเมื่อครบกำหนดแสดงในกิจกรรมลงทุนเป็นยอดรวม เว้นแต่เข้าเงื่อนไขแสดงสุทธิตามย่อหน้า 22.2',sign:0};
+}
+function ceRes(v,steps,disclose){
+  return {g:'ce',v,steps,sfp:'รวมในบรรทัดเงินสดและรายการเทียบเท่าเงินสด',
+    scf:'รวมในยอดเงินสดและรายการเทียบเท่าเงินสดปลายงวด การโอนระหว่างรายการในกลุ่มนี้ไม่ถือเป็นกระแสเงินสด (ย่อหน้า 9)'+(disclose?' และต้องเปิดเผยจำนวนที่กลุ่มกิจการนำไปใช้ไม่ได้ตามย่อหน้า 48':''),sign:1};
+}
+
+const $=id=>document.getElementById(id);
+function render(){
+  $('rep-date').value=state.rep; $('rep-th').textContent=fmtLong(state.rep);
+  $('m-learn').setAttribute('aria-pressed',mode==='learn');
+  $('m-quiz').setAttribute('aria-pressed',mode==='quiz');
+  $('quiz-bar').hidden=mode!=='quiz';
+  const L=$('ledger'); L.innerHTML='';
+  let score=0;
+  state.items.forEach(it=>{
+    const c=classify(it,state.rep);
+    const row=document.createElement('div');
+    row.className='row'; row.tabIndex=0; row.setAttribute('role','button');
+    row.setAttribute('aria-current',it.id===selected);
+    const sub=[TYPES[it.type]];
+    if(HAS_MAT(it.type)&&it.acq) sub.push(`${fmtD(it.acq)} → ${fmtD(it.mat)}`);
+    if(it.restr&&it.restr!=='none') sub.push(it.restr==='pledge'?'มีภาระค้ำประกัน':'จำกัดการใช้');
+    let tag='';
+    if(mode==='learn'){tag=`<span class="chip ${GROUPS[c.g].cls}">${GROUPS[c.g].label}</span>`}
+    else{
+      const opts=Object.entries(GROUPS).map(([k,g])=>`<option value="${k}" ${answers[it.id]===k?'selected':''}>${g.label}</option>`).join('');
+      tag=`<select data-id="${it.id}" aria-label="คำตอบสำหรับ ${it.name}"><option value="">— เลือกคำตอบ —</option>${opts}</select>`;
+      if(checked){const ok=answers[it.id]===c.g;if(ok)score++;tag+=` <span class="mark ${ok?'ok':'no'}">${ok?'ถูก':'ยังไม่ถูก'}</span>`}
+    }
+    row.innerHTML=`<div class="nm">${esc(it.name)}</div><div class="amt">${it.type==='od'?'(':''}${fmtN(it.amount)}${it.type==='od'?')':''}</div><div class="meta"><span>${sub.join(' · ')}</span>${tag}</div>`;
+    row.addEventListener('click',e=>{if(e.target.tagName==='SELECT'||e.target.tagName==='OPTION')return;selected=it.id;editing=null;render()});
+    row.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===row){e.preventDefault();selected=it.id;editing=null;render()}});
+    L.appendChild(row);
+  });
+  L.querySelectorAll('select').forEach(s=>s.addEventListener('change',e=>{answers[+e.target.dataset.id]=e.target.value;checked=false;render()}));
+  $('score').textContent=checked?`ได้ ${score} จาก ${state.items.length} รายการ`:'';
+  renderDetail(); renderRecon();
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function renderDetail(){
+  const D=$('detail');
+  if(editing){renderForm(D);return}
+  const it=state.items.find(x=>x.id===selected);
+  if(!it){D.innerHTML='<h2 id="h-detail">ยังไม่ได้เลือกรายการ</h2><p class="hint">เลือกรายการทางซ้าย หรือกด "เพิ่มรายการ"</p>';return}
+  const c=classify(it,state.rep);
+  const hide=mode==='quiz'&&!checked;
+  const stepsHtml=c.steps.map((s,i)=>{
+    const cls=s.pass===null?'n':(hide?'n':(s.pass?'p':'f'));
+    const sym=s.pass===null?'i':(hide?(i+1):(s.pass?'✓':'✕'));
+    return `<li class="step"><span class="dot ${cls}" aria-hidden="true">${sym}</span><div>${esc(s.label)}${hide||s.pass===null?'':` <span class="sr">${s.pass?'(ผ่าน)':'(ไม่ผ่าน)'}</span>`}<div class="ref">${s.ref}<span class="status ${s.status==='ok'?'s-ok':'s-chk'}">${s.status==='ok'?'ยืนยันแล้ว':'ตรวจซ้ำ'}</span></div></div></li>`}).join('');
+  D.innerHTML=`<div class="panel-h"><h2 id="h-detail">${esc(it.name)}</h2><button type="button" class="btn" id="b-edit">แก้ไข</button></div>
+  <dl class="kv"><dt>ประเภท</dt><dd>${TYPES[it.type]}</dd><dt>จำนวนเงิน</dt><dd style="font-family:var(--f-mono)">${fmtN(it.amount)} บาท</dd>
+  ${HAS_MAT(it.type)?`<dt>ได้มา / ครบกำหนด</dt><dd>${fmtD(it.acq)} / ${fmtD(it.mat)}</dd>`:''}
+  ${it.restr&&it.restr!=='none'?`<dt>ข้อจำกัด</dt><dd>${RESTR[it.restr]}${it.release?` (สิ้นสุด ${fmtD(it.release)})`:''}</dd>`:''}</dl>
+  <h3 style="margin-top:16px">เกณฑ์ที่ใช้ทดสอบ</h3>
+  <ol class="trace">${stepsHtml}</ol>
+  ${hide?'<p class="hint" style="margin-top:14px">โหมดฝึก: เลือกคำตอบทางซ้ายแล้วกด "ตรวจคำตอบ" เพื่อดูผลการทดสอบและเฉลย</p>':`
+  <div class="verdict"><div class="eyebrow">ผลการจัดประเภท</div><div class="v">${c.v}</div></div>
+  <dl class="kv"><dt>งบฐานะการเงิน</dt><dd>${c.sfp}</dd><dt>งบกระแสเงินสด</dt><dd>${c.scf}</dd></dl>`}
+  <p class="npaes"><b>NPAEs:</b> บริษัทจำกัดที่ใช้แบบ 2 ใช้เกณฑ์เงินสดและรายการเทียบเท่าเงินสดตาม TFRS for NPAEs บทที่ 6 (ย่อหน้า 6.4–6.6) ในงบฐานะการเงินด้วย และถ้าเลือกจัดทำงบกระแสเงินสด ต้องใช้เกณฑ์ TAS 7 ข้างต้น <span class="status s-chk">ตรวจซ้ำ</span></p>`;
+  $('b-edit').onclick=()=>{editing={...it};render()};
+}
+
+function renderForm(D){
+  const it=editing, isNew=!state.items.some(x=>x.id===it.id);
+  const typeOpts=Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${it.type===k?'selected':''}>${v}</option>`).join('');
+  const resOpts=Object.entries(RESTR).map(([k,v])=>`<option value="${k}" ${(it.restr||'none')===k?'selected':''}>${v}</option>`).join('');
+  D.innerHTML=`<div class="panel-h"><h2 id="h-detail">${isNew?'เพิ่มรายการ':'แก้ไขรายการ'}</h2></div>
+  <form class="edit" id="f">
+    <label class="full">ชื่อรายการ<input type="text" id="f-name" value="${esc(it.name||'')}" required></label>
+    <label>ประเภท<select id="f-type">${typeOpts}</select></label>
+    <label>จำนวนเงิน (บาท)<input type="number" id="f-amt" min="0" step="1" value="${it.amount||0}"></label>
+    ${HAS_MAT(it.type)?`<label>วันที่ได้มา<input type="date" id="f-acq" value="${it.acq||''}"></label><label>วันครบกำหนด<input type="date" id="f-mat" value="${it.mat||''}"></label>`:''}
+    ${CAN_RES(it.type)?`<label class="full">ข้อจำกัดการถอนหรือการใช้<select id="f-restr">${resOpts}</select></label>`:''}
+    ${CAN_RES(it.type)&&it.restr==='pledge'?`<label>วันที่ภาระสิ้นสุด<input type="date" id="f-rel" value="${it.release||''}"></label>`:''}
+    ${IS_INV(it.type)&&it.type!=='equity'?`<label class="cb"><input type="checkbox" id="f-pur" ${it.purpose?'checked':''}> ถือไว้เพื่อบริหารเงินสดระยะสั้นและชำระภาระผูกพันระยะสั้น</label>`:''}
+    ${it.type==='mmf'?`<label class="cb"><input type="checkbox" id="f-mmf" ${it.mmfTest?'checked':''}> ทดสอบรายกองแล้วว่าแปลงเป็นเงินสดในจำนวนที่ทราบ และความเสี่ยงต่อมูลค่าน้อยมาก</label>`:''}
+    ${it.type==='od'?`<label class="cb"><input type="checkbox" id="f-od" ${it.odFluct?'checked':''}> จ่ายคืนเมื่อทวงถาม ยอดสลับบวก–ลบ และเป็นส่วนหนึ่งของการบริหารเงินสด</label>`:''}
+    <p class="hint full" style="margin:0">ช่องวันที่กรอกเป็น ค.ศ. ตามเบราว์เซอร์ ผลแสดงเป็น พ.ศ.</p>
+    <div class="actions"><button type="submit" class="btn primary">บันทึก</button><button type="button" class="btn" id="f-cancel">ยกเลิก</button>${isNew?'':'<button type="button" class="btn" id="f-del">ลบรายการ</button>'}</div>
+  </form>`;
+  const read=()=>{
+    const v=id=>$(id)?$(id).value:undefined, c=id=>$(id)?$(id).checked:undefined;
+    Object.assign(editing,{name:v('f-name'),type:v('f-type'),amount:+v('f-amt')||0,acq:v('f-acq')??editing.acq,mat:v('f-mat')??editing.mat,
+      restr:v('f-restr')??editing.restr,release:v('f-rel')??editing.release,purpose:c('f-pur')??editing.purpose,mmfTest:c('f-mmf')??editing.mmfTest,odFluct:c('f-od')??editing.odFluct});
+  };
+  $('f-type').onchange=()=>{read();renderDetail()};
+  if($('f-restr')) $('f-restr').onchange=()=>{read();renderDetail()};
+  $('f').onsubmit=e=>{e.preventDefault();read();if(!editing.name.trim())editing.name='รายการใหม่';
+    const i=state.items.findIndex(x=>x.id===editing.id);if(i>=0)state.items[i]=editing;else state.items.push(editing);
+    selected=editing.id;editing=null;checked=false;save();render()};
+  $('f-cancel').onclick=()=>{editing=null;render()};
+  if($('f-del')) $('f-del').onclick=()=>{state.items=state.items.filter(x=>x.id!==editing.id);selected=state.items[0]?.id;editing=null;save();render()};
+}
+
+function renderRecon(){
+  const T=$('recon');
+  if(mode==='quiz'&&!checked){T.innerHTML='<tr><td class="hint">ตารางกระทบยอดจะแสดงหลังตรวจคำตอบ</td></tr>';return}
+  const rows=state.items.map(it=>({it,c:classify(it,state.rep)}));
+  const ce=rows.filter(r=>r.c.g==='ce'), od=rows.filter(r=>r.c.g==='odc'), others=rows.filter(r=>!['ce','odc'].includes(r.c.g));
+  const sum=a=>a.reduce((s,r)=>s+r.it.amount,0);
+  const restricted=ce.filter(r=>r.it.restr==='use');
+  let h='<thead><tr><th>รายการ</th><th style="text-align:right">จำนวนเงิน</th></tr></thead><tbody>';
+  ce.forEach(r=>h+=`<tr><td>${esc(r.it.name)}</td><td class="n">${fmtN(r.it.amount)}</td></tr>`);
+  h+=`<tr class="tot"><td>เงินสดและรายการเทียบเท่าเงินสด ในงบฐานะการเงิน</td><td class="n">${fmtN(sum(ce))}</td></tr>`;
+  od.forEach(r=>h+=`<tr><td>หัก ${esc(r.it.name)}</td><td class="n">(${fmtN(r.it.amount)})</td></tr>`);
+  h+=`<tr class="tot"><td>เงินสดและรายการเทียบเท่าเงินสด ในงบกระแสเงินสด</td><td class="n">${fmtN(sum(ce)-sum(od))}</td></tr>`;
+  h+='</tbody>';
+  if(others.length){
+    h+='<tbody><tr><th colspan="2" style="padding-top:18px">แสดงแยกจากเงินสดและรายการเทียบเท่าเงินสด</th></tr>';
+    others.forEach(r=>h+=`<tr><td>${esc(r.it.name)} <span class="chip ${GROUPS[r.c.g].cls}">${r.c.v}</span></td><td class="n">${r.it.type==='od'?'(':''}${fmtN(r.it.amount)}${r.it.type==='od'?')':''}</td></tr>`);
+    h+='</tbody>';
+  }
+  if(restricted.length) h+=`<tbody><tr><td colspan="2" class="hint">เปิดเผยตามย่อหน้า 48: ในยอดเงินสดฯ มีเงิน ${fmtN(sum(restricted))} บาทที่ใช้ได้เฉพาะวัตถุประสงค์ตามสัญญา</td></tr></tbody>`;
+  T.innerHTML=h;
+}
+
+$('m-learn').onclick=()=>{mode='learn';render()};
+$('m-quiz').onclick=()=>{mode='quiz';answers={};checked=false;render()};
+$('b-check').onclick=()=>{checked=true;render()};
+$('b-add').onclick=()=>{const id=Math.max(0,...state.items.map(x=>x.id))+1;editing={id,name:'',amount:0,type:'fixed',restr:'none',purpose:true,acq:state.rep,mat:''};render();$('detail').scrollIntoView({block:'nearest'})};
+$('b-reset').onclick=()=>{state=SAMPLE();selected=state.items[0].id;editing=null;answers={};checked=false;save();render()};
+$('rep-date').onchange=e=>{if(e.target.value){state.rep=e.target.value;save();render()}};
+render();
+})();
+</script>
+
+</body>
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h" style="position:fixed;inset:0;z-index:99999;background:#f5f7fa;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:#18212e">
+ <form id="gate-f" style="background:#fff;border:1px solid #d9dfe7;border-top:6px solid #E8731B;border-radius:12px;padding:22px 20px;max-width:420px;width:100%;display:grid;gap:12px">
+  <img src="logo.png" alt="Dr.VIT &amp; PD" style="height:44px;width:auto;justify-self:start">
+  <h2 id="gate-h" style="margin:0;font-size:1.1rem;line-height:1.4;color:#1D3E9E">แอปประกอบคู่มือการจัดทำงบกระแสเงินสด TAS 7</h2>
+  <p style="margin:0;font-size:.92rem;color:#5a6676">สำหรับผู้ซื้อคู่มือ ใส่รหัสเข้าแอปที่พิมพ์ไว้ใต้ QR code ในเล่ม</p>
+  <label style="display:grid;gap:4px;font-size:.88rem">รหัสเข้าแอป
+   <span style="display:flex;gap:6px"><input id="gate-in" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:0;font:inherit;font-size:1rem;padding:8px 10px;border:1px solid #d9dfe7;border-radius:8px">
+   <button type="button" id="gate-show" style="font:inherit;font-size:.85rem;border:1px solid #d9dfe7;background:#fff;border-radius:8px;padding:0 10px;cursor:pointer">แสดง</button></span></label>
+  <label style="display:flex;gap:8px;align-items:center;font-size:.88rem"><input type="checkbox" id="gate-rem" checked> จำรหัสในเครื่องนี้</label>
+  <p id="gate-err" role="alert" style="margin:0;color:#b3362b;font-size:.88rem" hidden>รหัสไม่ถูกต้อง โปรดดูรหัสที่พิมพ์ไว้ในคู่มือ</p>
+  <button type="submit" style="font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px;background:#1D3E9E;color:#fff;cursor:pointer">เปิดแอป</button>
+  <p style="margin:0;font-size:.78rem;color:#5a6676">ดร.วิทยา อรุณศิริเพ็ชร · อาจารย์พงษ์ธร ดวงปัญญา</p>
+ </form>
+</div>
+<script>
+(function(){
+ var H='30bbac4ed235952c14f284ee9df8f6ae0fcabe8beca6b4fb70cf67bf128dd116',K='tas7cf-ok',g=document.getElementById('gate');
+ function ok(){try{if(localStorage.getItem(K)===H||sessionStorage.getItem(K)===H)return true}catch(e){}return false}
+ function open(){g.remove();document.documentElement.style.overflow=''}
+ if(ok()){open();return}
+ document.documentElement.style.overflow='hidden';
+ var inp=document.getElementById('gate-in');
+ document.getElementById('gate-show').onclick=function(){var p=inp.type==='password';inp.type=p?'text':'password';this.textContent=p?'ซ่อน':'แสดง'};
+ document.getElementById('gate-f').onsubmit=function(e){e.preventDefault();
+  var v=inp.value.toUpperCase().replace(/[\s-]/g,'');
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)).then(function(b){
+   var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+   if(h!==H){document.getElementById('gate-err').hidden=false;return}
+   try{(document.getElementById('gate-rem').checked?localStorage:sessionStorage).setItem(K,H)}catch(e){}
+   open()})};
+ inp.focus();
+})();
+</script>
+</html>
